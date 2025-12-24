@@ -37,6 +37,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useRole } from "@/hooks/use-role";
 
 // Helper function to fetch data on the client
 type AttachmentWithCounts = attachment & {
@@ -45,6 +46,7 @@ type AttachmentWithCounts = attachment & {
 };
 
 export default function PLMasterPage() {
+  const { role } = useRole();
   const [data, setData] = useState<AttachmentWithCounts[]>([]);
   const [rowCount, setRowCount] = useState(0);
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -249,7 +251,7 @@ export default function PLMasterPage() {
     {
       id: "input_meter",
       header: "Input Meter",
-      cell: ({ row }) => (
+      cell: ({ row }) => (role === "admin" || role === "spv") ? (
         <Button 
           variant="secondary" 
           size="sm" 
@@ -260,7 +262,7 @@ export default function PLMasterPage() {
         >
           Input Meter
         </Button>
-      )
+      ) : null
     },
     {
       id: "export",
@@ -295,9 +297,13 @@ export default function PLMasterPage() {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => handleView(row)}><Eye className="mr-2 h-4 w-4" /> View Details</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleEdit(row)}><Edit className="mr-2 h-4 w-4" /> Edit</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => confirmDelete(row.id)} className="text-red-600 focus:text-red-600"><Trash className="mr-2 h-4 w-4" /> Delete</DropdownMenuItem>
+            {role === "admin" && (
+              <>
+                <DropdownMenuItem onClick={() => handleEdit(row)}><Edit className="mr-2 h-4 w-4" /> Edit</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => confirmDelete(row.id)} className="text-red-600 focus:text-red-600"><Trash className="mr-2 h-4 w-4" /> Delete</DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       )
@@ -313,12 +319,14 @@ export default function PLMasterPage() {
       <Card className="shadow-md border-none overflow-hidden">
         <CardContent className="p-0">
           <div className="p-4 border-b flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/50">
-            <Button onClick={() => {
-              setEditingAttachment(null);
-              setIsAddOpen(true);
-            }}>
-              <PlusCircle className="mr-2 h-4 w-4" /> Add PL Master
-            </Button>
+            {(role === "admin" || role === "spv") && (
+              <Button onClick={() => {
+                setEditingAttachment(null);
+                setIsAddOpen(true);
+              }}>
+                <PlusCircle className="mr-2 h-4 w-4" /> Add PL Master
+              </Button>
+            )}
             <Input
               type="text"
               placeholder="Search"

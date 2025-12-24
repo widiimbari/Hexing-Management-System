@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ProductEditForm } from "./product-edit-form";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useRole } from "@/hooks/use-role";
 
 interface CellActionProps {
   data: ProductWithRelations;
@@ -40,6 +41,7 @@ interface CellActionProps {
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const router = useRouter();
+  const { role } = useRole();
   const [isLoading, setIsLoading] = useState(false);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -88,18 +90,22 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
             <Eye className="mr-2 h-4 w-4" />
             View Details
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setIsEditOpen(true)}>
-            <Edit className="mr-2 h-4 w-4" />
-            Edit
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            className="text-red-600 focus:text-red-600 focus:bg-red-50"
-            onClick={() => setIsAlertOpen(true)}
-          >
-            <Trash className="mr-2 h-4 w-4" />
-            Delete
-          </DropdownMenuItem>
+          {role === "admin" && (
+            <>
+              <DropdownMenuItem onClick={() => setIsEditOpen(true)}>
+                <Edit className="mr-2 h-4 w-4" />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                onClick={() => setIsAlertOpen(true)}
+              >
+                <Trash className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 

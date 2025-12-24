@@ -34,6 +34,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useRole } from "@/hooks/use-role";
 
 // Helper function to fetch data on the client
 type AttachmentWithCounts = attachment & {
@@ -46,6 +47,7 @@ type SlaveWithCounts = attachment2 & {
 };
 
 export default function PLSlavePage() {
+  const { role } = useRole();
   const [viewMode, setViewMode] = useState<'masters' | 'slaves'>('masters');
   const [data, setData] = useState<any[]>([]); // Can be Master or Slave
   const [rowCount, setRowCount] = useState(0);
@@ -233,14 +235,14 @@ export default function PLSlavePage() {
       id: "actions",
       header: "Actions",
       width: "150px",
-      cell: ({ row }) => (
+      cell: ({ row }) => (role === "admin" || role === "spv") ? (
         <Button 
             size="sm" 
             onClick={() => handleCreateSlave(row)}
         >
           <FilePlus className="mr-2 h-4 w-4" /> Create Slave
         </Button>
-      )
+      ) : null
     }
   ];
 
@@ -266,7 +268,7 @@ export default function PLSlavePage() {
     {
       id: "input_meter",
       header: "Input Meter",
-      cell: ({ row }) => (
+      cell: ({ row }) => (role === "admin" || role === "spv") ? (
         <Button 
           variant="secondary" 
           size="sm" 
@@ -274,7 +276,7 @@ export default function PLSlavePage() {
         >
           Input Meter
         </Button>
-      )
+      ) : null
     },
     {
       id: "export",
@@ -312,16 +314,20 @@ export default function PLSlavePage() {
             <DropdownMenuItem onClick={() => handleViewSlave(row)}>
               <Eye className="mr-2 h-4 w-4" /> View Details
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleEditSlave(row)}>
-              <Edit className="mr-2 h-4 w-4" /> Edit
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              onClick={() => confirmDelete(row.id)}
-              className="text-red-600 focus:text-red-600"
-            >
-              <Trash className="mr-2 h-4 w-4" /> Delete
-            </DropdownMenuItem>
+            {role === "admin" && (
+              <>
+                <DropdownMenuItem onClick={() => handleEditSlave(row)}>
+                  <Edit className="mr-2 h-4 w-4" /> Edit
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => confirmDelete(row.id)}
+                  className="text-red-600 focus:text-red-600"
+                >
+                  <Trash className="mr-2 h-4 w-4" /> Delete
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       )

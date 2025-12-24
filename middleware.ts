@@ -17,6 +17,7 @@ export async function middleware(req: NextRequest) {
     "/history",
     "/pl-master",
     "/pl-slave",
+    "/users", // Added users
   ];
 
   // Define public routes
@@ -60,7 +61,14 @@ export async function middleware(req: NextRequest) {
   // Verify token for protected routes
   if (isProtectedRoute && token) {
     try {
-      await jwtVerify(token, key);
+      const { payload } = await jwtVerify(token, key);
+      
+      // Role-Based Access Control
+      if (pathname.startsWith("/users") && payload.role !== "admin") {
+          // Redirect to dashboard if user tries to access /users but is not admin
+          return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
+
       return NextResponse.next();
     } catch (err) {
       // Invalid token
