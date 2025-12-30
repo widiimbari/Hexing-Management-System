@@ -1,6 +1,6 @@
 import { PrismaClient as InventoryClient } from "../generated/inventory-client";
 import { PrismaClient as ManagementClient } from "../generated/management-client";
-import { PrismaClient as AssetClient } from "../generated/asset-client-new";
+import { PrismaClient as AssetClient } from "../generated/asset-client-v2";
 import { PrismaClient as WarehouseClient } from "../generated/warehouse-client";
 
 // Global declaration for development HMR
