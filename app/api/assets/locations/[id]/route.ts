@@ -65,6 +65,7 @@ export async function PUT(
       data: {
         name: body.name,
         area_id: BigInt(body.area_id),
+        updated_at: new Date(),
       },
       include: {
         area: {

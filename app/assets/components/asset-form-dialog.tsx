@@ -50,8 +50,8 @@ interface AssetFormData {
   type: string;
   serial_number: string;
   sap_id: string;
-  supplier_name: string;
   image: string;
+  imageFile?: File | null;
   purchase_date: Date | undefined;
   category_id: string;
   brand_id: string;
@@ -89,8 +89,8 @@ export function AssetFormDialog({
     type: "",
     serial_number: "",
     sap_id: "",
-    supplier_name: "",
     image: "",
+    imageFile: null,
     purchase_date: undefined,
     category_id: "",
     brand_id: "",
@@ -167,8 +167,8 @@ export function AssetFormDialog({
         type: asset.type || "",
         serial_number: asset.serial_number || "",
         sap_id: asset.sap_id || "",
-        supplier_name: asset.supplier || "",
         image: asset.image || "",
+        imageFile: null,
         purchase_date: asset.purchase_date ? new Date(asset.purchase_date) : undefined,
         category_id: asset.category_id || "",
         brand_id: asset.brand_id || "",
@@ -182,8 +182,8 @@ export function AssetFormDialog({
         type: "",
         serial_number: "",
         sap_id: "",
-        supplier_name: "",
         image: "",
+        imageFile: null,
         purchase_date: undefined,
         category_id: "",
         brand_id: "",
@@ -202,6 +202,12 @@ export function AssetFormDialog({
 
   const handleInputChange = (field: keyof AssetFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFormData(prev => ({ ...prev, imageFile: e.target.files![0] }));
+    }
   };
 
   return (
@@ -257,23 +263,16 @@ export function AssetFormDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="supplier_name">Supplier Name</Label>
-              <Input
-                id="supplier_name"
-                value={formData.supplier_name}
-                onChange={(e) => handleInputChange("supplier_name", e.target.value)}
-                placeholder="Enter supplier name"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="image">Image URL</Label>
+              <Label htmlFor="image">Asset Image</Label>
               <Input
                 id="image"
-                value={formData.image}
-                onChange={(e) => handleInputChange("image", e.target.value)}
-                placeholder="Enter image URL"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
               />
+              {formData.image && !formData.imageFile && (
+                <p className="text-sm text-muted-foreground mt-1">Current image: {formData.image}</p>
+              )}
             </div>
 
             <div className="space-y-2">

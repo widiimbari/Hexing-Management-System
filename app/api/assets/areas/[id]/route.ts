@@ -58,6 +58,7 @@ export async function PUT(
       where: { id: BigInt(params.id) },
       data: {
         name: body.name,
+        updated_at: new Date(),
       },
     });
 

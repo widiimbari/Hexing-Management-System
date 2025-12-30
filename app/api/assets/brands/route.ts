@@ -66,6 +66,8 @@ export async function POST(req: Request) {
     const brand = await dbAsset.brands.create({
       data: {
         name: body.name,
+        created_at: new Date(),
+        updated_at: new Date(),
       },
     });
 

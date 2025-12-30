@@ -71,6 +71,8 @@ export async function POST(req: Request) {
     const category = await dbAsset.categories.create({
       data: {
         name: body.name,
+        created_at: new Date(),
+        updated_at: new Date(),
       },
     });
 

@@ -73,6 +73,8 @@ export async function POST(req: Request) {
     const department = await dbAsset.departments.create({
       data: {
         name: body.name,
+        created_at: new Date(),
+        updated_at: new Date(),
       },
     });
 

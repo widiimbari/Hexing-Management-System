@@ -73,6 +73,8 @@ export async function POST(req: Request) {
     const area = await dbAsset.areas.create({
       data: {
         name: body.name,
+        created_at: new Date(),
+        updated_at: new Date(),
       },
     });
 

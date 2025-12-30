@@ -80,6 +80,8 @@ export async function POST(req: Request) {
         phone: body.phone,
         email: body.email,
         address: body.address,
+        created_at: new Date(),
+        updated_at: new Date(),
       },
     });
 

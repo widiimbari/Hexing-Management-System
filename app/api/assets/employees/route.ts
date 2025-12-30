@@ -84,6 +84,8 @@ export async function POST(req: Request) {
         nama: body.nama,
         gender: body.gender,
         department_id: body.department_id ? BigInt(body.department_id) : null,
+        created_at: new Date(),
+        updated_at: new Date(),
       },
       include: {
         department: {

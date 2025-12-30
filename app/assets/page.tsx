@@ -104,12 +104,24 @@ export default function AssetsPage() {
       const url = selectedAsset ? `/api/assets/${selectedAsset.id}` : '/api/assets';
       const method = selectedAsset ? 'PUT' : 'POST';
       
+      const formPayload = new FormData();
+      Object.keys(formData).forEach(key => {
+        if (key === 'imageFile') {
+          if (formData[key]) formPayload.append('image', formData[key]);
+        } else if (key === 'purchase_date' && formData[key]) {
+          formPayload.append(key, formData[key].toISOString());
+        } else if (formData[key] !== null && formData[key] !== undefined) {
+           formPayload.append(key, formData[key]);
+        }
+      });
+
+      // Remove the direct image string if we are sending a file, or handle it on server
+      // But typically we send everything. The server should prioritize the file.
+
       const res = await fetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+        // headers: { 'Content-Type': 'multipart/form-data' }, // Do not set Content-Type manually with FormData
+        body: formPayload,
       });
 
       if (!res.ok) throw new Error("Failed to save asset");
@@ -243,6 +255,11 @@ export default function AssetsPage() {
       accessorKey: "sap_id",
       header: "SAP ID",
       cell: ({ value }) => value || "-"
+    },
+    {
+      id: "created_at",
+      header: "Created At",
+      cell: ({ row }) => row.created_at ? new Date(row.created_at).toLocaleDateString() : "-"
     },
     {
       id: "actions",

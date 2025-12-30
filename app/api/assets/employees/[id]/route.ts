@@ -67,6 +67,7 @@ export async function PUT(
         nama: body.nama,
         gender: body.gender,
         department_id: body.department_id ? BigInt(body.department_id) : null,
+        updated_at: new Date(),
       },
       include: {
         department: {

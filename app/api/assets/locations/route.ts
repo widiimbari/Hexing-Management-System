@@ -81,6 +81,8 @@ export async function POST(req: Request) {
       data: {
         name: body.name,
         area_id: BigInt(body.area_id),
+        created_at: new Date(),
+        updated_at: new Date(),
       },
       include: {
         area: {

@@ -62,6 +62,7 @@ export async function PUT(
         phone: body.phone,
         email: body.email,
         address: body.address,
+        updated_at: new Date(),
       },
     });
 
