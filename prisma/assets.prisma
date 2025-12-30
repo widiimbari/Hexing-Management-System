@@ -54,7 +54,7 @@ model assets {
   brand_id       BigInt?  @db.UnsignedBigInt
   area_id        BigInt?  @db.UnsignedBigInt
   location_id    BigInt?  @db.UnsignedBigInt
-  employee_id    BigInt?  @db.UnsignedBigInt @unique
+  employee_id    BigInt?  @db.UnsignedBigInt
   supplier_id    BigInt?  @db.UnsignedBigInt
   
   category       categories? @relation(fields: [category_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "assets_category_id_foreign")
@@ -111,7 +111,7 @@ department    departments?  @relation(fields: [department_id], references: [id],
   
   previous_logs asset_logs[] @relation("AssetLogPreviousHolder")
   new_logs      asset_logs[] @relation("AssetLogNewHolder")
-  assets       assets?       @relation("AssetEmployee")
+  assets       assets[]       @relation("AssetEmployee")
   
   @@index([department_id], map: "employees_department_id_foreign")
 }
