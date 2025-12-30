@@ -33,6 +33,11 @@ export async function GET(req: Request) {
         where,
         take: limit,
         skip,
+        include: {
+          _count: {
+            select: { assets: true }
+          }
+        },
         orderBy: {
           name: "asc",
         },
