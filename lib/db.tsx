@@ -7,19 +7,19 @@ import { PrismaClient as WarehouseClient } from "../generated/warehouse-client";
 const globalForPrisma = globalThis as unknown as {
   prismaInventory: InventoryClient | undefined;
   prismaManagement: ManagementClient | undefined;
-  prismaAsset: AssetClient | undefined;
+  prismaAssetV2: AssetClient | undefined;
   prismaWarehouse: WarehouseClient | undefined;
 };
 
 // Export individual database clients
 export const db = globalForPrisma.prismaInventory ?? new InventoryClient();
 export const dbManagement = globalForPrisma.prismaManagement ?? new ManagementClient();
-export const dbAsset = globalForPrisma.prismaAsset ?? new AssetClient();
+export const dbAsset = globalForPrisma.prismaAssetV2 ?? new AssetClient();
 export const dbWarehouse = globalForPrisma.prismaWarehouse ?? new WarehouseClient();
 
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prismaInventory = db;
   globalForPrisma.prismaManagement = dbManagement;
-  globalForPrisma.prismaAsset = dbAsset;
+  globalForPrisma.prismaAssetV2 = dbAsset;
   globalForPrisma.prismaWarehouse = dbWarehouse;
 }
