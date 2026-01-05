@@ -23,7 +23,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { useDebounce } from "@/hooks/use-debounce";
+import { format } from "date-fns";
 import { BrandFormDialog } from "./components/brand-form-dialog";
+import { AlertModal } from "@/components/ui/alert-modal";
 
 interface Brand {
   id: string;
@@ -51,6 +53,11 @@ export default function BrandsPage() {
   const [formDialogOpen, setFormDialogOpen] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null);
   const [formLoading, setFormLoading] = useState(false);
+
+  // Delete Alert states
+  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
+  const [brandToDelete, setBrandToDelete] = useState<Brand | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -102,19 +109,29 @@ export default function BrandsPage() {
     }
   };
 
-  const handleDeleteBrand = async (brand: Brand) => {
-    if (!confirm(`Are you sure you want to delete brand "${brand.name}"?`)) return;
-    
+  const handleDeleteBrand = (brand: Brand) => {
+    setBrandToDelete(brand);
+    setDeleteAlertOpen(true);
+  };
+
+  const onConfirmDelete = async () => {
+    if (!brandToDelete) return;
+
+    setDeleteLoading(true);
     try {
-      const res = await fetch(`/api/assets/brands/${brand.id}`, {
+      const res = await fetch(`/api/assets/brands/${brandToDelete.id}`, {
         method: 'DELETE',
       });
 
       if (!res.ok) throw new Error("Failed to delete brand");
       
+      setDeleteAlertOpen(false);
+      setBrandToDelete(null);
       fetchData();
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -142,8 +159,15 @@ export default function BrandsPage() {
     },
     {
       id: "created_at",
+      accessorKey: "created_at",
       header: "Created At",
-      cell: ({ value }) => value ? new Date(value).toLocaleDateString() : "-"
+      cell: ({ value }) => value ? format(new Date(value), "dd/MM/yyyy") : "-"
+    },
+    {
+      id: "updated_at", 
+      accessorKey: "updated_at",
+      header: "Updated At",
+      cell: ({ value }) => value ? format(new Date(value), "dd/MM/yyyy") : "-"
     },
     {
       id: "actions",
@@ -227,6 +251,16 @@ export default function BrandsPage() {
         brand={selectedBrand}
         onSave={handleSaveBrand}
         loading={formLoading}
+      />
+      
+      {/* Delete Alert Modal */}
+      <AlertModal
+        isOpen={deleteAlertOpen}
+        onClose={() => setDeleteAlertOpen(false)}
+        onConfirm={onConfirmDelete}
+        loading={deleteLoading}
+        title="Are you sure?"
+        description={`This action cannot be undone. This will permanently delete the brand "${brandToDelete?.name}".`}
       />
     </div>
   );

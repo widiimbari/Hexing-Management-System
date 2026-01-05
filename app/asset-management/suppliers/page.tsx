@@ -13,7 +13,8 @@ import {
   MoreHorizontal,
   Truck,
   Phone,
-  Mail
+  Mail,
+  Upload
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -25,7 +26,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { useDebounce } from "@/hooks/use-debounce";
+import { format } from "date-fns";
 import { SupplierFormDialog } from "./components/supplier-form-dialog";
+import { EmployeeSupplierImportExportDialog } from "@/components/employee-supplier-import-export-dialog";
+import { AlertModal } from "@/components/ui/alert-modal";
 
 interface Supplier {
   id: string;
@@ -57,6 +61,12 @@ export default function SuppliersPage() {
   const [formDialogOpen, setFormDialogOpen] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
   const [formLoading, setFormLoading] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+
+  // Delete Alert states
+  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
+  const [supplierToDelete, setSupplierToDelete] = useState<Supplier | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -108,19 +118,83 @@ export default function SuppliersPage() {
     }
   };
 
-  const handleDeleteSupplier = async (supplier: Supplier) => {
-    if (!confirm(`Are you sure you want to delete supplier "${supplier.name}"?`)) return;
-    
+  const handleDeleteSupplier = (supplier: Supplier) => {
+    setSupplierToDelete(supplier);
+    setDeleteAlertOpen(true);
+  };
+
+  const onConfirmDelete = async () => {
+    if (!supplierToDelete) return;
+
+    setDeleteLoading(true);
     try {
-      const res = await fetch(`/api/assets/suppliers/${supplier.id}`, {
+      const res = await fetch(`/api/assets/suppliers/${supplierToDelete.id}`, {
         method: 'DELETE',
       });
 
       if (!res.ok) throw new Error("Failed to delete supplier");
       
+      setDeleteAlertOpen(false);
+      setSupplierToDelete(null);
       fetchData();
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleImportSuppliers = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/assets/suppliers/import', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await res.json();
+      if (!res.ok) {
+        return {
+          success: false,
+          message: result.message || "Failed to import suppliers",
+          errors: result.errors || []
+        };
+      }
+
+      fetchData();
+      return {
+        success: true,
+        message: result.message,
+        errors: result.errors
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        message: err.message || "Failed to import suppliers"
+      };
+    }
+  };
+
+  const handleDownloadSupplierTemplate = async () => {
+    try {
+      const res = await fetch('/api/assets/suppliers/template');
+      if (!res.ok) throw new Error("Failed to download template");
+      
+      const dateStr = new Date().toISOString().split("T")[0].replace(/-/g, "");
+      const filename = `TEMPLATE_IMPORT_SUPPLIER_${dateStr}.xlsx`;
+      
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (err) {
+      throw new Error("Failed to download template");
     }
   };
 
@@ -174,8 +248,15 @@ export default function SuppliersPage() {
     },
     {
       id: "created_at",
+      accessorKey: "created_at",
       header: "Created At",
-      cell: ({ value }) => value ? new Date(value).toLocaleDateString() : "-"
+      cell: ({ value }) => value ? format(new Date(value), "dd/MM/yyyy") : "-"
+    },
+    {
+      id: "updated_at", 
+      accessorKey: "updated_at",
+      header: "Updated At",
+      cell: ({ value }) => value ? format(new Date(value), "dd/MM/yyyy") : "-"
     },
     {
       id: "actions",
@@ -215,12 +296,20 @@ export default function SuppliersPage() {
           </h1>
           <p className="text-muted-foreground">Manage supplier information and contacts.</p>
         </div>
-        <Button onClick={() => {
-          setSelectedSupplier(null);
-          setFormDialogOpen(true);
-        }}>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add New Supplier
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline"
+            onClick={() => setImportDialogOpen(true)}
+          >
+            <Upload className="mr-2 h-4 w-4" /> Import
+          </Button>
+          <Button onClick={() => {
+            setSelectedSupplier(null);
+            setFormDialogOpen(true);
+          }}>
+            <PlusCircle className="mr-2 h-4 w-4" /> Add New Supplier
+          </Button>
+        </div>
       </div>
 
       <Card className="shadow-md border-none overflow-hidden">
@@ -259,6 +348,26 @@ export default function SuppliersPage() {
         supplier={selectedSupplier}
         onSave={handleSaveSupplier}
         loading={formLoading}
+      />
+
+      {/* Import Export Dialog */}
+      <EmployeeSupplierImportExportDialog
+        isOpen={importDialogOpen}
+        onClose={() => setImportDialogOpen(false)}
+        onImport={handleImportSuppliers}
+        onDownloadTemplate={handleDownloadSupplierTemplate}
+        type="supplier"
+        loading={formLoading}
+      />
+
+      {/* Delete Alert Modal */}
+      <AlertModal
+        isOpen={deleteAlertOpen}
+        onClose={() => setDeleteAlertOpen(false)}
+        onConfirm={onConfirmDelete}
+        loading={deleteLoading}
+        title="Are you sure?"
+        description={`This action cannot be undone. This will permanently delete the supplier "${supplierToDelete?.name}".`}
       />
     </div>
   );

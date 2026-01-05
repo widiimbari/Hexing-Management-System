@@ -13,18 +13,12 @@ function serializeBigInt(data: any): any {
 // GET - Get single supplier by ID
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supplier = await dbAsset.suppliers.findUnique({
-      where: { id: BigInt(params.id) },
-      include: {
-        _count: {
-          select: {
-            assets: true,
-          },
-        },
-      },
+      where: { id: BigInt(id) },
     });
 
     if (!supplier) {
@@ -49,13 +43,14 @@ export async function GET(
 // PUT - Update supplier by ID
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await req.json();
     
     const supplier = await dbAsset.suppliers.update({
-      where: { id: BigInt(params.id) },
+      where: { id: BigInt(id) },
       data: {
         name: body.name,
         contact_person: body.contact_person,
@@ -82,11 +77,12 @@ export async function PUT(
 // DELETE - Delete supplier by ID
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await dbAsset.suppliers.delete({
-      where: { id: BigInt(params.id) },
+      where: { id: BigInt(id) },
     });
 
     return NextResponse.json({

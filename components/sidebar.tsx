@@ -14,8 +14,23 @@ import {
   Menu,
   Package,
   Users,
-  Settings,
-  User
+  User,
+  History,
+  Monitor,
+  ArrowLeftRight,
+  Shield,
+  LucideIcon,
+  ChevronDown,
+  ChevronRight,
+  Map,
+  Tag,
+  Layers,
+  Building2,
+  UsersRound,
+  MapPin,
+  Truck,
+  Settings2,
+  List
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -37,41 +52,160 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar";
 
-const initialNavItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/products", label: "Products", icon: Boxes },
-  { href: "/pl-master", label: "PL Master", icon: ClipboardList },
-  { href: "/pl-slave", label: "PL Slave", icon: FileSpreadsheet },
+type NavItem = {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+};
+
+type NavGroup = {
+  title: string;
+  icon: LucideIcon;
+  href?: string; // If present, it's a direct link
+  items: NavItem[]; // If NOT empty, it's a dropdown
+};
+
+const initialNavGroups: NavGroup[] = [
+  {
+    title: "Dashboard",
+    icon: LayoutDashboard,
+    href: "/dashboard",
+    items: []
+  },
+  {
+    title: "Inventory",
+    icon: Package,
+    items: [
+      { href: "/inventory/products", label: "Products", icon: Boxes },
+      { href: "/inventory/pl-master", label: "PL Master", icon: ClipboardList },
+      { href: "/inventory/pl-slave", label: "PL Slave", icon: FileSpreadsheet },
+      { href: "/inventory/history", label: "History", icon: History },
+    ]
+  },
+  {
+    title: "Asset Management",
+    icon: Monitor,
+    items: [
+      { href: "/asset-management/assets", label: "Assets", icon: List },
+      { href: "/asset-management/transactions", label: "Transactions", icon: ArrowLeftRight },
+      { href: "/asset-management/employees", label: "Employees", icon: UsersRound },
+      { href: "/asset-management/departments", label: "Departments", icon: Building2 },
+      { href: "/asset-management/locations", label: "Locations", icon: MapPin },
+      { href: "/asset-management/areas", label: "Areas", icon: Map },
+      { href: "/asset-management/suppliers", label: "Suppliers", icon: Truck },
+      { href: "/asset-management/categories", label: "Categories", icon: Layers },
+      { href: "/asset-management/brands", label: "Brands", icon: Tag },
+      { href: "/asset-management/types", label: "Asset Types", icon: Settings2 },
+    ]
+  }
 ];
 
-function NavItems({ pathname, isCollapsed, onLinkClick, items }: { pathname: string; isCollapsed?: boolean; onLinkClick?: () => void; items: typeof initialNavItems }) {
+function NavItems({ pathname, isCollapsed, onLinkClick, groups }: { pathname: string; isCollapsed?: boolean; onLinkClick?: () => void; groups: NavGroup[] }) {
+  // State to track expanded groups. Initialize based on current path.
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    // Auto-expand group if current path matches one of its items
+    const newExpandedState: Record<string, boolean> = {};
+    groups.forEach(group => {
+       if (group.items.length > 0) {
+           const hasActiveItem = group.items.some(item => pathname.startsWith(item.href) || pathname === item.href);
+           if (hasActiveItem) {
+               newExpandedState[group.title] = true;
+           }
+       }
+    });
+    setExpandedGroups(prev => ({ ...prev, ...newExpandedState }));
+  }, [pathname, groups]);
+
+  const toggleGroup = (title: string) => {
+    if (isCollapsed) return; // Don't toggle in collapsed mode (maybe show hover menu instead? keeping simple for now)
+    setExpandedGroups(prev => ({ ...prev, [title]: !prev[title] }));
+  };
+
   return (
     <nav className="grid items-start gap-1 px-2 text-sm font-medium lg:px-4">
-      {items.map(({ href, label, icon: Icon }) => {
-        const isActive = pathname === href;
+      {groups.map((group, groupIndex) => {
+        const isDirectLink = group.items.length === 0;
+        const isActiveGroup = isDirectLink ? (pathname === group.href) : group.items.some(item => pathname === item.href);
+        const isExpanded = expandedGroups[group.title];
+
+        if (isDirectLink) {
+            return (
+              <Link
+                key={group.title}
+                href={group.href!}
+                onClick={onLinkClick}
+                className={cn(
+                  "group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all duration-200 relative",
+                  isActiveGroup 
+                    ? "bg-primary/10 text-primary font-bold shadow-sm" 
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  isCollapsed && "justify-center px-2"
+                )}
+                title={isCollapsed ? group.title : undefined}
+              >
+                {isActiveGroup && (
+                    <div className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-primary rounded-r-full" />
+                )}
+                <group.icon className={cn(
+                    "h-5 w-5 transition-transform duration-200", 
+                    isActiveGroup ? "scale-110" : "group-hover:scale-110"
+                )} />
+                {!isCollapsed && <span>{group.title}</span>}
+              </Link>
+            );
+        }
+
+        // Dropdown Group
         return (
-          <Link
-            key={label}
-            href={href}
-            onClick={onLinkClick}
-            className={cn(
-              "group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all duration-200 relative",
-              isActive 
-                ? "bg-primary/10 text-primary font-bold shadow-sm" 
-                : "text-muted-foreground hover:bg-muted hover:text-foreground",
-              isCollapsed && "justify-center px-2"
-            )}
-            title={isCollapsed ? label : undefined}
-          >
-            {isActive && (
-                <div className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-primary rounded-r-full" />
-            )}
-            <Icon className={cn(
-                "h-5 w-5 transition-transform duration-200", 
-                isActive ? "scale-110" : "group-hover:scale-110"
-            )} />
-            {!isCollapsed && <span>{label}</span>}
-          </Link>
+            <div key={group.title} className="flex flex-col gap-1">
+                <Button
+                    variant="ghost"
+                    onClick={() => toggleGroup(group.title)}
+                    className={cn(
+                        "w-full flex items-center justify-between p-2 h-auto hover:bg-muted/50 transition-all",
+                        isCollapsed ? "justify-center px-0" : "justify-start px-3 py-2.5",
+                        isActiveGroup && !isExpanded && "text-primary font-medium" 
+                    )}
+                    title={isCollapsed ? group.title : undefined}
+                >
+                    <div className="flex items-center gap-3">
+                         <group.icon className={cn("h-5 w-5", isActiveGroup ? "text-primary" : "text-muted-foreground")} />
+                         {!isCollapsed && <span className={cn(isActiveGroup ? "text-foreground" : "text-muted-foreground")}>{group.title}</span>}
+                    </div>
+                    {!isCollapsed && (
+                        <div className="ml-auto">
+                            {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                        </div>
+                    )}
+                </Button>
+
+                {/* Sub Items */}
+                {isExpanded && !isCollapsed && (
+                    <div className="ml-4 pl-2 border-l border-muted flex flex-col gap-1 mt-1">
+                        {group.items.map((item) => {
+                            const isItemActive = pathname === item.href;
+                            return (
+                                <Link
+                                    key={item.label}
+                                    href={item.href}
+                                    onClick={onLinkClick}
+                                    className={cn(
+                                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-200",
+                                    isItemActive 
+                                        ? "bg-muted text-primary font-medium" 
+                                        : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                                    )}
+                                >
+                                    <item.icon className="h-4 w-4" />
+                                    <span>{item.label}</span>
+                                </Link>
+                            )
+                        })}
+                    </div>
+                )}
+            </div>
         );
       })}
     </nav>
@@ -86,7 +220,7 @@ interface UserInfo {
 export function Sidebar({ isCollapsed, toggleSidebar }: { isCollapsed: boolean; toggleSidebar: () => void }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [navItems, setNavItems] = useState(initialNavItems);
+  const [navGroups, setNavGroups] = useState(initialNavGroups);
   const [user, setUser] = useState<UserInfo | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
@@ -98,10 +232,19 @@ export function Sidebar({ isCollapsed, toggleSidebar }: { isCollapsed: boolean; 
           const userData = await res.json();
           setUser(userData);
           if (userData.role === "admin") {
-            setNavItems([
-              ...initialNavItems,
-              { href: "/users", label: "Users", icon: Users },
-            ]);
+            setNavGroups(prev => {
+                if (prev.some(g => g.title === "Admin")) return prev;
+                return [
+                    ...prev,
+                    {
+                        title: "Admin",
+                        icon: Shield,
+                        items: [
+                             { href: "/admin/users", label: "Users", icon: Users },
+                        ]
+                    }
+                ]
+            });
           }
         }
       } catch (error) {
@@ -183,12 +326,12 @@ export function Sidebar({ isCollapsed, toggleSidebar }: { isCollapsed: boolean; 
   return (
     <>
       <ProfileDialog isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} user={user} />
-      <div className={cn("hidden border-r bg-muted/40 md:flex flex-col transition-all duration-300 h-screen sticky top-0", isCollapsed ? "w-[60px]" : "w-[240px]")}>
+      <div className={cn("hidden border-r bg-muted/40 md:flex flex-col transition-all duration-300 h-screen sticky top-0 flex-shrink-0", isCollapsed ? "w-[60px]" : "w-[240px]")}>
         <div className="flex h-14 shrink-0 items-center border-b px-4 lg:h-[60px] justify-between">
           {!isCollapsed && (
             <Link href="/" className="flex items-center gap-2 font-semibold truncate">
               <Package className="h-6 w-6" />
-              <span>Hexing Inventory</span>
+              <span>Hexing System</span>
             </Link>
           )}
           {isCollapsed && (
@@ -209,8 +352,8 @@ export function Sidebar({ isCollapsed, toggleSidebar }: { isCollapsed: boolean; 
             </div>
         )}
 
-        <div className="flex-1 overflow-y-auto overflow-x-hidden py-2">
-          <NavItems pathname={pathname} isCollapsed={isCollapsed} items={navItems} />
+        <div className="flex-1 overflow-y-auto overflow-x-hidden py-2 custom-scrollbar">
+          <NavItems pathname={pathname} isCollapsed={isCollapsed} groups={navGroups} />
         </div>
 
         {/* User Profile Section */}
@@ -226,7 +369,7 @@ export function MobileSidebar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const [navItems, setNavItems] = useState(initialNavItems);
+  const [navGroups, setNavGroups] = useState(initialNavGroups);
   const [user, setUser] = useState<UserInfo | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
@@ -238,10 +381,19 @@ export function MobileSidebar() {
           const userData = await res.json();
           setUser(userData);
           if (userData.role === "admin") {
-            setNavItems([
-              ...initialNavItems,
-              { href: "/users", label: "Users", icon: Users },
-            ]);
+            setNavGroups(prev => {
+                if (prev.some(g => g.title === "Admin")) return prev;
+                return [
+                    ...prev,
+                    {
+                        title: "Admin",
+                        icon: Shield,
+                        items: [
+                             { href: "/admin/users", label: "Users", icon: Users },
+                        ]
+                    }
+                ]
+            });
           }
         }
       } catch (error) {
@@ -309,11 +461,11 @@ export function MobileSidebar() {
           <SheetHeader className="p-4 border-b shrink-0">
              <SheetTitle className="flex items-center gap-2 font-semibold">
                <Package className="h-6 w-6" />
-               Hexing Inventory
+               Hexing System
              </SheetTitle>
           </SheetHeader>
-          <div className="flex-1 overflow-y-auto py-4">
-             <NavItems pathname={pathname} onLinkClick={() => setOpen(false)} items={navItems} />
+          <div className="flex-1 overflow-y-auto py-4 custom-scrollbar">
+             <NavItems pathname={pathname} onLinkClick={() => setOpen(false)} groups={navGroups} />
           </div>
           
           <div className="p-4 border-t bg-background">
@@ -322,7 +474,7 @@ export function MobileSidebar() {
         </SheetContent>
       </Sheet>
       <div className="ml-4 font-bold text-lg truncate">
-        Hexing Inventory
+        Hexing Management System
       </div>
     </div>
     </>

@@ -24,7 +24,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { useDebounce } from "@/hooks/use-debounce";
+import { format } from "date-fns";
 import { LocationFormDialog } from "./components/location-form-dialog";
+import { AlertModal } from "@/components/ui/alert-modal";
 
 interface Location {
   id: string;
@@ -63,6 +65,11 @@ export default function LocationsPage() {
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [formLoading, setFormLoading] = useState(false);
   const [areas, setAreas] = useState<Area[]>([]);
+
+  // Delete Alert states
+  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
+  const [locationToDelete, setLocationToDelete] = useState<Location | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const fetchAreas = async () => {
     try {
@@ -127,19 +134,29 @@ export default function LocationsPage() {
     }
   };
 
-  const handleDeleteLocation = async (location: Location) => {
-    if (!confirm(`Are you sure you want to delete location "${location.name}"?`)) return;
+  const handleDeleteLocation = (location: Location) => {
+    setLocationToDelete(location);
+    setDeleteAlertOpen(true);
+  };
+
+  const onConfirmDelete = async () => {
+    if (!locationToDelete) return;
     
+    setDeleteLoading(true);
     try {
-      const res = await fetch(`/api/assets/locations/${location.id}`, {
+      const res = await fetch(`/api/assets/locations/${locationToDelete.id}`, {
         method: 'DELETE',
       });
 
       if (!res.ok) throw new Error("Failed to delete location");
       
+      setDeleteAlertOpen(false);
+      setLocationToDelete(null);
       fetchData();
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -170,12 +187,18 @@ export default function LocationsPage() {
         </Badge>
       ),
     },
-    {
-      id: "created_at",
-      header: "Created At",
-      cell: ({ value }) => value ? new Date(value).toLocaleDateString() : "-"
-    },
-    {
+        {
+          id: "created_at",
+          accessorKey: "created_at",
+          header: "Created At",
+          cell: ({ value }) => value ? format(new Date(value), "dd/MM/yyyy") : "-"
+        },
+        {
+          id: "updated_at", 
+          accessorKey: "updated_at",
+          header: "Updated At",
+          cell: ({ value }) => value ? format(new Date(value), "dd/MM/yyyy") : "-"
+        },    {
       id: "actions",
       header: "Actions",
       width: "80px",
@@ -258,6 +281,16 @@ export default function LocationsPage() {
         areas={areas}
         onSave={handleSaveLocation}
         loading={formLoading}
+      />
+      
+      {/* Delete Alert Modal */}
+      <AlertModal
+        isOpen={deleteAlertOpen}
+        onClose={() => setDeleteAlertOpen(false)}
+        onConfirm={onConfirmDelete}
+        loading={deleteLoading}
+        title="Are you sure?"
+        description={`This action cannot be undone. This will permanently delete the location "${locationToDelete?.name}".`}
       />
     </div>
   );

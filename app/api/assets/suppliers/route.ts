@@ -18,7 +18,8 @@ export async function GET(req: Request) {
     const limit = parseInt(searchParams.get("limit") || "10");
     const search = searchParams.get("search") || "";
 
-    const skip = (page - 1) * limit;
+    const skip = limit > 0 ? (page - 1) * limit : undefined;
+    const take = limit > 0 ? limit : undefined;
 
     const where: any = {};
     
@@ -27,24 +28,16 @@ export async function GET(req: Request) {
         { name: { contains: search } },
         { contact_person: { contains: search } },
         { email: { contains: search } },
-        { phone: { contains: search } },
       ];
     }
 
     const [data, total] = await Promise.all([
       dbAsset.suppliers.findMany({
         where,
-        take: limit,
+        take,
         skip,
         orderBy: {
           name: "asc",
-        },
-        include: {
-          _count: {
-            select: {
-              assets: true,
-            },
-          },
         },
       }),
       dbAsset.suppliers.count({ where }),
@@ -91,6 +84,43 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     console.error("Error creating supplier:", error);
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+// PUT - Update existing supplier
+export async function PUT(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+    
+    if (!id) {
+      return NextResponse.json({ message: "Supplier ID is required" }, { status: 400 });
+    }
+    
+    const body = await req.json();
+    
+    const supplier = await dbAsset.suppliers.update({
+      where: { id: BigInt(id) },
+      data: {
+        name: body.name,
+        contact_person: body.contact_person,
+        phone: body.phone,
+        email: body.email,
+        address: body.address,
+        updated_at: new Date(),
+      },
+    });
+
+    return NextResponse.json({
+      data: serializeBigInt(supplier),
+      message: "Supplier updated successfully",
+    });
+  } catch (error) {
+    console.error("Error updating supplier:", error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

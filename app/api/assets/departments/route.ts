@@ -90,3 +90,36 @@ export async function POST(req: Request) {
     );
   }
 }
+
+// PUT - Update existing department
+export async function PUT(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+    
+    if (!id) {
+      return NextResponse.json({ message: "Department ID is required" }, { status: 400 });
+    }
+    
+    const body = await req.json();
+    
+    const department = await dbAsset.departments.update({
+      where: { id: BigInt(id) },
+      data: {
+        name: body.name,
+        updated_at: new Date(),
+      },
+    });
+
+    return NextResponse.json({
+      data: serializeBigInt(department),
+      message: "Department updated successfully",
+    });
+  } catch (error) {
+    console.error("Error updating department:", error);
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}

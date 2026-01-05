@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { dbManagement } from "@/lib/db";
 import { SignJWT } from "jose";
 import { cookies } from "next/headers";
 import crypto from "crypto";
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     }
 
     // Find user
-    const user = await db.users.findFirst({
+    const user = await dbManagement.users.findFirst({
       where: {
         username: username,
       },

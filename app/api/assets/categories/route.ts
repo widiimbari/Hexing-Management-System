@@ -18,7 +18,8 @@ export async function GET(req: Request) {
     const limit = parseInt(searchParams.get("limit") || "10");
     const search = searchParams.get("search") || "";
 
-    const skip = (page - 1) * limit;
+    const skip = limit > 0 ? (page - 1) * limit : undefined;
+    const take = limit > 0 ? limit : undefined;
 
     const where: any = {};
     
@@ -31,7 +32,7 @@ export async function GET(req: Request) {
     const [data, total] = await Promise.all([
       dbAsset.categories.findMany({
         where,
-        take: limit,
+        take,
         skip,
         include: {
           _count: {
@@ -82,6 +83,39 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     console.error("Error creating category:", error);
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+// PUT - Update existing category
+export async function PUT(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+    
+    if (!id) {
+      return NextResponse.json({ message: "Category ID is required" }, { status: 400 });
+    }
+    
+    const body = await req.json();
+    
+    const category = await dbAsset.categories.update({
+      where: { id: BigInt(id) },
+      data: {
+        name: body.name,
+        updated_at: new Date(),
+      },
+    });
+
+    return NextResponse.json({
+      data: serializeBigInt(category),
+      message: "Category updated successfully",
+    });
+  } catch (error) {
+    console.error("Error updating category:", error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

@@ -18,7 +18,8 @@ export async function GET(req: Request) {
     const limit = parseInt(searchParams.get("limit") || "10");
     const search = searchParams.get("search") || "";
 
-    const skip = (page - 1) * limit;
+    const skip = limit > 0 ? (page - 1) * limit : undefined;
+    const take = limit > 0 ? limit : undefined;
 
     const where: any = {};
     
@@ -32,7 +33,7 @@ export async function GET(req: Request) {
     const [data, total] = await Promise.all([
       dbAsset.locations.findMany({
         where,
-        take: limit,
+        take,
         skip,
         include: {
           area: {

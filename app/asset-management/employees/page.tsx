@@ -13,7 +13,8 @@ import {
   MoreHorizontal,
   UserCheck,
   Users,
-  Building
+  Building,
+  Upload
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -26,6 +27,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useDebounce } from "@/hooks/use-debounce";
 import { EmployeeFormDialog } from "./components/employee-form-dialog";
+import { EmployeeSupplierImportExportDialog } from "@/components/employee-supplier-import-export-dialog";
 
 interface Employee {
   id: string;
@@ -66,6 +68,7 @@ export default function EmployeesPage() {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [formLoading, setFormLoading] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
 
   const fetchDepartments = async () => {
     try {
@@ -146,6 +149,60 @@ export default function EmployeesPage() {
     }
   };
 
+  const handleImportEmployees = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/assets/employees/import', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await res.json();
+      if (!res.ok) {
+        return {
+          success: false,
+          message: result.message || "Failed to import employees",
+          errors: result.errors || []
+        };
+      }
+
+      fetchData();
+      return {
+        success: true,
+        message: result.message,
+        errors: result.errors
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        message: err.message || "Failed to import employees"
+      };
+    }
+  };
+
+  const handleDownloadEmployeeTemplate = async () => {
+    try {
+      const res = await fetch('/api/assets/employees/template');
+      if (!res.ok) throw new Error("Failed to download template");
+      
+      const dateStr = new Date().toISOString().split("T")[0].replace(/-/g, "");
+      const filename = `TEMPLATE_IMPORT_EMPLOYEE_${dateStr}.xlsx`;
+      
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (err) {
+      throw new Error("Failed to download template");
+    }
+  };
+
   const handleEditEmployee = (employee: Employee) => {
     setSelectedEmployee(employee);
     setFormDialogOpen(true);
@@ -222,12 +279,20 @@ export default function EmployeesPage() {
           </h1>
           <p className="text-muted-foreground">Manage employees and their assignments.</p>
         </div>
-        <Button onClick={() => {
-          setSelectedEmployee(null);
-          setFormDialogOpen(true);
-        }}>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add New Employee
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline"
+            onClick={() => setImportDialogOpen(true)}
+          >
+            <Upload className="mr-2 h-4 w-4" /> Import
+          </Button>
+          <Button onClick={() => {
+            setSelectedEmployee(null);
+            setFormDialogOpen(true);
+          }}>
+            <PlusCircle className="mr-2 h-4 w-4" /> Add New Employee
+          </Button>
+        </div>
       </div>
 
       <Card className="shadow-md border-none overflow-hidden">
@@ -266,6 +331,16 @@ export default function EmployeesPage() {
         employee={selectedEmployee}
         departments={departments}
         onSave={handleSaveEmployee}
+        loading={formLoading}
+      />
+
+      {/* Import Export Dialog */}
+      <EmployeeSupplierImportExportDialog
+        isOpen={importDialogOpen}
+        onClose={() => setImportDialogOpen(false)}
+        onImport={handleImportEmployees}
+        onDownloadTemplate={handleDownloadEmployeeTemplate}
+        type="employee"
         loading={formLoading}
       />
     </div>

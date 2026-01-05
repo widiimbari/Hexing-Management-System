@@ -13,18 +13,12 @@ function serializeBigInt(data: any): any {
 // GET - Get single area by ID
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const area = await dbAsset.areas.findUnique({
-      where: { id: BigInt(params.id) },
-      include: {
-        _count: {
-          select: {
-            locations: true,
-          },
-        },
-      },
+      where: { id: BigInt(id) },
     });
 
     if (!area) {
@@ -49,13 +43,14 @@ export async function GET(
 // PUT - Update area by ID
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await req.json();
     
     const area = await dbAsset.areas.update({
-      where: { id: BigInt(params.id) },
+      where: { id: BigInt(id) },
       data: {
         name: body.name,
         updated_at: new Date(),
@@ -78,11 +73,12 @@ export async function PUT(
 // DELETE - Delete area by ID
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await dbAsset.areas.delete({
-      where: { id: BigInt(params.id) },
+      where: { id: BigInt(id) },
     });
 
     return NextResponse.json({

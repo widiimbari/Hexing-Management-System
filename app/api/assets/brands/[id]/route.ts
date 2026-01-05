@@ -13,11 +13,12 @@ function serializeBigInt(data: any): any {
 // GET - Get single brand by ID
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const brand = await dbAsset.brands.findUnique({
-      where: { id: BigInt(params.id) },
+      where: { id: BigInt(id) },
     });
 
     if (!brand) {
@@ -42,13 +43,14 @@ export async function GET(
 // PUT - Update brand by ID
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await req.json();
     
     const brand = await dbAsset.brands.update({
-      where: { id: BigInt(params.id) },
+      where: { id: BigInt(id) },
       data: {
         name: body.name,
         updated_at: new Date(),
@@ -71,11 +73,12 @@ export async function PUT(
 // DELETE - Delete brand by ID
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await dbAsset.brands.delete({
-      where: { id: BigInt(params.id) },
+      where: { id: BigInt(id) },
     });
 
     return NextResponse.json({

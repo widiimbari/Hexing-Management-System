@@ -1,0 +1,501 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/inventory-client"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("INVENTORY_DATABASE_URL")
+}
+
+model area_list {
+  id    Int    @id @default(autoincrement())
+  value String @db.VarChar(55)
+}
+
+model attachment {
+  id        Int      @id @default(autoincrement())
+  nomor     String   @db.VarChar(255)
+  timestamp DateTime @db.Date
+  type      String   @db.VarChar(255)
+  no_do     String   @db.VarChar(255)
+  no_order  String   @db.VarChar(255)
+  tgl_order DateTime @db.Date
+  area      String   @db.VarChar(255)
+  status    Boolean  @default(false)
+  active    Boolean  @default(true)
+
+  @@index([active], map: "idx_active_attachment")
+  @@index([area], map: "idx_area_attachment")
+  @@index([id], map: "idx_id_attachment")
+  @@index([no_do], map: "idx_no_do_attachment")
+  @@index([no_order], map: "idx_no_order_attachment")
+  @@index([nomor], map: "idx_nomor")
+  @@index([status], map: "idx_status_attachment")
+  @@index([tgl_order], map: "idx_tgl_order_attachment")
+  @@index([timestamp], map: "idx_timestamp_attachment")
+  @@index([type], map: "idx_type_attachment")
+}
+
+model attachment2 {
+  id        Int      @id @default(autoincrement())
+  nomor     String   @db.VarChar(255)
+  timestamp DateTime @db.Date
+  type      String   @db.VarChar(255)
+  no_do     String   @db.VarChar(255)
+  no_order  String   @db.VarChar(255)
+  tgl_order DateTime @db.Date
+  area      String   @db.VarChar(255)
+  status    Boolean  @default(false)
+  active    Boolean  @default(true)
+
+  @@index([active], map: "idx_active_attachment2")
+  @@index([area], map: "idx_area_attachment2")
+  @@index([id], map: "idx_id_attachment2")
+  @@index([no_do], map: "idx_no_do_attachment2")
+  @@index([no_order], map: "idx_no_order_attachment2")
+  @@index([nomor], map: "idx_nomor_attachment2")
+  @@index([status], map: "idx_status_attachment2")
+  @@index([tgl_order], map: "idx_tgl_order_attachment2")
+  @@index([timestamp], map: "idx_timestamp_attachment2")
+  @@index([type], map: "idx_type_attachment2")
+}
+
+model box {
+  id             Int      @id @default(autoincrement())
+  serial         String   @unique(map: "serial") @db.VarChar(255)
+  timestamp      DateTime @default(now()) @db.Timestamp(0)
+  line           String   @db.VarChar(100)
+  type           String   @db.VarChar(255)
+  pallete_id     Int?
+  attachment_id  Int?
+  attachment2_id Int?
+  remain         String   @default("0") @db.VarChar(20)
+
+  @@index([serial, line, type], map: "idx_insertPacking_box")
+  @@index([pallete_id, attachment_id, attachment2_id], map: "index_IDs")
+  @@index([line], map: "index_line")
+  @@index([serial], map: "index_serial")
+  @@index([timestamp], map: "index_timestamp")
+  @@index([type], map: "index_type")
+}
+
+model config {
+  root    String   @db.VarChar(100)
+  branch  String   @db.VarChar(100)
+  value   String   @db.VarChar(255)
+  tanggal DateTime @db.Date
+
+  @@id([root, branch])
+  @@index([value], map: "IDX_VALUE_CONFIG")
+}
+
+model defect_list {
+  id          Int    @id @default(autoincrement())
+  defect_name String @db.VarChar(255)
+}
+
+model fct_notpass {
+  id        Int      @id @default(autoincrement())
+  serial    String   @db.VarChar(55)
+  type      String   @db.VarChar(55)
+  line      String   @db.VarChar(55)
+  timestamp DateTime @default(now()) @db.Timestamp(0)
+
+  @@index([line], map: "idx_line")
+  @@index([serial], map: "idx_serial")
+  @@index([timestamp], map: "idx_timestamp")
+  @@index([type], map: "idx_type")
+}
+
+model fct_pass {
+  id        Int      @id @default(autoincrement())
+  serial    String   @db.VarChar(55)
+  type      String   @db.VarChar(55)
+  line      String   @db.VarChar(55)
+  timestamp DateTime @default(now()) @db.Timestamp(0)
+
+  @@index([line], map: "idx_line")
+  @@index([serial], map: "idx_serial")
+  @@index([timestamp], map: "idx_timestamp")
+  @@index([type], map: "idx_type")
+}
+
+model fct_temp {
+  id           Int      @id @default(autoincrement())
+  type         String   @db.VarChar(55)
+  line         String   @db.VarChar(55)
+  timestamp    DateTime @default(now()) @db.Timestamp(0)
+  total_output Int
+  total_defect Int
+  target       Int
+
+  @@index([total_defect], map: "idx_defect")
+  @@index([line], map: "idx_line")
+  @@index([total_output], map: "idx_output")
+  @@index([target], map: "idx_target")
+  @@index([timestamp], map: "idx_timestamp")
+  @@index([type], map: "idx_type")
+}
+
+model filestore_file {
+  id                  Int                    @id @default(autoincrement())
+  filestore_type_id   Int                    @default(0)
+  filestore_volume_id Int                    @default(0)
+  filename            String                 @default("") @db.VarChar(255)
+  original_filename   String?                @db.VarChar(255)
+  filesize            Int                    @default(0)
+  filenum             Int                    @default(0)
+  deleted             filestore_file_deleted @default(N)
+}
+
+model filestore_type {
+  id        Int     @id @default(autoincrement())
+  name      String? @db.VarChar(255)
+  mime_type String  @default("") @db.VarChar(64)
+  extension String? @db.VarChar(5)
+}
+
+model filestore_volume {
+  id               Int                       @id @default(autoincrement())
+  name             String                    @unique(map: "name") @default("") @db.VarChar(32)
+  dirname          String                    @default("") @db.VarChar(255)
+  total_space      BigInt                    @default(0)
+  used_space       BigInt                    @default(0)
+  stored_files_cnt Int                       @default(0)
+  enabled          filestore_volume_enabled? @default(Y)
+  last_filenum     Int?
+}
+
+model logs {
+  id        Int       @id @default(autoincrement())
+  timestamp DateTime  @default(now()) @db.Timestamp(0)
+  desc      String    @db.VarChar(255)
+  line      String    @db.VarChar(100)
+  code      logs_code
+
+  @@index([id], map: "IDX_ID")
+  @@index([code], map: "idx_code")
+  @@index([desc], map: "idx_desc")
+  @@index([id, timestamp, desc, line, code], map: "idx_insertAll_logs")
+  @@index([line], map: "idx_line")
+  @@index([timestamp], map: "idx_timestamp")
+}
+
+model logs_edit {
+  id        Int      @id @default(autoincrement())
+  timestamp DateTime @default(now()) @db.Timestamp(0)
+  desc      String   @db.VarChar(255)
+  code      String   @db.VarChar(255)
+  line      String   @db.VarChar(10)
+  user      String   @db.VarChar(55)
+}
+
+model meter_type {
+  id                Int                         @id @default(autoincrement())
+  value             String                      @db.VarChar(255)
+  phase             String                      @db.VarChar(55)
+  validation        String                      @db.VarChar(11)
+  validation_length Int                         @default(2)
+  length            Int
+  pln_code          String                      @db.VarChar(55)
+  card_validation   meter_type_card_validation
+  validation_type   meter_type_validation_type?
+  daily_reset       meter_type_daily_reset
+  numeric_only      meter_type_numeric_only
+  surpass_target    meter_type_surpass_target
+  run_by_sequence   meter_type_run_by_sequence  @default(No)
+  start_reset       String                      @default("8") @db.VarChar(2)
+  end_reset         String                      @default("20") @db.VarChar(2)
+}
+
+model module_list {
+  module_id     Int    @id
+  module_serial String @unique(map: "module_serial") @db.VarChar(22)
+}
+
+model order_num {
+  id      Int    @id @default(autoincrement())
+  value   String @db.VarChar(255)
+  counter Int    @default(0)
+}
+
+model out_110 {
+  id         Int      @id @default(autoincrement())
+  serial     String   @db.VarChar(55)
+  qr_serial  String   @db.VarChar(55)
+  timestamp  DateTime @default(now()) @db.Timestamp(0)
+  receive_id Int
+
+  @@unique([serial, qr_serial, receive_id], map: "serial")
+}
+
+model output_target {
+  id        Int      @id @default(autoincrement())
+  output    String   @db.VarChar(50)
+  type      String   @db.VarChar(50)
+  waktu     String   @db.VarChar(50)
+  line      String   @db.VarChar(50)
+  timestamp DateTime @default(now()) @db.Timestamp(0)
+
+  @@index([output, type, waktu, line, timestamp], map: "target_index")
+}
+
+model output_temp {
+  id           Int      @id @default(autoincrement())
+  type         String?  @db.VarChar(55)
+  total_output Int
+  line         String   @db.VarChar(10)
+  tahun        String?  @db.VarChar(11)
+  timestamp    DateTime @default(now()) @db.Timestamp(0)
+  total_bigbox Int      @default(0)
+  total_pallet Int      @default(0)
+  target       Int      @default(0)
+  target_hour  Int
+  hour1        Int
+  hour2        Int
+  hour3        Int
+  hour4        Int
+  hour5        Int
+  hour6        Int
+  hour7        Int
+  hour8        Int
+  hour9        Int
+  hour10       Int
+  hour11       Int
+  hour12       Int
+
+  @@index([line], map: "idx_line")
+  @@index([tahun], map: "idx_tahun")
+  @@index([target], map: "idx_target")
+  @@index([timestamp], map: "idx_timestamp")
+  @@index([total_bigbox], map: "idx_total_bigbox")
+  @@index([total_output], map: "idx_total_output")
+  @@index([total_pallet], map: "idx_total_pallet")
+  @@index([type], map: "idx_type")
+}
+
+model pallete {
+  id        Int      @id @default(autoincrement())
+  serial    String   @unique(map: "index_unique_serial") @db.VarChar(255)
+  timestamp DateTime @default(now()) @db.Timestamp(0)
+  line      String   @db.VarChar(100)
+  type      String   @db.VarChar(255)
+  location  String   @db.VarChar(255)
+
+  @@index([line], map: "index_line")
+  @@index([serial], map: "index_serial")
+  @@index([timestamp], map: "index_timestamp")
+}
+
+model pln_code {
+  id    Int    @id @default(autoincrement())
+  value String @db.VarChar(55)
+}
+
+model product {
+  id             Int      @id @default(autoincrement())
+  serial         String   @unique(map: "serial") @db.VarChar(255)
+  module_serial  String?  @unique(map: "module_serial") @db.VarChar(55)
+  timestamp      DateTime @default(now()) @db.Timestamp(0)
+  line           String   @db.VarChar(100)
+  type           String   @db.VarChar(255)
+  orderno        String   @db.VarChar(100)
+  area           String?  @db.VarChar(100)
+  jenis          String?  @db.VarChar(55)
+  box_id         Int?
+  attachment_id  Int?
+  attachment2_id Int?
+  remain         String   @default("0") @db.VarChar(20)
+  garansi        String?  @db.VarChar(50)
+
+  @@index([jenis], map: "IDX_JENIS_PRODUCT")
+  @@index([module_serial], map: "IDX_MODULE_SERIAL_PRODUCT")
+  @@index([attachment2_id], map: "att2id")
+  @@index([attachment_id], map: "attid")
+  @@index([type], map: "big_table_pk")
+  @@index([box_id], map: "boxid")
+  @@index([area], map: "idx_area")
+  @@index([serial, line, type, orderno, garansi, area], map: "idx_insertPacking_product")
+  @@index([timestamp, line], map: "idx_timestamp_line")
+  @@index([garansi], map: "index_garansi")
+  @@index([orderno], map: "orderno")
+  @@index([remain], map: "remainnya")
+  @@index([line], map: "timestamp")
+  @@index([timestamp], map: "timestamp_index")
+}
+
+model production_ng {
+  id          Int       @id @default(autoincrement())
+  meter_type  String    @db.VarChar(50)
+  serial      String    @db.VarChar(50)
+  tanggal     DateTime  @default(now()) @db.Timestamp(0)
+  station     String    @db.VarChar(50)
+  line        String    @db.VarChar(50)
+  defect      String    @db.VarChar(50)
+  category    String?   @db.VarChar(100)
+  department  String?   @db.VarChar(100)
+  action      String?   @db.VarChar(100)
+  keterangan  String?   @db.VarChar(100)
+  update_date DateTime? @db.Timestamp(0)
+  user        String?   @db.VarChar(100)
+}
+
+model productionorder {
+  id         Int      @id @default(autoincrement())
+  timestamp  DateTime @default(now()) @db.Timestamp(0)
+  ponum      String   @db.VarChar(50)
+  area       String   @db.VarChar(50)
+  provinsi   String   @db.VarChar(50)
+  count_qty  String   @db.VarChar(50)
+  qty        Int
+  status     Int
+  keterangan Int?
+}
+
+model receive_110 {
+  id        Int                @id @default(autoincrement())
+  serial    String             @unique(map: "serial") @db.VarChar(55)
+  qr_serial String             @db.VarChar(55)
+  timestamp DateTime           @default(now()) @db.Timestamp(0)
+  result    receive_110_result
+}
+
+model rework_amr {
+  id        Int      @id @default(autoincrement())
+  serial    String?  @db.VarChar(255)
+  qr_serial String   @db.VarChar(255)
+  timestamp DateTime @default(now()) @db.Timestamp(0)
+}
+
+model rework_box {
+  id             Int      @id @default(autoincrement())
+  serial         String   @db.VarChar(255)
+  timestamp      DateTime @default(now()) @db.Timestamp(0)
+  line           String   @db.VarChar(255)
+  type           String   @db.VarChar(255)
+  pallete_id     Int?
+  attachment_id  Int?
+  attachment2_id Int?
+}
+
+model rework_hxe110 {
+  id           Int      @id @default(autoincrement())
+  meter_type   String   @db.VarChar(50)
+  meter_serial String   @unique(map: "meter_serial") @db.VarChar(55)
+  tanggal      DateTime @default(now()) @db.Timestamp(0)
+  modem        String   @db.VarChar(55)
+  baterai      String   @db.VarChar(55)
+  defect       String   @db.VarChar(55)
+}
+
+model rework_pallete {
+  id        Int      @id @default(autoincrement())
+  serial    String   @db.VarChar(255)
+  timestamp DateTime @default(now()) @db.Timestamp(0)
+  line      String   @db.VarChar(100)
+  type      String   @db.VarChar(100)
+  location  String?  @db.VarChar(100)
+}
+
+model serial_check {
+  id             Int      @id @default(autoincrement())
+  serial         String   @unique(map: "serial") @db.VarChar(255)
+  timestamp      DateTime @default(now()) @db.Timestamp(0)
+  line           String   @db.VarChar(100)
+  type           String   @db.VarChar(255)
+  orderno        String   @db.VarChar(100)
+  area           String?  @db.VarChar(100)
+  jenis          String?  @db.VarChar(55)
+  box_id         Int?
+  attachment_id  Int?
+  attachment2_id Int?
+  remain         String   @default("0") @db.VarChar(20)
+  garansi        String?  @db.VarChar(50)
+
+  @@index([jenis], map: "IDX_JENIS_PRODUCT")
+  @@index([attachment2_id], map: "att2id")
+  @@index([attachment_id], map: "attid")
+  @@index([type], map: "big_table_pk")
+  @@index([box_id], map: "boxid")
+  @@index([area], map: "idx_area")
+  @@index([serial, line, type, orderno, garansi, area], map: "idx_insertPacking_product")
+  @@index([garansi], map: "index_garansi")
+  @@index([orderno], map: "orderno")
+  @@index([remain], map: "remainnya")
+  @@index([line], map: "timestamp")
+  @@index([timestamp], map: "timestamp_index")
+}
+
+model tahun_garansi {
+  id_garansi Int    @id @default(autoincrement())
+  value      String @db.VarChar(50)
+}
+
+model temp_indicator {
+  id        Int                   @id @default(autoincrement())
+  total     Int
+  total_ng  Int
+  total_ok  Int
+  timestamp DateTime              @default(now()) @db.Timestamp(0)
+  status    temp_indicator_status @default(IN)
+}
+
+enum logs_code {
+  OK
+  NG
+  DUP
+  NM
+  PRNT
+  ERR
+}
+
+enum receive_110_result {
+  OK
+  NG
+}
+
+enum temp_indicator_status {
+  IN
+  OUT
+}
+
+enum filestore_volume_enabled {
+  Y
+  N
+}
+
+enum filestore_file_deleted {
+  Y
+  N
+}
+
+enum meter_type_card_validation {
+  Yes
+  No
+}
+
+enum meter_type_validation_type {
+  Barcode
+  QR
+}
+
+enum meter_type_daily_reset {
+  Yes
+  No
+}
+
+enum meter_type_numeric_only {
+  Yes
+  No
+}
+
+enum meter_type_surpass_target {
+  Yes
+  No
+}
+
+enum meter_type_run_by_sequence {
+  Yes
+  No
+}

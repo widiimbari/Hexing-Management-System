@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { dbManagement } from "@/lib/db";
 import crypto from "crypto";
 
 // Helper to get ID from params
@@ -35,10 +35,11 @@ export async function PUT(req: Request, { params }: Props) {
     };
 
     if (password) {
-      dataToUpdate.password = password; // Send plain text, DB trigger handles hashing
+      // Hash password manually
+      dataToUpdate.password = crypto.createHash("md5").update(password).digest("hex");
     }
 
-    const updatedUser = await db.users.update({
+    const updatedUser = await dbManagement.users.update({
       where: { id: userId },
       data: dataToUpdate,
     });
@@ -66,7 +67,7 @@ export async function DELETE(req: Request, { params }: Props) {
       return NextResponse.json({ message: "Invalid user ID" }, { status: 400 });
     }
 
-    await db.users.delete({
+    await dbManagement.users.delete({
       where: { id: userId },
     });
 

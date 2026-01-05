@@ -13,11 +13,12 @@ function serializeBigInt(data: any): any {
 // GET - Get single category by ID
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const category = await dbAsset.categories.findUnique({
-      where: { id: BigInt(params.id) },
+      where: { id: BigInt(id) },
     });
 
     if (!category) {
@@ -42,13 +43,14 @@ export async function GET(
 // PUT - Update category by ID
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await req.json();
     
     const category = await dbAsset.categories.update({
-      where: { id: BigInt(params.id) },
+      where: { id: BigInt(id) },
       data: {
         name: body.name,
         updated_at: new Date(),
@@ -71,11 +73,12 @@ export async function PUT(
 // DELETE - Delete category by ID
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await dbAsset.categories.delete({
-      where: { id: BigInt(params.id) },
+      where: { id: BigInt(id) },
     });
 
     return NextResponse.json({

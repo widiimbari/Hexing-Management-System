@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { dbManagement } from "@/lib/db";
 import crypto from "crypto";
 
 export async function GET() {
   try {
-    const users = await db.users.findMany({
+    const users = await dbManagement.users.findMany({
       select: {
         id: true,
         username: true,
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const existingUser = await db.users.findFirst({
+    const existingUser = await dbManagement.users.findFirst({
       where: {
         username: username,
       },
@@ -48,10 +48,13 @@ export async function POST(req: Request) {
       );
     }
 
-    const newUser = await db.users.create({
+    // Hash password here to be consistent with login
+    const hashedPassword = crypto.createHash("md5").update(password).digest("hex");
+
+    const newUser = await dbManagement.users.create({
       data: {
         username,
-        password: password, // Send plain text, DB trigger handles hashing
+        password: hashedPassword,
         role,
       },
     });

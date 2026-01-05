@@ -1,0 +1,198 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/asset-client-v5"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("ASSET_DATABASE_URL")
+}
+
+model areas {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @unique @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  locations  locations[]
+  assets     assets[]
+}
+
+model asset_logs {
+  id                 BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  asset_id           BigInt    @db.UnsignedBigInt
+  previous_holder_id BigInt?   @db.UnsignedBigInt
+  new_holder_id      BigInt?   @db.UnsignedBigInt
+  previous_location  String?   @db.VarChar(255)
+  new_location       String?   @db.VarChar(255)
+  changed_at         DateTime  @default(now()) @db.Timestamp(0)
+  changed_by         BigInt?   @db.UnsignedBigInt
+  created_at         DateTime? @db.Timestamp(0)
+  updated_at         DateTime? @db.Timestamp(0)
+  
+  asset              assets    @relation(fields: [asset_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "asset_logs_asset_id_foreign")
+  changed_by_user    users?    @relation("AssetLogChangedBy", fields: [changed_by], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "asset_logs_changed_by_foreign")
+  previous_holder    employees? @relation("AssetLogPreviousHolder", fields: [previous_holder_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "asset_logs_previous_holder_id_foreign")
+  new_holder         employees? @relation("AssetLogNewHolder", fields: [new_holder_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "asset_logs_new_holder_id_foreign")
+
+  @@index([asset_id], map: "asset_logs_asset_id_foreign")
+  @@index([changed_by], map: "asset_logs_changed_by_foreign")
+  @@index([previous_holder_id], map: "asset_logs_previous_holder_id_foreign")
+  @@index([new_holder_id], map: "asset_logs_new_holder_id_foreign")
+}
+
+model assets {
+  id             BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  type_id        BigInt?  @db.UnsignedBigInt
+  serial_number  String   @unique @db.VarChar(255)
+  sap_id         String?  @db.VarChar(255)
+  purchase_date  DateTime? @db.Date
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+  category_id    BigInt?  @db.UnsignedBigInt
+  brand_id       BigInt?  @db.UnsignedBigInt
+  area_id        BigInt?  @db.UnsignedBigInt
+  location_id    BigInt?  @db.UnsignedBigInt
+  employee_id    BigInt?  @db.UnsignedBigInt
+  supplier_id    BigInt?  @db.UnsignedBigInt
+  image_id       BigInt?  @unique @db.UnsignedBigInt
+  
+  asset_type     asset_types? @relation(fields: [type_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "assets_type_id_foreign")
+  category       categories? @relation(fields: [category_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "assets_category_id_foreign")
+  brand          brands?     @relation(fields: [brand_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "assets_brand_id_foreign")
+  area           areas?      @relation(fields: [area_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "assets_area_id_foreign")
+  location       locations?  @relation(fields: [location_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "assets_location_id_foreign")
+  employee       employees?  @relation("AssetEmployee", fields: [employee_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "assets_employee_id_foreign")
+  supplier_rec   suppliers?  @relation("AssetSupplier", fields: [supplier_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "assets_supplier_id_foreign")
+  main_image     asset_images? @relation("AssetMainImage", fields: [image_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "assets_image_id_foreign")
+  asset_logs     asset_logs[]
+  log_cruds      log_crud[]
+  asset_images   asset_images[] @relation("AssetImages")
+
+  @@index([type_id], map: "assets_type_id_foreign")
+  @@index([category_id], map: "assets_category_id_foreign")
+  @@index([brand_id], map: "assets_brand_id_foreign")
+  @@index([area_id], map: "assets_area_id_foreign")
+  @@index([location_id], map: "assets_location_id_foreign")
+  @@index([employee_id], map: "assets_employee_id_foreign")
+  @@index([supplier_id], map: "assets_supplier_id_foreign")
+  @@index([image_id], map: "assets_image_id_foreign")
+}
+
+model asset_types {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @unique @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  assets     assets[]
+}
+
+model asset_images {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  asset_id   BigInt   @db.UnsignedBigInt
+  name       String   @db.VarChar(255)
+  url        String?  @db.VarChar(255)
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  
+  asset      assets   @relation("AssetImages", fields: [asset_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "asset_images_asset_id_foreign")
+  main_for   assets?  @relation("AssetMainImage")
+
+  @@index([asset_id], map: "asset_images_asset_id_foreign")
+}
+
+model brands {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @unique @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  assets     assets[]
+}
+
+model categories {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @unique @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  assets     assets[]
+}
+
+model departments {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  employees  employees[]
+}
+
+model employees {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  nik           String    @unique @db.VarChar(255)
+  nama          String    @db.VarChar(255)
+  gender        String    @db.VarChar(1) // 'L' or 'P'
+  created_at    DateTime? @db.Timestamp(0)
+  updated_at    DateTime? @db.Timestamp(0)
+  department_id BigInt?   @db.UnsignedBigInt
+  
+department    departments?  @relation(fields: [department_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "employees_department_id_foreign")
+  
+  previous_logs asset_logs[] @relation("AssetLogPreviousHolder")
+  new_logs      asset_logs[] @relation("AssetLogNewHolder")
+  assets       assets[]       @relation("AssetEmployee")
+  
+  @@index([department_id], map: "employees_department_id_foreign")
+}
+
+model locations {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  area_id    BigInt    @db.UnsignedBigInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  
+  area       areas   @relation(fields: [area_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "locations_area_id_foreign")
+  assets     assets[]
+
+  @@index([area_id], map: "locations_area_id_foreign")
+}
+
+model log_crud {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  table_name String   @db.VarChar(255)
+  sap_id     String?  @db.VarChar(255)
+  operation  String   @db.VarChar(10) // 'create', 'update', 'delete'
+  old_data   String?  @db.LongText
+  new_data   String?  @db.LongText
+  user_id    BigInt?  @db.UnsignedBigInt
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  
+  user       users?   @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "log_crud_user_id_foreign")
+  assets     assets[]
+
+  @@index([user_id], map: "log_crud_user_id_foreign")
+}
+
+model suppliers {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name           String    @db.VarChar(255)
+  contact_person String?   @db.VarChar(255)
+  phone          String?   @db.VarChar(255)
+  email          String?   @db.VarChar(255)
+  address        String?   @db.Text
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+  
+  assets         assets[]  @relation("AssetSupplier")
+}
+
+model users {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name              String    @db.VarChar(255)
+  email             String    @unique @db.VarChar(255)
+  email_verified_at DateTime? @db.Timestamp(0)
+  password          String    @db.VarChar(255)
+  remember_token    String?   @db.VarChar(100)
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+  
+  asset_logs        asset_logs[] @relation("AssetLogChangedBy")
+  log_cruds         log_crud[]
+}

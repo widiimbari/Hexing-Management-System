@@ -34,8 +34,8 @@ export default function LoginPage() {
       });
 
       if (res.ok) {
+        // Redirect to dashboard or home page
         router.push("/dashboard");
-        router.refresh(); 
       } else {
         const data = await res.json();
         setError(data.message || "Login failed");
@@ -92,8 +92,8 @@ export default function LoginPage() {
 
                 <div className="space-y-4 max-w-sm">
                     <h2 className="text-4xl font-bold tracking-tight leading-tight">
-                        Hexing Inventory <br/>
-                        <span className="text-blue-400">Management</span>
+                        Hexing <br/>
+                        <span className="text-blue-400">Management System</span>
                     </h2>
                     <p className="text-slate-300 text-lg leading-relaxed">
                         Streamline your operations with real-time tracking and secure data handling.

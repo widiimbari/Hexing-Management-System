@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../../../../generated/inventory-client";
 import { format } from "date-fns";
 
 export async function GET(req: Request) {
@@ -10,12 +10,8 @@ export async function GET(req: Request) {
     const endDate = searchParams.get("endDate");
     const type = searchParams.get("type");
 
-    if (!startDate || !endDate) {
-        return NextResponse.json({ totalOutput: 0, lineStats: [], detailedStats: [] });
-    }
-
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const start = startDate ? new Date(startDate) : undefined;
+    const end = endDate ? new Date(endDate) : undefined;
 
     // 1. Fetch Targets from Config
     const targets = await db.$queryRaw`
@@ -31,11 +27,11 @@ export async function GET(req: Request) {
     });
 
     // 2. Main Aggregation Query (Products, Boxes, Pallets)
-    // Using Raw Query for performance and JOIN capabilities
-    let typeCondition = Prisma.sql``;
-    if (type && type !== 'all') {
-        typeCondition = Prisma.sql`AND p.type = ${type}`;
-    }
+    // Refactored to be 100% static to avoid SQL syntax errors (Code 1064)
+    const filterType = type && type !== 'all' ? type : 'all';
+    const isAllTime = (start && end) ? 0 : 1;
+    const sDate = start || new Date(0); // Fallback to epoch if All Time
+    const eDate = end || new Date();    // Fallback to now if All Time
 
     const rawStats: any[] = await db.$queryRaw`
         SELECT 
@@ -48,9 +44,8 @@ export async function GET(req: Request) {
             COUNT(DISTINCT b.pallete_id) as total_pallet
         FROM product p
         LEFT JOIN box b ON p.box_id = b.id
-        WHERE p.timestamp >= ${start} 
-          AND p.timestamp <= ${end}
-          ${typeCondition}
+        WHERE (${isAllTime} = 1 OR (p.timestamp >= ${sDate} AND p.timestamp <= ${eDate}))
+          AND (${filterType} = 'all' OR p.type = ${filterType})
         GROUP BY p.line, p.type
         ORDER BY p.line ASC
     `;
@@ -72,7 +67,7 @@ export async function GET(req: Request) {
 
         return {
             tanggal: dateRange,
-            tahun: new Date(start).getFullYear(), // Use query start year or range
+            tahun: start ? new Date(start).getFullYear() : (row.start_date ? new Date(row.start_date).getFullYear() : new Date().getFullYear()),
             line: row.line,
             type: row.type,
             total_output: total_output,
@@ -100,8 +95,8 @@ export async function GET(req: Request) {
         detailedStats
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("[PRODUCT_STATS]", error);
-    return NextResponse.json({ message: "Error" }, { status: 500 });
+    return NextResponse.json({ message: "Error", details: error.message }, { status: 500 });
   }
 }

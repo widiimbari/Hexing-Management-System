@@ -1,46 +1,33 @@
+import { dbManagement } from "@/lib/db";
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
-import crypto from "crypto";
 
-export async function PATCH(req: Request) {
+export async function PUT(req: Request) {
   try {
-    const currentUser = await getCurrentUser();
-    
-    if (!currentUser || !currentUser.id) {
-      return new NextResponse("Unauthorized", { status: 401 });
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
-    const { password, newPassword } = body;
+    const { newPassword } = body;
 
     if (!newPassword) {
-      return new NextResponse("New password is required", { status: 400 });
+      return NextResponse.json({ message: "New password is required" }, { status: 400 });
     }
 
-    // Verify old password (optional but recommended, currently checking if we should implement)
-    // For simplicity in this iteration, we'll just allow setting the new password if logged in.
-    // But usually we ask for current password.
-    
-    // Let's implement simpler flow first: Just update password.
-    
-    // Hash new password (MD5 per project convention)
-    // Note: Project convention is MD5.
-    // Wait, in previous step we decided NOT to hash in API because DB trigger does it?
-    // "So, the fix is: Do NOT hash the password in the Next.js API before saving to the database. Let the database trigger handle the hashing."
-    
-    // YES. We should send PLAIN TEXT `newPassword`.
-    
-    await db.users.update({
-      where: { id: parseInt(currentUser.id as string) },
+    // Update user password in management database
+    // Assuming user.id is the ID in management database
+    await dbManagement.users.update({
+      where: { id: parseInt(user.id as string) },
       data: {
-        password: newPassword, // DB Trigger will hash this
+        password: newPassword, // The DB trigger will handle hashing
       },
     });
 
-    return NextResponse.json({ message: "Profile updated" });
+    return NextResponse.json({ message: "Password updated successfully" });
   } catch (error) {
-    console.error("[PROFILE_UPDATE]", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    console.error("Error updating profile:", error);
+    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
   }
 }

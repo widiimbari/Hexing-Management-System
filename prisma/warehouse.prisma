@@ -1,0 +1,21 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/warehouse-client"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("WAREHOUSE_DATABASE_URL")
+}
+
+model warehouse_location {
+  id   Int    @id @default(autoincrement())
+  code String @unique
+  name String
+}
+
+model stock_opname {
+  id         Int      @id @default(autoincrement())
+  date       DateTime @default(now())
+  status     String
+}

@@ -13,23 +13,14 @@ function serializeBigInt(data: any): any {
 // GET - Get single location by ID
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const location = await dbAsset.locations.findUnique({
-      where: { id: BigInt(params.id) },
+      where: { id: BigInt(id) },
       include: {
-        area: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        _count: {
-          select: {
-            assets: true,
-          },
-        },
+        area: true,
       },
     });
 
@@ -55,25 +46,18 @@ export async function GET(
 // PUT - Update location by ID
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await req.json();
     
     const location = await dbAsset.locations.update({
-      where: { id: BigInt(params.id) },
+      where: { id: BigInt(id) },
       data: {
         name: body.name,
-        area_id: BigInt(body.area_id),
+        area_id: body.area_id ? BigInt(body.area_id) : undefined,
         updated_at: new Date(),
-      },
-      include: {
-        area: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
       },
     });
 
@@ -93,11 +77,12 @@ export async function PUT(
 // DELETE - Delete location by ID
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await dbAsset.locations.delete({
-      where: { id: BigInt(params.id) },
+      where: { id: BigInt(id) },
     });
 
     return NextResponse.json({

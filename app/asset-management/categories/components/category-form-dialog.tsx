@@ -43,7 +43,15 @@ export function CategoryFormDialog({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onSave(formData);
+    
+    // Add automatic timestamps
+    const submitData = {
+      ...formData,
+      created_at: category ? undefined : new Date(), // Only set created_at for new items
+      updated_at: new Date(), // Always set updated_at
+    };
+    
+    onSave(submitData);
   };
 
   const handleInputChange = (field: keyof CategoryFormData, value: string) => {

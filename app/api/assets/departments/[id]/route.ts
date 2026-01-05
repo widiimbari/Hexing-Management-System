@@ -13,18 +13,12 @@ function serializeBigInt(data: any): any {
 // GET - Get single department by ID
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const department = await dbAsset.departments.findUnique({
-      where: { id: BigInt(params.id) },
-      include: {
-        _count: {
-          select: {
-            employees: true,
-          },
-        },
-      },
+      where: { id: BigInt(id) },
     });
 
     if (!department) {
@@ -49,13 +43,14 @@ export async function GET(
 // PUT - Update department by ID
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await req.json();
     
     const department = await dbAsset.departments.update({
-      where: { id: BigInt(params.id) },
+      where: { id: BigInt(id) },
       data: {
         name: body.name,
         updated_at: new Date(),
@@ -78,11 +73,12 @@ export async function PUT(
 // DELETE - Delete department by ID
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await dbAsset.departments.delete({
-      where: { id: BigInt(params.id) },
+      where: { id: BigInt(id) },
     });
 
     return NextResponse.json({

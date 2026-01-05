@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { dbAsset } from "@/lib/db";
+import fs from 'fs';
+import path from 'path';
 
 // Helper to serialize BigInt
 function serializeBigInt(data: any): any {
@@ -13,9 +15,11 @@ function serializeBigInt(data: any): any {
 // POST - Upload images for an asset
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+    const assetId = BigInt(id);
     const formData = await req.formData();
     const files = formData.getAll('images') as File[];
     
@@ -26,15 +30,43 @@ export async function POST(
       );
     }
 
+    // Fetch asset to get folder name (SAP ID or ID)
+    const asset = await dbAsset.assets.findUnique({
+      where: { id: assetId }
+    });
+
+    if (!asset) {
+      return NextResponse.json({ message: "Asset not found" }, { status: 404 });
+    }
+
+    // Determine folder name: SAP ID -> Serial Number -> ID
+    const folderName = asset.sap_id || asset.serial_number || id;
+    // Sanitize folder name
+    const safeFolderName = folderName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+
     const uploadedImages = [];
     
+    const uploadDir = path.join(process.cwd(), 'public/uploads/assets', safeFolderName);
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    
     for (const file of files) {
-      // In a real implementation, you would upload to a storage service
-      // For now, we'll just create a database record
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      
+      const fileName = `${Date.now()}-${file.name.replace(/[^a-z0-9.]/gi, '_')}`;
+      const filePath = path.join(uploadDir, fileName);
+      fs.writeFileSync(filePath, buffer);
+      
+      // URL should be /uploads/assets/{folder}/{file}
+      const url = `/uploads/assets/${safeFolderName}/${fileName}`;
+
       const image = await dbAsset.asset_images.create({
         data: {
-          asset_id: BigInt(params.id),
+          asset_id: assetId,
           name: file.name,
+          url: url,
           created_at: new Date(),
         },
       });
@@ -46,10 +78,10 @@ export async function POST(
       data: uploadedImages,
       message: "Images uploaded successfully",
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error uploading images:", error);
     return NextResponse.json(
-      { message: "Internal server error" },
+      { message: error.message || "Internal server error" },
       { status: 500 }
     );
   }

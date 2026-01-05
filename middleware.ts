@@ -12,12 +12,16 @@ export async function middleware(req: NextRequest) {
   // Define protected routes (add more as needed)
   const protectedRoutes = [
     "/dashboard",
-    "/products",
+    "/inventory/dashboard",
+    "/inventory/products",
+    "/inventory/warehouse",
+    "/inventory/history",
+    "/inventory/pl-master",
+    "/inventory/pl-slave",
+    "/assets",
+    "/asset-management",
     "/warehouse",
-    "/history",
-    "/pl-master",
-    "/pl-slave",
-    "/users", // Added users
+    "/admin/users",
   ];
 
   // Define public routes
@@ -64,8 +68,8 @@ export async function middleware(req: NextRequest) {
       const { payload } = await jwtVerify(token, key);
       
       // Role-Based Access Control
-      if (pathname.startsWith("/users") && payload.role !== "admin") {
-          // Redirect to dashboard if user tries to access /users but is not admin
+      if (pathname.startsWith("/admin/users") && payload.role !== "admin") {
+          // Redirect to dashboard if user tries to access /admin/users but is not admin
           return NextResponse.redirect(new URL("/dashboard", req.url));
       }
 

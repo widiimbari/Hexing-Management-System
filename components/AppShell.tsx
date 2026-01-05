@@ -18,15 +18,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div 
         className={cn(
-            "flex flex-col md:grid min-h-screen w-full transition-all duration-300",
+            "flex flex-col md:grid min-h-screen w-full transition-all duration-300 gap-0 md:gap-2",
             isSidebarCollapsed 
                 ? "md:grid-cols-[60px_1fr]" 
-                : "md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]"
+                : "md:grid-cols-[240px_1fr]"
         )}
     >
       <MobileSidebar />
       <Sidebar isCollapsed={isSidebarCollapsed} toggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
-      <main className="flex flex-col flex-1 overflow-hidden">{children}</main>
+      <main className="flex flex-col flex-1 overflow-x-auto overflow-y-auto p-4 md:p-6">{children}</main>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../../../generated/inventory-client";
 
 export async function GET(req: Request) {
   try {
@@ -25,22 +25,22 @@ export async function GET(req: Request) {
     };
 
     if (availableOnly) {
-        // Most stable way to find masters with available products
-        // We find unique attachment_ids from products that don't have a slave yet
-        const productsWithNoSlave = await db.product.findMany({
-            where: { 
-                attachment2_id: null,
-                attachment_id: { not: null }
-            },
-            select: { attachment_id: true },
-            distinct: ['attachment_id']
-        });
-        
-        const targetIds = productsWithNoSlave
-            .map(p => p.attachment_id)
-            .filter((id): id is number => id !== null);
+      // Find master attachments that have available products (no slave assigned)
+      // Original logic using distinct product query
+      const productsWithNoSlave = await db.product.findMany({
+        where: {
+          attachment2_id: null,
+          attachment_id: { not: null },
+        },
+        select: { attachment_id: true },
+        distinct: ["attachment_id"],
+      });
 
-        whereClause.id = { in: targetIds };
+      const targetIds = productsWithNoSlave
+        .map((p) => p.attachment_id)
+        .filter((id): id is number => id !== null);
+
+      whereClause.id = { in: targetIds };
     }
 
     // 1. Get Total Count (Fast)

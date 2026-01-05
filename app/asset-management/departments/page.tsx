@@ -24,7 +24,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { useDebounce } from "@/hooks/use-debounce";
+import { format } from "date-fns";
 import { DepartmentFormDialog } from "./components/department-form-dialog";
+import { AlertModal } from "@/components/ui/alert-modal";
 
 interface Department {
   id: string;
@@ -52,6 +54,11 @@ export default function DepartmentsPage() {
   const [formDialogOpen, setFormDialogOpen] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
   const [formLoading, setFormLoading] = useState(false);
+
+  // Delete Alert states
+  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
+  const [departmentToDelete, setDepartmentToDelete] = useState<Department | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -103,16 +110,24 @@ export default function DepartmentsPage() {
     }
   };
 
-  const handleDeleteDepartment = async (department: Department) => {
-    if (!confirm(`Are you sure you want to delete department "${department.name}"?`)) return;
+  const handleDeleteDepartment = (department: Department) => {
+    setDepartmentToDelete(department);
+    setDeleteAlertOpen(true);
+  };
+
+  const onConfirmDelete = async () => {
+    if (!departmentToDelete) return;
     
+    setDeleteLoading(true);
     try {
-      const res = await fetch(`/api/assets/departments/${department.id}`, {
+      const res = await fetch(`/api/assets/departments/${departmentToDelete.id}`, {
         method: 'DELETE',
       });
 
       if (!res.ok) throw new Error("Failed to delete department");
       
+      setDeleteAlertOpen(false);
+      setDepartmentToDelete(null);
       fetchData();
     } catch (err) {
       console.error(err);
@@ -143,8 +158,15 @@ export default function DepartmentsPage() {
     },
     {
       id: "created_at",
+      accessorKey: "created_at",
       header: "Created At",
-      cell: ({ value }) => value ? new Date(value).toLocaleDateString() : "-"
+      cell: ({ value }) => value ? format(new Date(value), "dd/MM/yyyy") : "-"
+    },
+    {
+      id: "updated_at", 
+      accessorKey: "updated_at",
+      header: "Updated At",
+      cell: ({ value }) => value ? format(new Date(value), "dd/MM/yyyy") : "-"
     },
     {
       id: "actions",
@@ -182,7 +204,7 @@ export default function DepartmentsPage() {
           <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-2">
             <Building className="h-8 w-8 text-primary" /> Department Management
           </h1>
-          <p className="text-muted-foreground">Manage organizational departments.</p>
+          <p className="text-muted-foreground">Manage asset departments.</p>
         </div>
         <Button onClick={() => {
           setSelectedDepartment(null);
@@ -228,6 +250,16 @@ export default function DepartmentsPage() {
         department={selectedDepartment}
         onSave={handleSaveDepartment}
         loading={formLoading}
+      />
+      
+      {/* Delete Alert Modal */}
+      <AlertModal
+        isOpen={deleteAlertOpen}
+        onClose={() => setDeleteAlertOpen(false)}
+        onConfirm={onConfirmDelete}
+        loading={deleteLoading}
+        title="Are you sure?"
+        description={`This action cannot be undone. This will permanently delete the department "${departmentToDelete?.name}".`}
       />
     </div>
   );
