@@ -2,10 +2,9 @@ import { NextResponse } from "next/server";
 import { dbManagement } from "@/lib/db";
 import { SignJWT } from "jose";
 import { cookies } from "next/headers";
-import crypto from "crypto";
-
-const SECRET_KEY = process.env.JWT_SECRET || "supersecretkey123";
-const key = new TextEncoder().encode(SECRET_KEY);
+import { JWT_KEY, JWT_EXPIRY, JWT_COOKIE_MAX_AGE, JWT_ALGORITHM } from "@/lib/jwt";
+import { verifyPassword, isMD5Hash, verifyMD5Password, hashPassword } from "@/lib/password";
+import { logError, getErrorContext, getSafeErrorMessage } from "@/lib/error-logger";
 
 export async function POST(req: Request) {
   try {
@@ -32,17 +31,60 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check password (MD5)
-    const hashedPassword = crypto
-      .createHash("md5")
-      .update(password)
-      .digest("hex");
+    // Verify password (supports both bcrypt and legacy MD5)
+    let isPasswordValid = false;
+    let needsMigration = false;
 
-    if (hashedPassword !== user.password) {
+    if (isMD5Hash(user.password)) {
+      // Legacy MD5 hash - verify using MD5
+      isPasswordValid = verifyMD5Password(password, user.password);
+      needsMigration = true; // Flag for migration to bcrypt
+    } else {
+      // Modern bcrypt hash
+      isPasswordValid = await verifyPassword(password, user.password);
+    }
+
+    if (!isPasswordValid) {
+      // Log failed login attempt
+      logError(
+        "Failed login attempt",
+        {
+          username,
+          endpoint: "/api/auth/login",
+          method: "POST",
+          additionalInfo: { reason: "Invalid password" },
+        },
+        "low"
+      );
+
       return NextResponse.json(
         { message: "Invalid credentials" },
         { status: 401 }
       );
+    }
+
+    // Auto-migrate MD5 password to bcrypt on successful login
+    if (needsMigration) {
+      try {
+        const newHashedPassword = await hashPassword(password);
+        await dbManagement.users.update({
+          where: { id: user.id },
+          data: { password: newHashedPassword },
+        });
+        console.log(`✅ Migrated user ${username} from MD5 to bcrypt`);
+      } catch (migrationError) {
+        // Don't fail login if migration fails, just log it
+        logError(
+          migrationError as Error,
+          {
+            username,
+            endpoint: "/api/auth/login",
+            method: "POST",
+            additionalInfo: { action: "password_migration" },
+          },
+          "medium"
+        );
+      }
     }
 
     // Create JWT
@@ -50,11 +92,13 @@ export async function POST(req: Request) {
       sub: user.id.toString(),
       username: user.username,
       role: user.role,
+      name: user.name,
+      image_url: user.image_url,
     })
-      .setProtectedHeader({ alg: "HS256" })
+      .setProtectedHeader({ alg: JWT_ALGORITHM })
       .setIssuedAt()
-      .setExpirationTime("24h") // Token expires in 24 hours
-      .sign(key);
+      .setExpirationTime(JWT_EXPIRY)
+      .sign(JWT_KEY);
 
     // Set Cookie
     (await cookies()).set("session_token", token, {
@@ -62,14 +106,24 @@ export async function POST(req: Request) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 60 * 24, // 24 hours
+      maxAge: JWT_COOKIE_MAX_AGE,
     });
 
     return NextResponse.json({ message: "Login successful" });
   } catch (error) {
-    console.error("Login error:", error);
+    // Log the error with context
+    logError(
+      error as Error,
+      getErrorContext(req),
+      "high"
+    );
+
+    // Return safe error message to client
+    const isDevelopment = process.env.NODE_ENV === "development";
+    const safeMessage = getSafeErrorMessage(error, isDevelopment);
+
     return NextResponse.json(
-      { message: `Internal server error: ${error instanceof Error ? error.message : String(error)}` },
+      { message: safeMessage },
       { status: 500 }
     );
   }

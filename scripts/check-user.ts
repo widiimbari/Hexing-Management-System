@@ -1,4 +1,4 @@
-import { PrismaClient } from "../generated/management-client";
+import { PrismaClient } from "../generated/management-client-v2";
 
 const db = new PrismaClient();
 

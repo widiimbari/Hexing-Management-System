@@ -9,8 +9,11 @@ const garamond = EB_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "Hexing Inventory",
-  description: "Inventory Information System for Hexing",
+  title: "Hexing Management System",
+  description: "Management Information System for Hexing",
+  icons: {
+    icon: "/icon hexing.png?v=1",
+  },
 };
 
 export default function RootLayout({

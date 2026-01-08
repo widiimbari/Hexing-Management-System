@@ -47,6 +47,7 @@ export function ProductFilters({ onFilterChange, onExport, loading, currentSearc
   const [period, setPeriod] = useState<string>("all");
   const [groupBy, setGroupBy] = useState<string>("none"); // none, box, pallet
   const [meterTypes, setMeterTypes] = useState<string[]>([]);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   // Fetch Meter Types on Mount
   useEffect(() => {
@@ -157,7 +158,7 @@ export function ProductFilters({ onFilterChange, onExport, loading, currentSearc
                  </div>
                  
                  {/* Date Range */}
-                  <Popover>
+                  <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                     <PopoverTrigger asChild>
                     <Button
                         variant={"outline"}
@@ -170,11 +171,11 @@ export function ProductFilters({ onFilterChange, onExport, loading, currentSearc
                         {dateRange?.from ? (
                         dateRange.to ? (
                             <>
-                            {format(dateRange.from, "LLL dd, y")} -{" "}
-                            {format(dateRange.to, "LLL dd, y")}
+                            {format(dateRange.from, "dd/MM/yyyy")} -{" "}
+                            {format(dateRange.to, "dd/MM/yyyy")}
                             </>
                         ) : (
-                            format(dateRange.from, "LLL dd, y")
+                            format(dateRange.from, "dd/MM/yyyy")
                         )
                         ) : (
                         <span>Pick a date</span>

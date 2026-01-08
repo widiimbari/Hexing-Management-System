@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { dbAsset } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
-import { AssetCondition } from "@/generated/asset-client-v8";
+import { AssetCondition } from "@/generated/asset-client-v9";
 import fs from 'fs';
 import path from 'path';
 
@@ -96,57 +96,91 @@ export async function POST(
       }
     }
 
-    // Handle File Upload (Attachment)
-    if (attachment && attachment.size > 0) {
-      const folderName = currentAsset.sap_id || currentAsset.serial_number || String(assetId);
-      const safeFolderName = folderName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-      const uploadDir = path.join(process.cwd(), 'public/uploads/assets', safeFolderName);
-      
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
-      
-      const fileName = `${Date.now()}-action-${actionType.toLowerCase()}-${attachment.name.replace(/[^a-z0-9.]/gi, '_')}`;
-      const filePath = path.join(uploadDir, fileName);
-      const arrayBuffer = await attachment.arrayBuffer();
-      fs.writeFileSync(filePath, Buffer.from(arrayBuffer));
-      
-      const attachmentUrl = `/uploads/assets/${safeFolderName}/${fileName}`;
-      
-      // Append attachment URL to remarks or create an image record?
-      // User asked for "Lampiran Foto". Creating an asset_image record is better so it shows in gallery.
-      await dbAsset.asset_images.create({
-        data: {
-          asset_id: assetId,
-          name: `[${actionType}] ${attachment.name}`,
-          url: attachmentUrl,
-          created_at: new Date()
+    // Prepare file upload data
+    let uploadedFilePath: string | null = null;
+    let attachmentUrl: string | null = null;
+
+    try {
+      // Handle File Upload (Attachment) - Upload first, cleanup if transaction fails
+      if (attachment && attachment.size > 0) {
+        const folderName = currentAsset.sap_id || currentAsset.serial_number || String(assetId);
+        const safeFolderName = folderName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const uploadDir = path.join(process.cwd(), 'public/uploads/assets', safeFolderName);
+
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
         }
+
+        const fileName = `${Date.now()}-action-${actionType.toLowerCase()}-${attachment.name.replace(/[^a-z0-9.]/gi, '_')}`;
+        const filePath = path.join(uploadDir, fileName);
+        const arrayBuffer = await attachment.arrayBuffer();
+        fs.writeFileSync(filePath, Buffer.from(arrayBuffer));
+
+        uploadedFilePath = filePath; // Track for cleanup
+        attachmentUrl = `/uploads/assets/${safeFolderName}/${fileName}`;
+
+        transactionData.attachment_url = attachmentUrl;
+        transactionData.remarks = remarks;
+      }
+
+      // Execute Transaction (Update Asset + Create Log + Image Record)
+      const result = await dbAsset.$transaction(async (tx) => {
+        // 1. Update asset
+        const updated = await tx.assets.update({
+          where: { id: assetId },
+          data: assetUpdateData
+        });
+
+        // 2. Create transaction log
+        const log = await tx.asset_transactions.create({
+          data: transactionData
+        });
+
+        // 3. Create image record if attachment uploaded
+        if (attachmentUrl) {
+          await tx.asset_images.create({
+            data: {
+              asset_id: assetId,
+              name: `[${actionType}] ${attachment!.name}`,
+              url: attachmentUrl,
+              created_at: new Date()
+            }
+          });
+        }
+
+        // 4. Log activity
+        await tx.activity_log.create({
+          data: {
+            action: actionType,
+            entity_type: 'Asset',
+            entity_id: String(assetId),
+            details: `${actionType}: ${remarks || 'No remarks'}`,
+            user_id: changedById ? String(changedById) : null,
+            username: changedByName,
+            created_at: new Date(),
+          }
+        });
+
+        return { updated, log };
       });
 
-      // Save to transaction record
-      transactionData.attachment_url = attachmentUrl;
-      transactionData.remarks = remarks; // Keep original remarks clean
+      return NextResponse.json({
+        message: "Action processed successfully",
+        data: serializeBigInt(result)
+      });
+    } catch (error) {
+      // Cleanup uploaded file if transaction failed
+      if (uploadedFilePath && fs.existsSync(uploadedFilePath)) {
+        try {
+          fs.unlinkSync(uploadedFilePath);
+          console.log('Cleaned up uploaded file after transaction failure:', uploadedFilePath);
+        } catch (cleanupError) {
+          console.error('Failed to cleanup uploaded file:', uploadedFilePath, cleanupError);
+        }
+      }
+
+      throw error; // Re-throw to outer catch
     }
-
-    // Execute Transaction (Update Asset + Create Log)
-    const result = await dbAsset.$transaction(async (tx) => {
-      const updated = await tx.assets.update({
-        where: { id: assetId },
-        data: assetUpdateData
-      });
-
-      const log = await tx.asset_transactions.create({
-        data: transactionData
-      });
-
-      return { updated, log };
-    });
-
-    return NextResponse.json({
-      message: "Action processed successfully",
-      data: serializeBigInt(result)
-    });
 
   } catch (error: any) {
     console.error("Error processing asset action:", error);

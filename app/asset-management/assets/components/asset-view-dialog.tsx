@@ -28,6 +28,7 @@ import { format } from "date-fns";
 import { ChangeConditionDialog } from "./change-condition-dialog";
 import { MoveAssetDialog } from "./move-asset-dialog";
 import { AssignAssetDialog } from "./assign-asset-dialog";
+import { useRole } from "@/hooks/use-role";
 
 // Helper function to format condition names for display
 const formatConditionName = (condition?: string) => {
@@ -77,6 +78,7 @@ interface Transaction {
 }
 
 export function AssetViewDialog({ open, onOpenChange, asset, onAssetUpdated }: AssetViewDialogProps) {
+  const { role } = useRole();
   const [currentAsset, setCurrentAsset] = useState<Asset | null>(asset);
   const [timeline, setTimeline] = useState<Transaction[]>([]);
   const [loadingTimeline, setLoadingTimeline] = useState(false);
@@ -188,26 +190,28 @@ export function AssetViewDialog({ open, onOpenChange, asset, onAssetUpdated }: A
 
             
             {/* Quick Actions */}
-            <Card className="border-slate-200 shadow-sm">
-              <CardHeader className="pb-3 border-b bg-slate-50">
-                <CardTitle className="text-sm font-semibold text-slate-800">
-                  Manage Asset
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  <Button onClick={() => setConditionOpen(true)} variant="outline" className="justify-start h-10 border-slate-300 hover:bg-orange-50 hover:text-orange-700 hover:border-orange-200">
-                    <AlertTriangle className="mr-2 h-4 w-4" /> Report
-                  </Button>
-                  <Button onClick={() => setMoveOpen(true)} variant="outline" className="justify-start h-10 border-slate-300 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200">
-                    <Move className="mr-2 h-4 w-4" /> Move
-                  </Button>
-                  <Button onClick={() => setAssignOpen(true)} variant="outline" className="justify-start h-10 border-slate-300 hover:bg-green-50 hover:text-green-700 hover:border-green-200">
-                    <User className="mr-2 h-4 w-4" /> Assign
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            {(role === "super_admin" || role === "admin") && (
+                <Card className="border-slate-200 shadow-sm">
+                <CardHeader className="pb-3 border-b bg-slate-50">
+                    <CardTitle className="text-sm font-semibold text-slate-800">
+                    Manage Asset
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <Button onClick={() => setConditionOpen(true)} variant="outline" className="justify-start h-10 border-slate-300 hover:bg-orange-50 hover:text-orange-700 hover:border-orange-200">
+                        <AlertTriangle className="mr-2 h-4 w-4" /> Report
+                    </Button>
+                    <Button onClick={() => setMoveOpen(true)} variant="outline" className="justify-start h-10 border-slate-300 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200">
+                        <Move className="mr-2 h-4 w-4" /> Move
+                    </Button>
+                    <Button onClick={() => setAssignOpen(true)} variant="outline" className="justify-start h-10 border-slate-300 hover:bg-green-50 hover:text-green-700 hover:border-green-200">
+                        <User className="mr-2 h-4 w-4" /> Assign
+                    </Button>
+                    </div>
+                </CardContent>
+                </Card>
+            )}
             
             {/* Status & Location Card */}
             <Card className="border-slate-200 shadow-sm">

@@ -29,18 +29,23 @@ export async function generateSlaveExcel(
     pageSetup: {
       paperSize: 9, // A4
       orientation: "landscape", 
+      fitToPage: true,
+      fitToWidth: 1,
+      fitToHeight: 0,
       margins: {
         left: 0.2, right: 0.2, top: 0.3, bottom: 0.3, header: 0, footer: 0,
       },
     },
   });
 
-  const year = new Date(attachment.tgl_order).getFullYear();
-  const yearSuffix = year.toString().slice(-3);
+  const orderYearMatch = attachment.no_order?.match(/20\d{2}/);
+  const orderYear = orderYearMatch ? orderYearMatch[0] : new Date(attachment.tgl_order).getFullYear().toString();
+  const yearSuffix = "0" + orderYear.slice(-2);
 
   const getFullCode = (serial: string) => `${prefix}${yearSuffix}${serial}`;
 
   if (type === 'PLN') {
+    // ... (Keep existing code until Data Loop) ...
     // --- LAMPIRAN PLN SERIAL (4 Blocks Horizontal) ---
     // Columns per block: No, Palet, BigBox, Serial, PLN Serial (5 cols)
     // Total cols: 20
@@ -105,7 +110,7 @@ export async function generateSlaveExcel(
         const cellLabelRight = sheet.getCell(`O${row}`);
         cellLabelRight.value = labelRight; cellLabelRight.font = fontRegular; cellLabelRight.numFmt = formatLabelColon; cellLabelRight.alignment = { horizontal: "left", vertical: "middle" };
 
-        // Kanan: Value R-T
+        // Kanan: Value Q-Q
         sheet.mergeCells(`Q${row}:Q${row}`);
         const cellValRight = sheet.getCell(`Q${row}`);
         cellValRight.value = valRight; cellValRight.font = fontRegular; cellValRight.alignment = { horizontal: "left", vertical: "middle", indent: 1 };
@@ -182,8 +187,14 @@ export async function generateSlaveExcel(
         c4.value = item.serial;
 
         // PLN Serial (becomes Serial if HXM300, and uses module_serial)
+        // Derive year from item.orderno
+        const orderYearMatch = item.orderno?.match(/20\d{2}/);
+        const orderYear = orderYearMatch ? orderYearMatch[0] : new Date(attachment.tgl_order).getFullYear().toString();
+        const yearSuffix = "0" + orderYear.slice(-2);
+        const fullCode = `${prefix}${yearSuffix}${item.serial}`;
+
         const c5 = currentRow.getCell(baseCol + 4);
-        c5.value = isHXM300 ? item.module_serial : getFullCode(item.serial);
+        c5.value = isHXM300 ? item.module_serial : fullCode;
 
         [c1, c2, c3, c4, c5].forEach(c => {
             c.border = borderThin;
@@ -224,9 +235,15 @@ export async function generateSlaveExcel(
         const c1 = currentRow.getCell(1);
         c1.value = item.pallet_serial;
 
+        // Derive year from item.orderno
+        const orderYearMatch = item.orderno?.match(/20\d{2}/);
+        const orderYear = orderYearMatch ? orderYearMatch[0] : new Date(attachment.tgl_order).getFullYear().toString();
+        const yearSuffix = "0" + orderYear.slice(-2);
+        const fullCode = `${prefix}${yearSuffix}${item.serial}`;
+
         // Serial Number (PLN Serial)
         const c2 = currentRow.getCell(2);
-        c2.value = isHXM300 ? item.module_serial : getFullCode(item.serial);
+        c2.value = isHXM300 ? item.module_serial : fullCode;
 
         // Packaging (BigBox)
         const c3 = currentRow.getCell(3);
@@ -249,17 +266,5 @@ export async function generateSlaveExcel(
   const typeName = type === 'PLN' ? 'Lampiran_PLN' : 'Lampiran_MIMS';
   const fileName = `${typeName}_${safeName}_${attachment.nomor}.xlsx`;
 
-  // Manual download to be more browser-friendly on non-https
-  const url = window.URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  anchor.download = fileName;
-  document.body.appendChild(anchor);
-  anchor.click();
-  
-  // Cleanup
-  setTimeout(() => {
-    document.body.removeChild(anchor);
-    window.URL.revokeObjectURL(url);
-  }, 100);
+  saveAs(blob, fileName);
 }

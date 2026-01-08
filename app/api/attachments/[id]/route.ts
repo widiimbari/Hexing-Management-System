@@ -13,6 +13,11 @@ export async function DELETE(
       return new NextResponse("Invalid ID", { status: 400 });
     }
 
+import { createInventoryLog } from "@/lib/activity-logger";
+
+// ... inside DELETE ...
+    const attachment = await db.attachment.findUnique({ where: { id: attachmentId }, select: { nomor: true } });
+
     // Transaction to ensure data consistency
     await db.$transaction([
       // Reset attachment_id in products
@@ -26,7 +31,9 @@ export async function DELETE(
       })
     ]);
 
-    return new NextResponse(null, { status: 204 });
+    await createInventoryLog("DELETE", "PL Master", String(attachmentId), `Deleted PL Master: ${attachment?.nomor}`);
+
+    return NextResponse.json(null, { status: 204 });
   } catch (error) {
     console.error("[ATTACHMENT_DELETE]", error);
     return new NextResponse("Internal Server Error", { status: 500 });

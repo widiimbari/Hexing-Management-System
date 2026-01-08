@@ -63,6 +63,8 @@ export function Attachment2Form({ onSuccess, initialData, preSelectedMaster }: A
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedMaster, setSelectedMaster] = useState<AttachmentWithCounts | null>(preSelectedMaster || null);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [isOrderCalendarOpen, setIsOrderCalendarOpen] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -202,7 +204,7 @@ export function Attachment2Form({ onSuccess, initialData, preSelectedMaster }: A
             render={({ field }) => (
                 <FormItem className="flex flex-col">
                 <FormLabel>Tanggal</FormLabel>
-                <Popover>
+                <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                     <PopoverTrigger asChild>
                     <FormControl>
                         <Button
@@ -213,7 +215,7 @@ export function Attachment2Form({ onSuccess, initialData, preSelectedMaster }: A
                         )}
                         >
                         {field.value ? (
-                            format(field.value, "PPP")
+                            format(field.value, "dd/MM/yyyy")
                         ) : (
                             <span>Pick a date</span>
                         )}
@@ -225,7 +227,10 @@ export function Attachment2Form({ onSuccess, initialData, preSelectedMaster }: A
                     <Calendar
                         mode="single"
                         selected={field.value}
-                        onSelect={field.onChange}
+                        onSelect={(date) => {
+                            field.onChange(date);
+                            setIsCalendarOpen(false);
+                        }}
                         disabled={(date) =>
                         date < new Date("1900-01-01")
                         }
@@ -244,7 +249,7 @@ export function Attachment2Form({ onSuccess, initialData, preSelectedMaster }: A
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Tanggal Order</FormLabel>
-                  <Popover>
+                  <Popover open={isOrderCalendarOpen} onOpenChange={setIsOrderCalendarOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -255,7 +260,7 @@ export function Attachment2Form({ onSuccess, initialData, preSelectedMaster }: A
                           )}
                         >
                           {field.value ? (
-                            format(field.value, "PPP")
+                            format(field.value, "dd/MM/yyyy")
                           ) : (
                             <span>Pick a date</span>
                           )}
@@ -267,7 +272,10 @@ export function Attachment2Form({ onSuccess, initialData, preSelectedMaster }: A
                       <Calendar
                         mode="single"
                         selected={field.value}
-                        onSelect={field.onChange}
+                        onSelect={(date) => {
+                            field.onChange(date);
+                            setIsOrderCalendarOpen(false);
+                        }}
                         disabled={(date) =>
                            date < new Date("1900-01-01")
                         }

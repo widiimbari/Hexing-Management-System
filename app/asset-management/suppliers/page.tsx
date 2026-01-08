@@ -28,8 +28,9 @@ import { Badge } from "@/components/ui/badge";
 import { useDebounce } from "@/hooks/use-debounce";
 import { format } from "date-fns";
 import { SupplierFormDialog } from "./components/supplier-form-dialog";
-import { EmployeeSupplierImportExportDialog } from "@/components/employee-supplier-import-export-dialog";
+import { EmployeeSupplierImportExportDialog } from "../components/employee-supplier-import-export-dialog";
 import { AlertModal } from "@/components/ui/alert-modal";
+import { useRole } from "@/hooks/use-role";
 
 interface Supplier {
   id: string;
@@ -46,6 +47,7 @@ interface Supplier {
 }
 
 export default function SuppliersPage() {
+  const { role } = useRole();
   const [data, setData] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
   const [rowCount, setRowCount] = useState(0);
@@ -271,16 +273,20 @@ export default function SuppliersPage() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => handleEditSupplier(row)}>
-              <Edit className="mr-2 h-4 w-4" /> Edit
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              className="text-red-600 focus:text-red-600"
-              onClick={() => handleDeleteSupplier(row)}
-            >
-              <Trash className="mr-2 h-4 w-4" /> Delete
-            </DropdownMenuItem>
+            {role === "super_admin" && (
+              <>
+                <DropdownMenuItem onClick={() => handleEditSupplier(row)}>
+                  <Edit className="mr-2 h-4 w-4" /> Edit
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  className="text-red-600 focus:text-red-600"
+                  onClick={() => handleDeleteSupplier(row)}
+                >
+                  <Trash className="mr-2 h-4 w-4" /> Delete
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       )
@@ -297,18 +303,22 @@ export default function SuppliersPage() {
           <p className="text-muted-foreground">Manage supplier information and contacts.</p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline"
-            onClick={() => setImportDialogOpen(true)}
-          >
-            <Upload className="mr-2 h-4 w-4" /> Import
-          </Button>
-          <Button onClick={() => {
-            setSelectedSupplier(null);
-            setFormDialogOpen(true);
-          }}>
-            <PlusCircle className="mr-2 h-4 w-4" /> Add New Supplier
-          </Button>
+          {(role === "super_admin" || role === "admin") && (
+            <>
+              <Button 
+                variant="outline"
+                onClick={() => setImportDialogOpen(true)}
+              >
+                <Upload className="mr-2 h-4 w-4" /> Import
+              </Button>
+              <Button onClick={() => {
+                setSelectedSupplier(null);
+                setFormDialogOpen(true);
+              }}>
+                <PlusCircle className="mr-2 h-4 w-4" /> Add New Supplier
+              </Button>
+            </>
+          )}
         </div>
       </div>
 

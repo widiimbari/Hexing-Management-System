@@ -10,6 +10,7 @@ import { InputMeterDialog } from "../pl-master/components/input-meter-dialog";
 import { generateExcel } from "../pl-master/components/export-excel";
 import { SlaveExportDialog } from "./components/slave-export-dialog";
 import { generateSlaveExcel } from "./components/export-slave-excel";
+import { generateSlavePdf } from "./components/export-slave-pdf";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
@@ -35,6 +36,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useRole } from "@/hooks/use-role";
+import { MasterSlavesList } from "./components/master-slaves-list";
+import { PLItemsViewer } from "../components/pl-items-viewer";
 
 // Helper function to fetch data on the client
 type AttachmentWithCounts = attachment & {
@@ -67,6 +70,14 @@ export default function PLSlavePage() {
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<number | null>(null);
+
+  // View Associated Slaves (from Master List)
+  const [viewingMasterSlaves, setViewingMasterSlaves] = useState<AttachmentWithCounts | null>(null);
+  const [isMasterSlavesOpen, setIsMasterSlavesOpen] = useState(false);
+  
+  // Items Viewer State
+  const [viewingItems, setViewingItems] = useState<SlaveWithCounts | null>(null);
+  const [isItemsViewOpen, setIsItemsViewOpen] = useState(false);
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -177,7 +188,7 @@ export default function PLSlavePage() {
     setSlaveExportDialogOpen(true);
   };
 
-  const handleSlaveExportConfirm = async (type: 'PLN' | 'MIMS') => {
+  const handleSlaveExportConfirm = async (type: 'PLN' | 'MIMS', format: 'excel' | 'pdf') => {
     if (!selectedSlaveIdForExport) return;
     
     setSlaveExportDialogOpen(false); // Close dialog first
@@ -194,7 +205,11 @@ export default function PLSlavePage() {
         return;
       }
 
-      await generateSlaveExcel(type, attachment, products, prefix);
+      if (format === 'pdf') {
+        await generateSlavePdf(type, attachment, products, prefix);
+      } else {
+        await generateSlaveExcel(type, attachment, products, prefix);
+      }
       
     } catch (error) {
       console.error("Export failed", error);
@@ -211,6 +226,11 @@ export default function PLSlavePage() {
 
   const handlePageSizeChange = (newPageSize: number) => {
       setPagination({ pageIndex: 0, pageSize: newPageSize });
+  };
+
+  const handleViewMasterSlaves = (row: AttachmentWithCounts) => {
+    setViewingMasterSlaves(row);
+    setIsMasterSlavesOpen(true);
   };
 
   // Columns for Masters
@@ -235,14 +255,31 @@ export default function PLSlavePage() {
       id: "actions",
       header: "Actions",
       width: "150px",
-      cell: ({ row }) => (role === "admin" || role === "spv") ? (
-        <Button 
-            size="sm" 
-            onClick={() => handleCreateSlave(row)}
-        >
-          <FilePlus className="mr-2 h-4 w-4" /> Create Slave
-        </Button>
-      ) : null
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+            {(role === "super_admin" || role === "admin") && (
+                <Button 
+                    size="sm" 
+                    onClick={() => handleCreateSlave(row)}
+                >
+                <FilePlus className="mr-2 h-4 w-4" /> Create Slave
+                </Button>
+            )}
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => handleViewMasterSlaves(row)}>
+                        <Eye className="mr-2 h-4 w-4" /> View Slaves List
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </div>
+      )
     }
   ];
 
@@ -268,7 +305,7 @@ export default function PLSlavePage() {
     {
       id: "input_meter",
       header: "Input Meter",
-      cell: ({ row }) => (role === "admin" || role === "spv") ? (
+      cell: ({ row }) => (role === "super_admin" || role === "admin") ? (
         <Button 
           variant="secondary" 
           size="sm" 
@@ -311,10 +348,16 @@ export default function PLSlavePage() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => {
+                setViewingItems(row);
+                setIsItemsViewOpen(true);
+            }}>
+                <Eye className="mr-2 h-4 w-4" /> View Items List
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleViewSlave(row)}>
               <Eye className="mr-2 h-4 w-4" /> View Details
             </DropdownMenuItem>
-            {role === "admin" && (
+            {role === "super_admin" && (
               <>
                 <DropdownMenuItem onClick={() => handleEditSlave(row)}>
                   <Edit className="mr-2 h-4 w-4" /> Edit
@@ -337,7 +380,12 @@ export default function PLSlavePage() {
   return (
     <div className="container mx-auto py-10">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">PL Slave</h1>
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-2">
+            <FileSpreadsheet className="h-8 w-8 text-primary" /> PL Slave
+          </h1>
+          <p className="text-muted-foreground">Manage and track slave packing lists and item assignments.</p>
+        </div>
       </div>
       
       <Card className="shadow-md border-none overflow-hidden">
@@ -489,6 +537,40 @@ export default function PLSlavePage() {
           )}
           <DialogFooter>
              <Button onClick={() => setIsViewOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isMasterSlavesOpen} onOpenChange={setIsMasterSlavesOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Associated Slave PLs</DialogTitle>
+            <DialogDescription>
+              List of Slave PLs created from Master PL: <strong>{viewingMasterSlaves?.nomor}</strong>
+            </DialogDescription>
+          </DialogHeader>
+          {viewingMasterSlaves && (
+             <MasterSlavesList masterId={viewingMasterSlaves.id} />
+          )}
+          <DialogFooter>
+             <Button onClick={() => setIsMasterSlavesOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isItemsViewOpen} onOpenChange={setIsItemsViewOpen}>
+        <DialogContent className="sm:max-w-[900px]">
+          <DialogHeader>
+            <DialogTitle>Items List: {viewingItems?.nomor}</DialogTitle>
+            <DialogDescription>
+              View all products, boxes, and pallets in this Slave Packing List.
+            </DialogDescription>
+          </DialogHeader>
+          {viewingItems && (
+            <PLItemsViewer attachmentId={viewingItems.id} mode="slave" />
+          )}
+          <DialogFooter>
+            <Button onClick={() => setIsItemsViewOpen(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

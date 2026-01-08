@@ -1,7 +1,32 @@
-import { dbAsset } from "@/lib/db";
+import { dbAsset, db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 
 export type LogAction = 'CREATE' | 'UPDATE' | 'DELETE' | 'IMPORT' | 'EXPORT' | 'TRANSFER';
+
+export async function createInventoryLog(
+  action: LogAction,
+  entity: string,
+  entityId: string,
+  details: string,
+  user?: { username: string } | null
+) {
+  try {
+    const currentUser = user || await getCurrentUser();
+    const username = currentUser?.username || "System";
+
+    await db.audit_logs.create({
+      data: {
+        action,
+        entity,
+        entity_id: entityId,
+        details,
+        user: username,
+      }
+    });
+  } catch (error) {
+    console.error("Failed to create inventory log:", error);
+  }
+}
 
 export async function logActivity(
   action: LogAction,

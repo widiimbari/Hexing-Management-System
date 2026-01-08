@@ -26,6 +26,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { format } from "date-fns";
 import { TypeFormDialog } from "./components/type-form-dialog";
 import { AlertModal } from "@/components/ui/alert-modal";
+import { useRole } from "@/hooks/use-role";
 
 interface AssetType {
   id: string;
@@ -38,6 +39,7 @@ interface AssetType {
 }
 
 export default function AssetTypesPage() {
+  const { role } = useRole();
   const [data, setData] = useState<AssetType[]>([]);
   const [loading, setLoading] = useState(true);
   const [rowCount, setRowCount] = useState(0);
@@ -182,16 +184,20 @@ export default function AssetTypesPage() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => handleEditType(row)}>
-              <Edit className="mr-2 h-4 w-4" /> Edit
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              className="text-red-600 focus:text-red-600"
-              onClick={() => handleDeleteType(row)}
-            >
-              <Trash className="mr-2 h-4 w-4" /> Delete
-            </DropdownMenuItem>
+            {role === "super_admin" && (
+              <>
+                <DropdownMenuItem onClick={() => handleEditType(row)}>
+                  <Edit className="mr-2 h-4 w-4" /> Edit
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  className="text-red-600 focus:text-red-600"
+                  onClick={() => handleDeleteType(row)}
+                >
+                  <Trash className="mr-2 h-4 w-4" /> Delete
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       )
@@ -207,12 +213,14 @@ export default function AssetTypesPage() {
           </h1>
           <p className="text-muted-foreground">Manage asset types.</p>
         </div>
-        <Button onClick={() => {
-          setSelectedType(null);
-          setFormDialogOpen(true);
-        }}>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add New Type
-        </Button>
+        {(role === "super_admin" || role === "admin") && (
+          <Button onClick={() => {
+            setSelectedType(null);
+            setFormDialogOpen(true);
+          }}>
+            <PlusCircle className="mr-2 h-4 w-4" /> Add New Type
+          </Button>
+        )}
       </div>
 
       <Card className="shadow-md border-none overflow-hidden">

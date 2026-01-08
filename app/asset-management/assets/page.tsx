@@ -34,6 +34,7 @@ import { AssetImageGallery } from "./components/asset-image-gallery";
 import { AssetImportExportDialog } from "./components/asset-import-export-dialog";
 import { AlertModal } from "@/components/ui/alert-modal";
 import { History } from "lucide-react";
+import { useRole } from "@/hooks/use-role";
 
 // Types for Assets
 interface Asset {
@@ -68,6 +69,7 @@ interface Asset {
 }
 
 export default function AssetsPage() {
+  const { role } = useRole();
   const [data, setData] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
   const [rowCount, setRowCount] = useState(0);
@@ -413,19 +415,27 @@ export default function AssetsPage() {
             <DropdownMenuItem onClick={() => handleViewAsset(row)}>
               <Eye className="mr-2 h-4 w-4" /> View Details
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleEditAsset(row)}>
-              <Edit className="mr-2 h-4 w-4" /> Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleViewGallery(row)}>
-              <ImageIcon className="mr-2 h-4 w-4" /> Images
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              className="text-red-600 focus:text-red-600"
-              onClick={() => handleDeleteAsset(row)}
-            >
-              <Trash className="mr-2 h-4 w-4" /> Delete
-            </DropdownMenuItem>
+            
+            {role === "super_admin" && (
+              <>
+                <DropdownMenuItem onClick={() => handleEditAsset(row)}>
+                  <Edit className="mr-2 h-4 w-4" /> Edit
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  className="text-red-600 focus:text-red-600"
+                  onClick={() => handleDeleteAsset(row)}
+                >
+                  <Trash className="mr-2 h-4 w-4" /> Delete
+                </DropdownMenuItem>
+              </>
+            )}
+
+            {(role === "super_admin" || role === "admin") && (
+                <DropdownMenuItem onClick={() => handleViewGallery(row)}>
+                <ImageIcon className="mr-2 h-4 w-4" /> Images
+                </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       )
@@ -448,12 +458,14 @@ export default function AssetsPage() {
           >
             <Upload className="mr-2 h-4 w-4" /> Import/Export
           </Button>
-          <Button onClick={() => {
-            setSelectedAsset(null);
-            setFormDialogOpen(true);
-          }}>
-            <PlusCircle className="mr-2 h-4 w-4" /> Add New Asset
-          </Button>
+          {(role === "super_admin" || role === "admin") && (
+            <Button onClick={() => {
+                setSelectedAsset(null);
+                setFormDialogOpen(true);
+            }}>
+                <PlusCircle className="mr-2 h-4 w-4" /> Add New Asset
+            </Button>
+          )}
         </div>
       </div>
 
@@ -519,6 +531,7 @@ export default function AssetsPage() {
         onExport={handleExport}
         onDownloadTemplate={handleDownloadTemplate}
         loading={formLoading}
+        canImport={role === "super_admin" || role === "admin"}
       />
 
       {/* Delete Alert Modal */}

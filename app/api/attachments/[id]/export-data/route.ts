@@ -63,12 +63,37 @@ export async function GET(
     const products = productsRaw.map(p => {
       const box = p.box_id ? boxMap.get(p.box_id) : null;
       const palletSerial = (box && box.pallete_id) ? palleteMap.get(box.pallete_id) : null;
-      
+
       return {
         ...p,
         box_serial: box?.serial || null,
         pallet_serial: palletSerial || null,
       };
+    });
+
+    // Sort by pallet → box → serial
+    products.sort((a, b) => {
+      // 1. Sort by pallet_serial (nulls last)
+      if (a.pallet_serial === null && b.pallet_serial !== null) return 1;
+      if (a.pallet_serial !== null && b.pallet_serial === null) return -1;
+      if (a.pallet_serial !== null && b.pallet_serial !== null) {
+        if (a.pallet_serial < b.pallet_serial) return -1;
+        if (a.pallet_serial > b.pallet_serial) return 1;
+      }
+
+      // 2. If pallet same, sort by box_serial (nulls last)
+      if (a.box_serial === null && b.box_serial !== null) return 1;
+      if (a.box_serial !== null && b.box_serial === null) return -1;
+      if (a.box_serial !== null && b.box_serial !== null) {
+        if (a.box_serial < b.box_serial) return -1;
+        if (a.box_serial > b.box_serial) return 1;
+      }
+
+      // 3. If pallet and box same, sort by serial
+      if (a.serial < b.serial) return -1;
+      if (a.serial > b.serial) return 1;
+
+      return 0;
     });
 
     return NextResponse.json({

@@ -231,7 +231,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: { isCollapsed: boolean; 
         if (res.ok) {
           const userData = await res.json();
           setUser(userData);
-          if (userData.role === "admin") {
+          if (userData.role === "super_admin") {
             setNavGroups(prev => {
                 if (prev.some(g => g.title === "Admin")) return prev;
                 return [
@@ -282,17 +282,17 @@ export function Sidebar({ isCollapsed, toggleSidebar }: { isCollapsed: boolean; 
             )}
         >
           <Avatar className="h-9 w-9 border cursor-pointer">
-            <AvatarImage src={`https://ui-avatars.com/api/?name=${user?.username}&background=random`} alt={user?.username} />
-            <AvatarFallback>{user?.username?.substring(0, 2).toUpperCase()}</AvatarFallback>
+            <AvatarImage src={user?.image_url || `https://ui-avatars.com/api/?name=${user?.name || user?.username}&background=random`} alt={user?.name || user?.username} />
+            <AvatarFallback>{(user?.name || user?.username)?.substring(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
           
           {(!isCollapsed || isMobile) && (
              <div className="flex flex-col items-start text-left overflow-hidden transition-all duration-200">
                 <span className="text-sm font-semibold truncate w-full max-w-[140px] leading-none mb-1">
-                    {user?.username || "Guest"}
+                    {user?.name || user?.username || "Guest"}
                 </span>
-                <span className="text-xs text-muted-foreground capitalize font-medium">
-                    {user?.role || "Visitor"}
+                <span className="text-xs text-muted-foreground font-medium uppercase text-[10px] tracking-wider">
+                    {user?.role?.replace("_", " ") || "Visitor"}
                 </span>
              </div>
           )}
@@ -301,9 +301,9 @@ export function Sidebar({ isCollapsed, toggleSidebar }: { isCollapsed: boolean; 
       <DropdownMenuContent className="w-56" align="end" side={isCollapsed && !isMobile ? "right" : "top"}>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user?.username}</p>
+            <p className="text-sm font-medium leading-none">{user?.name || user?.username}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {user?.role} account
+              {user?.role?.replace("_", " ")} account
             </p>
           </div>
         </DropdownMenuLabel>
@@ -330,12 +330,14 @@ export function Sidebar({ isCollapsed, toggleSidebar }: { isCollapsed: boolean; 
         <div className="flex h-14 shrink-0 items-center border-b px-4 lg:h-[60px] justify-between">
           {!isCollapsed && (
             <Link href="/" className="flex items-center gap-2 font-semibold truncate">
-              <Package className="h-6 w-6" />
+              <img src="/icon hexing.png" alt="Hexing Logo" className="h-8 w-8 object-contain" />
               <span>Hexing System</span>
             </Link>
           )}
           {isCollapsed && (
-             <div className="w-full flex justify-center"><Package className="h-6 w-6" /></div>
+             <div className="w-full flex justify-center">
+                <img src="/icon hexing.png" alt="Hexing Logo" className="h-8 w-8 object-contain" />
+             </div>
           )}
           {!isCollapsed && (
              <Button variant="ghost" size="icon" onClick={toggleSidebar} className="ml-auto">
@@ -380,7 +382,7 @@ export function MobileSidebar() {
         if (res.ok) {
           const userData = await res.json();
           setUser(userData);
-          if (userData.role === "admin") {
+          if (userData.role === "super_admin") {
             setNavGroups(prev => {
                 if (prev.some(g => g.title === "Admin")) return prev;
                 return [
@@ -422,12 +424,12 @@ export function MobileSidebar() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="w-full flex items-center justify-start gap-3 p-2 h-auto rounded-xl border border-transparent hover:bg-muted/50 hover:border-border">
           <Avatar className="h-9 w-9 border">
-            <AvatarImage src={`https://ui-avatars.com/api/?name=${user?.username}&background=random`} alt={user?.username} />
-            <AvatarFallback>{user?.username?.substring(0, 2).toUpperCase()}</AvatarFallback>
+            <AvatarImage src={user?.image_url || `https://ui-avatars.com/api/?name=${user?.name || user?.username}&background=random`} alt={user?.name || user?.username} />
+            <AvatarFallback>{(user?.name || user?.username)?.substring(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col items-start text-left">
-            <span className="text-sm font-semibold">{user?.username || "Guest"}</span>
-            <span className="text-xs text-muted-foreground capitalize">{user?.role}</span>
+            <span className="text-sm font-semibold">{user?.name || user?.username || "Guest"}</span>
+            <span className="text-xs text-muted-foreground capitalize">{user?.role?.replace("_", " ")}</span>
           </div>
         </Button>
       </DropdownMenuTrigger>
@@ -460,7 +462,7 @@ export function MobileSidebar() {
         <SheetContent side="left" className="flex flex-col p-0 w-[280px]">
           <SheetHeader className="p-4 border-b shrink-0">
              <SheetTitle className="flex items-center gap-2 font-semibold">
-               <Package className="h-6 w-6" />
+               <img src="/icon hexing.png" alt="Hexing Logo" className="h-8 w-8 object-contain" />
                Hexing System
              </SheetTitle>
           </SheetHeader>

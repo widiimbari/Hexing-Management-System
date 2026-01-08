@@ -27,11 +27,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Camera, Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   username: z.string().min(1, "Username is required"),
   password: z.string().optional(),
   role: z.string().min(1, "Role is required"),
+  name: z.string().min(1, "Full name is required"),
+  image_url: z.string().optional(),
 });
 
 interface UserFormProps {
@@ -48,6 +52,7 @@ export const UserForm: React.FC<UserFormProps> = ({
   initialData,
 }) => {
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -55,42 +60,73 @@ export const UserForm: React.FC<UserFormProps> = ({
       username: "",
       password: "",
       role: "",
+      name: "",
+      image_url: "",
     },
   });
 
   useEffect(() => {
-    if (initialData) {
+    if (initialData && isOpen) {
       form.reset({
         username: initialData.username,
         role: initialData.role,
-        password: "", // Don't fill password on edit
+        name: initialData.name || "",
+        image_url: initialData.image_url || "",
+        password: "", 
       });
-    } else {
+    } else if (isOpen) {
       form.reset({
         username: "",
         password: "",
         role: "",
+        name: "",
+        image_url: "",
       });
     }
   }, [initialData, form, isOpen]);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("Upload failed");
+
+      const data = await res.json();
+      form.setValue("image_url", data.imageUrl);
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("Failed to upload image");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setLoading(true);
       
+      const payload = { ...values };
+      
       if (initialData) {
-         // Edit mode
-         if (!values.password) delete (values as any).password;
-         
+         if (!payload.password) delete payload.password;
          const res = await fetch(`/api/users/${initialData.id}`, {
              method: 'PUT',
              headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify(values)
+             body: JSON.stringify(payload)
          });
          if (!res.ok) throw new Error("Failed to update");
       } else {
-         // Create mode
-         if (!values.password) {
+         if (!payload.password) {
              form.setError("password", { message: "Password is required for new users" });
              setLoading(false);
              return;
@@ -98,7 +134,7 @@ export const UserForm: React.FC<UserFormProps> = ({
          const res = await fetch(`/api/users`, {
              method: 'POST',
              headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify(values)
+             body: JSON.stringify(payload)
          });
          if (!res.ok) throw new Error("Failed to create");
       }
@@ -107,6 +143,7 @@ export const UserForm: React.FC<UserFormProps> = ({
       onClose();
     } catch (error) {
       console.error(error);
+      alert("Failed to save user");
     } finally {
       setLoading(false);
     }
@@ -114,7 +151,7 @@ export const UserForm: React.FC<UserFormProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{initialData ? "Edit User" : "Add New User"}</DialogTitle>
         </DialogHeader>
@@ -122,12 +159,69 @@ export const UserForm: React.FC<UserFormProps> = ({
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
+              name="image_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>User Photo</FormLabel>
+                  <div className="flex items-center gap-4">
+                    <Avatar className="h-16 w-16 border">
+                      <AvatarImage src={field.value} />
+                      <AvatarFallback>
+                        {uploading ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Camera className="h-6 w-6 text-muted-foreground" />
+                        )}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col gap-2">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        id="photo-upload"
+                        onChange={handleFileUpload}
+                        disabled={uploading || loading}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={uploading || loading}
+                        onClick={() => document.getElementById("photo-upload")?.click()}
+                      >
+                        {uploading ? "Uploading..." : "Choose File"}
+                      </Button>
+                      <p className="text-[10px] text-muted-foreground">
+                        JPG, PNG or GIF. Max 2MB.
+                      </p>
+                    </div>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>Username (Login)</FormLabel>
                   <FormControl>
                     <Input disabled={loading} placeholder="Username" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Full Name (Display)</FormLabel>
+                  <FormControl>
+                    <Input disabled={loading} placeholder="Full Name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -164,8 +258,8 @@ export const UserForm: React.FC<UserFormProps> = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      <SelectItem value="super_admin">Super Admin</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="spv">SPV</SelectItem>
                       <SelectItem value="user">User</SelectItem>
                     </SelectContent>
                   </Select>
@@ -173,12 +267,12 @@ export const UserForm: React.FC<UserFormProps> = ({
                 </FormItem>
               )}
             />
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-2 pt-4">
               <Button disabled={loading} variant="outline" onClick={onClose} type="button">
                 Cancel
               </Button>
-              <Button disabled={loading} type="submit">
-                {initialData ? "Save Changes" : "Create User"}
+              <Button disabled={loading || uploading} type="submit">
+                {loading ? "Saving..." : initialData ? "Save Changes" : "Create User"}
               </Button>
             </div>
           </form>

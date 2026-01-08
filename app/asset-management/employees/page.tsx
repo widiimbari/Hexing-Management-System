@@ -26,8 +26,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useRole } from "@/hooks/use-role";
 import { EmployeeFormDialog } from "./components/employee-form-dialog";
-import { EmployeeSupplierImportExportDialog } from "@/components/employee-supplier-import-export-dialog";
+import { EmployeeSupplierImportExportDialog } from "../components/employee-supplier-import-export-dialog";
 
 interface Employee {
   id: string;
@@ -52,6 +53,7 @@ interface Department {
 }
 
 export default function EmployeesPage() {
+  const { role } = useRole();
   const [data, setData] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [rowCount, setRowCount] = useState(0);
@@ -237,7 +239,7 @@ export default function EmployeesPage() {
       ),
     },
     {
-      id: "created_at",
+      accessorKey: "created_at",
       header: "Created At",
       cell: ({ value }) => value ? new Date(value).toLocaleDateString() : "-"
     },
@@ -254,16 +256,20 @@ export default function EmployeesPage() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => handleEditEmployee(row)}>
-              <Edit className="mr-2 h-4 w-4" /> Edit
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              className="text-red-600 focus:text-red-600"
-              onClick={() => handleDeleteEmployee(row)}
-            >
-              <Trash className="mr-2 h-4 w-4" /> Delete
-            </DropdownMenuItem>
+            {role === "super_admin" && (
+              <>
+                <DropdownMenuItem onClick={() => handleEditEmployee(row)}>
+                  <Edit className="mr-2 h-4 w-4" /> Edit
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  className="text-red-600 focus:text-red-600"
+                  onClick={() => handleDeleteEmployee(row)}
+                >
+                  <Trash className="mr-2 h-4 w-4" /> Delete
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       )
@@ -280,18 +286,22 @@ export default function EmployeesPage() {
           <p className="text-muted-foreground">Manage employees and their assignments.</p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline"
-            onClick={() => setImportDialogOpen(true)}
-          >
-            <Upload className="mr-2 h-4 w-4" /> Import
-          </Button>
-          <Button onClick={() => {
-            setSelectedEmployee(null);
-            setFormDialogOpen(true);
-          }}>
-            <PlusCircle className="mr-2 h-4 w-4" /> Add New Employee
-          </Button>
+          {(role === "super_admin" || role === "admin") && (
+            <>
+              <Button 
+                variant="outline"
+                onClick={() => setImportDialogOpen(true)}
+              >
+                <Upload className="mr-2 h-4 w-4" /> Import
+              </Button>
+              <Button onClick={() => {
+                setSelectedEmployee(null);
+                setFormDialogOpen(true);
+              }}>
+                <PlusCircle className="mr-2 h-4 w-4" /> Add New Employee
+              </Button>
+            </>
+          )}
         </div>
       </div>
 

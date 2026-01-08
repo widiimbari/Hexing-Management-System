@@ -24,6 +24,8 @@ model attachment {
   area      String   @db.VarChar(255)
   status    Boolean  @default(false)
   active    Boolean  @default(true)
+  qty       Int      @default(0)
+  used_qty  Int      @default(0)
 
   @@index([active], map: "idx_active_attachment")
   @@index([area], map: "idx_area_attachment")

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { dbAsset } from "@/lib/db";
 import { logActivity } from "@/lib/activity-logger";
 import { getCurrentUser } from "@/lib/auth";
-import { AssetCondition } from "@/generated/asset-client-v8";
+import { AssetCondition } from "@/generated/asset-client-v9";
 import fs from 'fs';
 import path from 'path';
 

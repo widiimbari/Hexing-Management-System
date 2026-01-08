@@ -26,6 +26,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { format } from "date-fns";
 import { BrandFormDialog } from "./components/brand-form-dialog";
 import { AlertModal } from "@/components/ui/alert-modal";
+import { useRole } from "@/hooks/use-role";
 
 interface Brand {
   id: string;
@@ -38,6 +39,7 @@ interface Brand {
 }
 
 export default function BrandsPage() {
+  const { role } = useRole();
   const [data, setData] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
   const [rowCount, setRowCount] = useState(0);
@@ -182,16 +184,20 @@ export default function BrandsPage() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => handleEditBrand(row)}>
-              <Edit className="mr-2 h-4 w-4" /> Edit
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              className="text-red-600 focus:text-red-600"
-              onClick={() => handleDeleteBrand(row)}
-            >
-              <Trash className="mr-2 h-4 w-4" /> Delete
-            </DropdownMenuItem>
+            {role === "super_admin" && (
+              <>
+                <DropdownMenuItem onClick={() => handleEditBrand(row)}>
+                  <Edit className="mr-2 h-4 w-4" /> Edit
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  className="text-red-600 focus:text-red-600"
+                  onClick={() => handleDeleteBrand(row)}
+                >
+                  <Trash className="mr-2 h-4 w-4" /> Delete
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       )
@@ -207,12 +213,14 @@ export default function BrandsPage() {
           </h1>
           <p className="text-muted-foreground">Manage asset brands.</p>
         </div>
-        <Button onClick={() => {
-          setSelectedBrand(null);
-          setFormDialogOpen(true);
-        }}>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add New Brand
-        </Button>
+        {(role === "super_admin" || role === "admin") && (
+          <Button onClick={() => {
+            setSelectedBrand(null);
+            setFormDialogOpen(true);
+          }}>
+            <PlusCircle className="mr-2 h-4 w-4" /> Add New Brand
+          </Button>
+        )}
       </div>
 
       <Card className="shadow-md border-none overflow-hidden">

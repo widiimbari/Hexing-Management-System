@@ -25,6 +25,7 @@ interface AssetImportExportDialogProps {
   onExport: () => Promise<void>;
   onDownloadTemplate: () => Promise<void>;
   loading?: boolean;
+  canImport?: boolean;
 }
 
 export function AssetImportExportDialog({ 
@@ -33,7 +34,8 @@ export function AssetImportExportDialog({
   onImport,
   onExport,
   onDownloadTemplate,
-  loading = false 
+  loading = false,
+  canImport = false
 }: AssetImportExportDialogProps) {
   const [importMode, setImportMode] = useState<'import' | 'export' | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -150,17 +152,19 @@ export function AssetImportExportDialog({
           // Initial selection screen
           <div className="space-y-6 py-4">
             <div className="grid grid-cols-1 gap-4">
-              <Button
-                onClick={() => setImportMode('import')}
-                variant="outline"
-                className="h-20 flex-col gap-2"
-              >
-                <Upload className="h-6 w-6" />
-                <span className="font-semibold">Import Assets</span>
-                <span className="text-xs text-muted-foreground normal-case">
-                  Upload Excel file to add assets
-                </span>
-              </Button>
+              {canImport && (
+                <Button
+                    onClick={() => setImportMode('import')}
+                    variant="outline"
+                    className="h-20 flex-col gap-2"
+                >
+                    <Upload className="h-6 w-6" />
+                    <span className="font-semibold">Import Assets</span>
+                    <span className="text-xs text-muted-foreground normal-case">
+                    Upload Excel file to add assets
+                    </span>
+                </Button>
+              )}
 
               <Button
                 onClick={() => setImportMode('export')}
@@ -175,19 +179,21 @@ export function AssetImportExportDialog({
               </Button>
             </div>
 
-            <div className="space-y-2">
-              <Button
-                onClick={handleDownloadTemplate}
-                variant="secondary"
-                className="w-full"
-              >
-                <FileSpreadsheet className="mr-2 h-4 w-4" />
-                Download Import Template
-              </Button>
-              <p className="text-xs text-muted-foreground text-center">
-                Get the Excel template with dropdown validation for easy data entry
-              </p>
-            </div>
+            {canImport && (
+                <div className="space-y-2">
+                <Button
+                    onClick={handleDownloadTemplate}
+                    variant="secondary"
+                    className="w-full"
+                >
+                    <FileSpreadsheet className="mr-2 h-4 w-4" />
+                    Download Import Template
+                </Button>
+                <p className="text-xs text-muted-foreground text-center">
+                    Get the Excel template with dropdown validation for easy data entry
+                </p>
+                </div>
+            )}
           </div>
         ) : importMode === 'import' ? (
           // Import screen

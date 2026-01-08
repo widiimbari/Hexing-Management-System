@@ -34,7 +34,10 @@ export async function generateExcel(
   const sheet = workbook.addWorksheet("Packing List", {
     pageSetup: {
       paperSize: 9, // A4
-      orientation: "portrait", 
+      orientation: "landscape", // Changed from portrait
+      fitToPage: true,
+      fitToWidth: 1,
+      fitToHeight: 0, // Auto height
       margins: {
         left: 0.3, right: 0.3, top: 0.3, bottom: 0.3, header: 0, footer: 0,
       },
@@ -43,7 +46,7 @@ export async function generateExcel(
 
   // ---  SETUP KOLOM ---
   const columns = [];
-  const lebarAwalNo = 4; // Lebar dasar untuk kolom No
+  const lebarAwalNo = 5; // Lebar dasar untuk kolom No ditingkatkan dari 4 ke 5
 
   for (let i = 0; i < 5; i++) {
     
@@ -190,8 +193,11 @@ export async function generateExcel(
       cellNo.style = { border: borderThin, alignment: alignCenter, font: fontRegular };
 
       const topText = prefix || ""; 
-      const year = new Date(attachment.tgl_order).getFullYear();
-      const yearSuffix = year.toString().slice(-3); 
+      
+      // Get year from product's orderno (e.g., "2025" -> "025")
+      const orderYearMatch = item.orderno?.match(/20\d{2}/);
+      const orderYear = orderYearMatch ? orderYearMatch[0] : new Date(attachment.tgl_order).getFullYear().toString();
+      const yearSuffix = "0" + orderYear.slice(-2);
       
       const fullCode = `${topText}${yearSuffix}${item.serial}`;
       const cleanSerial = String(item.serial).trim();
@@ -256,34 +262,8 @@ export async function generateExcel(
 
     const fileName = `PL ${safeName}${filenameSuffix || ""}.xlsx`;
 
-  
-
-    // Manual download to be more browser-friendly on non-https
-
-    const url = window.URL.createObjectURL(blob);
-
-    const anchor = document.createElement("a");
-
-    anchor.href = url;
-
-    anchor.download = fileName;
-
-    document.body.appendChild(anchor);
-
-    anchor.click();
-
-    
-
-    // Cleanup
-
-    setTimeout(() => {
-
-      document.body.removeChild(anchor);
-
-      window.URL.revokeObjectURL(url);
-
-    }, 100);
-
+    // Use file-saver's saveAs which handles browser quirks better
+    saveAs(blob, fileName);
   }
 
   

@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useRole } from "@/hooks/use-role";
 import { format } from "date-fns";
 import { DepartmentFormDialog } from "./components/department-form-dialog";
 import { AlertModal } from "@/components/ui/alert-modal";
@@ -39,6 +40,7 @@ interface Department {
 }
 
 export default function DepartmentsPage() {
+  const { role } = useRole();
   const [data, setData] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [rowCount, setRowCount] = useState(0);
@@ -181,16 +183,20 @@ export default function DepartmentsPage() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => handleEditDepartment(row)}>
-              <Edit className="mr-2 h-4 w-4" /> Edit
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              className="text-red-600 focus:text-red-600"
-              onClick={() => handleDeleteDepartment(row)}
-            >
-              <Trash className="mr-2 h-4 w-4" /> Delete
-            </DropdownMenuItem>
+            {role === "super_admin" && (
+              <>
+                <DropdownMenuItem onClick={() => handleEditDepartment(row)}>
+                  <Edit className="mr-2 h-4 w-4" /> Edit
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  className="text-red-600 focus:text-red-600"
+                  onClick={() => handleDeleteDepartment(row)}
+                >
+                  <Trash className="mr-2 h-4 w-4" /> Delete
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       )
@@ -206,12 +212,14 @@ export default function DepartmentsPage() {
           </h1>
           <p className="text-muted-foreground">Manage asset departments.</p>
         </div>
-        <Button onClick={() => {
-          setSelectedDepartment(null);
-          setFormDialogOpen(true);
-        }}>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add New Department
-        </Button>
+        {(role === "super_admin" || role === "admin") && (
+          <Button onClick={() => {
+            setSelectedDepartment(null);
+            setFormDialogOpen(true);
+          }}>
+            <PlusCircle className="mr-2 h-4 w-4" /> Add New Department
+          </Button>
+        )}
       </div>
 
       <Card className="shadow-md border-none overflow-hidden">

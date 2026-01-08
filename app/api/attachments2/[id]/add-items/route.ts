@@ -85,26 +85,121 @@ export async function POST(
     productIdsToUpdate = [...new Set(productIdsToUpdate)];
 
     if (productIdsToUpdate.length === 0) {
-        return new NextResponse("No matching products found.", { status: 400 });
+        return new NextResponse("No matching products found in database.", { status: 400 });
     }
 
     // 3. Perform Update with strict validation
-    // - Must match Slave Type
-    // - Must belong to a Master (attachment_id NOT NULL)
-    // - Must NOT belong to a Slave (attachment2_id NULL)
-    const result = await db.product.updateMany({
-      where: {
-        id: { in: productIdsToUpdate },
-        type: slave.type,
-        attachment_id: { not: null },
-        attachment2_id: null,
-      },
-      data: {
-        attachment2_id: attachmentId,
-      },
+    // Find ALL products matching the IDs to check their status
+    const allProducts = await db.product.findMany({
+      where: { id: { in: productIdsToUpdate } },
+      select: { 
+        id: true, 
+        serial: true,
+        type: true,
+        attachment_id: true, 
+        attachment2_id: true 
+      }
     });
 
-    return NextResponse.json({ success: true, count: result.count });
+    const orphanItems = [];
+    const wrongTypeItems = [];
+    const alreadyAssignedItems = [];
+    const validItems = [];
+
+    for (const p of allProducts) {
+      if (!p.attachment_id) {
+        orphanItems.push(p.serial);
+      } else if (p.type !== slave.type) {
+        wrongTypeItems.push(p.serial);
+      } else if (p.attachment2_id) {
+        // If already assigned to THIS slave, we can ignore (idempotent) or warn
+        // If assigned to OTHER slave, it's an error
+        if (p.attachment2_id !== attachmentId) {
+          alreadyAssignedItems.push(p.serial);
+        }
+      } else {
+        validItems.push(p);
+      }
+    }
+
+    if (orphanItems.length > 0) {
+      return new NextResponse(
+        `Error: ${orphanItems.length} items are not assigned to any Master PL yet (e.g., ${orphanItems.slice(0, 3).join(", ")}...). Please input them to a Master PL first.`,
+        { status: 400 }
+      );
+    }
+
+    if (wrongTypeItems.length > 0) {
+      return new NextResponse(
+        `Error: ${wrongTypeItems.length} items have mismatched Type (Expected: ${slave.type}).`,
+        { status: 400 }
+      );
+    }
+    
+    if (alreadyAssignedItems.length > 0) {
+      return new NextResponse(
+        `Error: ${alreadyAssignedItems.length} items are already assigned to another Slave PL.`,
+        { status: 400 }
+      );
+    }
+
+    if (validItems.length === 0) {
+       return new NextResponse("No valid items to add (all items might already be in this Slave).", { status: 400 });
+    }
+
+    // Group by attachment_id to update counts and check capacity
+    const countByMaster = validItems.reduce((acc, p) => {
+      const masterId = p.attachment_id as number;
+      acc[masterId] = (acc[masterId] || 0) + 1;
+      return acc;
+    }, {} as Record<number, number>);
+
+    // Validation: Check if adding these items exceeds available qty for any master
+    const masterIds = Object.keys(countByMaster).map(id => parseInt(id));
+    const masters = await db.attachment.findMany({
+      where: { id: { in: masterIds } },
+      select: { id: true, nomor: true, qty: true, used_qty: true }
+    });
+
+    for (const master of masters) {
+      const requested = countByMaster[master.id];
+      const available = master.qty - master.used_qty;
+      
+      if (requested > available) {
+        return new NextResponse(
+          `Error: Adding ${requested} items exceeds available capacity (${available}) for Master PL: ${master.nomor}`, 
+          { status: 400 }
+        );
+      }
+    }
+
+    // Perform the update in a transaction
+    const validIds = validItems.map(p => p.id);
+
+    await db.$transaction(async (tx) => {
+      // Update products
+      await tx.product.updateMany({
+        where: { id: { in: validIds } },
+        data: { attachment2_id: attachmentId },
+      });
+
+      // Update used_qty in Master PLs
+      for (const [masterId, count] of Object.entries(countByMaster)) {
+        await tx.attachment.update({
+          where: { id: parseInt(masterId) },
+          data: {
+            used_qty: { increment: count }
+          }
+        });
+import { createInventoryLog } from "@/lib/activity-logger";
+
+// ... end of POST ...
+      }
+    });
+
+    await createInventoryLog("UPDATE", "PL Slave", String(attachmentId), `Added ${validIds.length} items to Slave PL: ${slave.nomor}`);
+
+    return NextResponse.json({ success: true, count: validIds.length });
 
   } catch (error: any) {
     console.error("[ADD_SLAVE_ITEMS]", error);

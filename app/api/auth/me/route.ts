@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 import { cookies } from "next/headers";
-
-const SECRET_KEY = process.env.JWT_SECRET || "supersecretkey123";
-const key = new TextEncoder().encode(SECRET_KEY);
+import { JWT_KEY } from "@/lib/jwt";
 
 export async function GET() {
   const cookieStore = await cookies();
@@ -14,11 +12,13 @@ export async function GET() {
   }
 
   try {
-    const { payload } = await jwtVerify(token, key);
+    const { payload } = await jwtVerify(token, JWT_KEY);
     return NextResponse.json({
       id: payload.sub,
       username: payload.username,
       role: payload.role,
+      name: payload.name,
+      image_url: payload.image_url,
     });
   } catch (error) {
     return NextResponse.json({ message: "Invalid token" }, { status: 401 });

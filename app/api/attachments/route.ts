@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { Prisma } from "../../../generated/inventory-client";
+import { Prisma } from "../../../generated/inventory-client-v2";
+import { createInventoryLog } from "@/lib/activity-logger";
 
 export async function GET(req: Request) {
   try {
@@ -25,22 +26,27 @@ export async function GET(req: Request) {
     };
 
     if (availableOnly) {
-      // Find master attachments that have available products (no slave assigned)
-      // Original logic using distinct product query
-      const productsWithNoSlave = await db.product.findMany({
-        where: {
-          attachment2_id: null,
-          attachment_id: { not: null },
-        },
-        select: { attachment_id: true },
-        distinct: ["attachment_id"],
-      });
+      try {
+        // Simple Raw SQL to get IDs of attachments that have remaining items
+        const availableAttachments = await db.$queryRawUnsafe<{ id: number }[]>(
+          "SELECT id FROM attachment WHERE active = 1 AND qty > 0 AND used_qty < qty"
+        );
+        
+        const targetIds = availableAttachments.map(a => a.id);
+        
+        if (targetIds.length === 0) {
+          return NextResponse.json({
+            data: [],
+            metadata: { total: 0, page, limit, totalPages: 0 },
+          });
+        }
 
-      const targetIds = productsWithNoSlave
-        .map((p) => p.attachment_id)
-        .filter((id): id is number => id !== null);
-
-      whereClause.id = { in: targetIds };
+        whereClause.id = { in: targetIds };
+      } catch (rawError: any) {
+        console.error("[GET_ATTACHMENTS] Raw SQL Error:", rawError);
+        // Fallback to a simpler where if raw SQL fails
+        whereClause.qty = { gt: 0 };
+      }
     }
 
     // 1. Get Total Count (Fast)
@@ -54,45 +60,11 @@ export async function GET(req: Request) {
       take: limit,
     });
 
-    if (attachments.length === 0) {
-      return NextResponse.json({
-        data: [],
-        metadata: {
-          total: totalCount,
-          page,
-          limit,
-          totalPages: Math.ceil(totalCount / limit),
-        },
-      });
-    }
-
-    const attachmentIds = attachments.map((a) => a.id);
-
-    // 3. Optimized Aggregation (Only for current page IDs)
-    const [totalCounts, tersediaCounts] = await Promise.all([
-      db.product.groupBy({
-        by: ["attachment_id"],
-        _count: { id: true },
-        where: { attachment_id: { in: attachmentIds } },
-      }),
-      db.product.groupBy({
-        by: ["attachment_id"],
-        _count: { id: true },
-        where: { 
-          attachment_id: { in: attachmentIds },
-          attachment2_id: null 
-        },
-      })
-    ]);
-
-    // Create lookup maps
-    const totalMap = new Map(totalCounts.map((item) => [item.attachment_id, item._count.id]));
-    const tersediaMap = new Map(tersediaCounts.map((item) => [item.attachment_id, item._count.id]));
-
+    // 3. Simple Mapping (No more heavy groupBy!)
     const data = attachments.map((att) => ({
       ...att,
-      total: totalMap.get(att.id) || 0,
-      tersedia: tersediaMap.get(att.id) || 0,
+      total: att.qty,
+      tersedia: att.qty - att.used_qty,
     }));
 
     return NextResponse.json({
@@ -139,6 +111,8 @@ export async function POST(req: Request) {
         active: true, 
       },
     });
+
+    await createInventoryLog("CREATE", "PL Master", String(newAttachment.id), `Created PL Master: ${nomor} (${type})`);
 
     return NextResponse.json(newAttachment, { status: 201 });
   } catch (error) {

@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
-
-const SECRET_KEY = process.env.JWT_SECRET || "supersecretkey123";
-const key = new TextEncoder().encode(SECRET_KEY);
+import { JWT_KEY } from "./lib/jwt";
 
 export async function middleware(req: NextRequest) {
   const token = req.cookies.get("session_token")?.value;
@@ -36,7 +34,7 @@ export async function middleware(req: NextRequest) {
   if (pathname === "/") {
     if (token) {
       try {
-        await jwtVerify(token, key);
+        await jwtVerify(token, JWT_KEY);
         return NextResponse.redirect(new URL("/dashboard", req.url));
       } catch (err) {
         // Invalid token
@@ -55,7 +53,7 @@ export async function middleware(req: NextRequest) {
   // If accessing login page while logged in
   if (pathname === "/login" && token) {
       try {
-        await jwtVerify(token, key);
+        await jwtVerify(token, JWT_KEY);
         return NextResponse.redirect(new URL("/dashboard", req.url));
       } catch (err) {
         // Token invalid, let them stay on login
@@ -65,11 +63,11 @@ export async function middleware(req: NextRequest) {
   // Verify token for protected routes
   if (isProtectedRoute && token) {
     try {
-      const { payload } = await jwtVerify(token, key);
+      const { payload } = await jwtVerify(token, JWT_KEY);
       
       // Role-Based Access Control
-      if (pathname.startsWith("/admin/users") && payload.role !== "admin") {
-          // Redirect to dashboard if user tries to access /admin/users but is not admin
+      if (pathname.startsWith("/admin/users") && payload.role !== "super_admin") {
+          // Redirect to dashboard if user tries to access /admin/users but is not super_admin
           return NextResponse.redirect(new URL("/dashboard", req.url));
       }
 

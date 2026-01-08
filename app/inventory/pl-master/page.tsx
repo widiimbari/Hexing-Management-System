@@ -2,13 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { attachment } from "@prisma/client";
-import { PlusCircle, FileDown, ChevronDown, MoreHorizontal, Eye, Edit, Trash } from "lucide-react";
+import { PlusCircle, FileDown, ChevronDown, MoreHorizontal, Eye, Edit, Trash, ClipboardList } from "lucide-react";
 import { DataTable, DataTableColumn } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { AttachmentForm } from "./components/attachment-form";
 import { InputMeterDialog } from "./components/input-meter-dialog";
 import { generateExcel } from "./components/export-excel";
+import { generatePdf } from "./components/export-pdf";
+import { MasterSlavesList } from "../pl-slave/components/master-slaves-list";
+import { PLItemsViewer } from "../components/pl-items-viewer";
 import { generateSerialExcel } from "./components/export-serial-excel";
 import { Input } from "@/components/ui/input";
 import {
@@ -69,6 +72,7 @@ export default function PLMasterPage() {
   const [splitAttachmentId, setSplitAttachmentId] = useState<number | null>(null);
   const [splitChunkSize, setSplitChunkSize] = useState<string>("5000");
   const [splitProgress, setSplitProgress] = useState<string>("");
+  const [exportProgress, setExportProgress] = useState<{stage: string, percentage: number} | null>(null);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<number | null>(null);
@@ -77,6 +81,10 @@ export default function PLMasterPage() {
   
   const [viewingAttachment, setViewingAttachment] = useState<AttachmentWithCounts | null>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
+
+  // Items Viewer State
+  const [viewingItems, setViewingItems] = useState<AttachmentWithCounts | null>(null);
+  const [isItemsViewOpen, setIsItemsViewOpen] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -121,7 +129,7 @@ export default function PLMasterPage() {
     }
   };
 
-  const handleExport = async (id: number, useApi: boolean = false) => {
+  const handleExport = async (id: number, type: 'excel' | 'pdf' = 'excel') => {
     try {
       setExportingId(id);
       const response = await fetch(`/api/attachments/${id}/export-data`);
@@ -135,13 +143,23 @@ export default function PLMasterPage() {
       }
 
       const jimatekSerials = await fetchJimatekSerials();
-      await generateExcel(attachment, products, prefix, undefined, useApi, jimatekSerials);
+      
+      if (type === 'pdf') {
+        setExportProgress({ stage: "Starting...", percentage: 0 });
+        await generatePdf(attachment, products, prefix, undefined, jimatekSerials, (stage, percentage) => {
+            setExportProgress({ stage, percentage });
+        });
+        setExportProgress(null);
+      } else {
+        await generateExcel(attachment, products, prefix, undefined, false, jimatekSerials);
+      }
       
     } catch (error) {
       console.error("Export failed", error);
       alert("Export failed. Check console.");
     } finally {
       setExportingId(null);
+      setExportProgress(null);
     }
   };
 
@@ -158,7 +176,8 @@ export default function PLMasterPage() {
         return;
       }
 
-      await generateSerialExcel(attachment, products, prefix);
+      const jimatekSerials = await fetchJimatekSerials();
+      await generateSerialExcel(attachment, products, prefix, jimatekSerials);
       
     } catch (error) {
       console.error("Export Serial failed", error);
@@ -275,7 +294,7 @@ export default function PLMasterPage() {
     {
       id: "input_meter",
       header: "Input Meter",
-      cell: ({ row }) => (role === "admin" || role === "spv") ? (
+      cell: ({ row }) => (role === "super_admin" || role === "admin") ? (
         <Button 
           variant="secondary" 
           size="sm" 
@@ -299,8 +318,8 @@ export default function PLMasterPage() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => handleExport(row.id, false)}>Export QR</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleExport(row.id, true)}>Export QR API</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleExport(row.id, 'excel')}>Export Excel (QR)</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleExport(row.id, 'pdf')}>Export PDF (QR)</DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleExportSerial(row.id)}>Export Serial</DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleSplitExportClick(row.id)}>Split Export</DropdownMenuItem>
           </DropdownMenuContent>
@@ -321,8 +340,14 @@ export default function PLMasterPage() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => {
+                setViewingItems(row);
+                setIsItemsViewOpen(true);
+            }}>
+                <Eye className="mr-2 h-4 w-4" /> View Items List
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleView(row)}><Eye className="mr-2 h-4 w-4" /> View Details</DropdownMenuItem>
-            {role === "admin" && (
+            {role === "super_admin" && (
               <>
                 <DropdownMenuItem onClick={() => handleEdit(row)}><Edit className="mr-2 h-4 w-4" /> Edit</DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -338,13 +363,18 @@ export default function PLMasterPage() {
   return (
     <div className="container mx-auto py-10">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-slate-900">PL Master</h1>
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-2">
+            <ClipboardList className="h-8 w-8 text-primary" /> PL Master
+          </h1>
+          <p className="text-muted-foreground">Manage and track master packing lists and their associated products.</p>
+        </div>
       </div>
       
       <Card className="shadow-md border-none overflow-hidden">
         <CardContent className="p-0">
           <div className="p-4 border-b flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/50">
-            {(role === "admin" || role === "spv") && (
+            {(role === "super_admin" || role === "admin") && (
               <Button onClick={() => {
                 setEditingAttachment(null);
                 setIsAddOpen(true);
@@ -443,7 +473,49 @@ export default function PLMasterPage() {
               <div><Label className="font-bold">Status</Label><p>{viewingAttachment.active ? "Active" : "Inactive"}</p></div>
             </div>
           )}
+          {viewingAttachment && (
+             <div className="border-t pt-4">
+                <MasterSlavesList masterId={viewingAttachment.id} />
+             </div>
+          )}
           <DialogFooter><Button onClick={() => setIsViewOpen(false)}>Close</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isItemsViewOpen} onOpenChange={setIsItemsViewOpen}>
+        <DialogContent className="sm:max-w-[900px]">
+          <DialogHeader>
+            <DialogTitle>Items List: {viewingItems?.nomor}</DialogTitle>
+            <DialogDescription>
+              View all products, boxes, and pallets in this Packing List.
+            </DialogDescription>
+          </DialogHeader>
+          {viewingItems && (
+            <PLItemsViewer attachmentId={viewingItems.id} mode="master" />
+          )}
+          <DialogFooter>
+            <Button onClick={() => setIsItemsViewOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!exportProgress} onOpenChange={() => {}}>
+        <DialogContent className="sm:max-w-[400px]">
+            <DialogHeader>
+                <DialogTitle>Generating PDF</DialogTitle>
+                <DialogDescription>
+                    Please wait while we process {exportProgress?.stage}...
+                </DialogDescription>
+            </DialogHeader>
+            <div className="py-6 flex flex-col items-center gap-4">
+                <div className="w-full bg-slate-100 rounded-full h-4 overflow-hidden">
+                    <div 
+                        className="bg-primary h-full transition-all duration-300 ease-out"
+                        style={{ width: `${exportProgress?.percentage || 0}%` }}
+                    />
+                </div>
+                <p className="text-sm font-medium text-slate-700">{exportProgress?.percentage}%</p>
+            </div>
         </DialogContent>
       </Dialog>
     </div>

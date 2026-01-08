@@ -122,7 +122,9 @@ exports.Prisma.AttachmentScalarFieldEnum = {
   tgl_order: 'tgl_order',
   area: 'area',
   status: 'status',
-  active: 'active'
+  active: 'active',
+  qty: 'qty',
+  used_qty: 'used_qty'
 };
 
 exports.Prisma.Attachment2ScalarFieldEnum = {
@@ -217,12 +219,15 @@ exports.Prisma.Filestore_volumeScalarFieldEnum = {
   last_filenum: 'last_filenum'
 };
 
-exports.Prisma.LogsScalarFieldEnum = {
+exports.Prisma.Audit_logsScalarFieldEnum = {
   id: 'id',
   timestamp: 'timestamp',
-  desc: 'desc',
-  line: 'line',
-  code: 'code'
+  action: 'action',
+  entity: 'entity',
+  entity_id: 'entity_id',
+  details: 'details',
+  user: 'user',
+  ip_address: 'ip_address'
 };
 
 exports.Prisma.Logs_editScalarFieldEnum = {
@@ -458,15 +463,6 @@ exports.filestore_volume_enabled = exports.$Enums.filestore_volume_enabled = {
   N: 'N'
 };
 
-exports.logs_code = exports.$Enums.logs_code = {
-  OK: 'OK',
-  NG: 'NG',
-  DUP: 'DUP',
-  NM: 'NM',
-  PRNT: 'PRNT',
-  ERR: 'ERR'
-};
-
 exports.meter_type_card_validation = exports.$Enums.meter_type_card_validation = {
   Yes: 'Yes',
   No: 'No'
@@ -520,7 +516,7 @@ exports.Prisma.ModelName = {
   filestore_file: 'filestore_file',
   filestore_type: 'filestore_type',
   filestore_volume: 'filestore_volume',
-  logs: 'logs',
+  audit_logs: 'audit_logs',
   logs_edit: 'logs_edit',
   meter_type: 'meter_type',
   module_list: 'module_list',

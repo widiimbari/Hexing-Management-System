@@ -1,8 +1,10 @@
 import { dbManagement } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
+import { hashPassword } from "@/lib/password";
+import { logError, getErrorContext, getSafeErrorMessage } from "@/lib/error-logger";
 
-export async function PUT(req: Request) {
+export async function PATCH(req: Request) {
   try {
     const user = await getCurrentUser();
     if (!user) {
@@ -10,24 +12,54 @@ export async function PUT(req: Request) {
     }
 
     const body = await req.json();
-    const { newPassword } = body;
+    const { name, image_url, newPassword } = body;
 
-    if (!newPassword) {
-      return NextResponse.json({ message: "New password is required" }, { status: 400 });
+    const data: any = {};
+    if (name) data.name = name;
+    if (image_url !== undefined) data.image_url = image_url;
+
+    // Hash password if provided
+    if (newPassword) {
+      // Validate password strength
+      if (newPassword.length < 6) {
+        return NextResponse.json(
+          { message: "Password must be at least 6 characters long" },
+          { status: 400 }
+        );
+      }
+
+      // Hash the new password using bcrypt
+      data.password = await hashPassword(newPassword);
     }
 
-    // Update user password in management database
-    // Assuming user.id is the ID in management database
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json({ message: "No data to update" }, { status: 400 });
+    }
+
+    // Update user in management database
     await dbManagement.users.update({
       where: { id: parseInt(user.id as string) },
-      data: {
-        password: newPassword, // The DB trigger will handle hashing
-      },
+      data: data,
     });
 
-    return NextResponse.json({ message: "Password updated successfully" });
+    return NextResponse.json({ message: "Profile updated successfully" });
   } catch (error) {
-    console.error("Error updating profile:", error);
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    // Log the error with context
+    const currentUser = await getCurrentUser();
+    const userContext = currentUser?.id
+      ? { id: currentUser.id as string, username: currentUser.username }
+      : undefined;
+
+    logError(
+      error as Error,
+      getErrorContext(req, userContext),
+      "medium"
+    );
+
+    // Return safe error message to client
+    const isDevelopment = process.env.NODE_ENV === "development";
+    const safeMessage = getSafeErrorMessage(error, isDevelopment);
+
+    return NextResponse.json({ message: safeMessage }, { status: 500 });
   }
 }

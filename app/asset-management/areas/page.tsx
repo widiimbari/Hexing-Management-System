@@ -26,6 +26,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { format } from "date-fns";
 import { AreaFormDialog } from "./components/area-form-dialog";
 import { AlertModal } from "@/components/ui/alert-modal";
+import { useRole } from "@/hooks/use-role";
 
 interface Area {
   id: string;
@@ -38,6 +39,7 @@ interface Area {
 }
 
 export default function AreasPage() {
+  const { role } = useRole();
   const [data, setData] = useState<Area[]>([]);
   const [loading, setLoading] = useState(true);
   const [rowCount, setRowCount] = useState(0);
@@ -182,16 +184,20 @@ export default function AreasPage() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => handleEditArea(row)}>
-              <Edit className="mr-2 h-4 w-4" /> Edit
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              className="text-red-600 focus:text-red-600"
-              onClick={() => handleDeleteArea(row)}
-            >
-              <Trash className="mr-2 h-4 w-4" /> Delete
-            </DropdownMenuItem>
+            {role === "super_admin" && (
+              <>
+                <DropdownMenuItem onClick={() => handleEditArea(row)}>
+                  <Edit className="mr-2 h-4 w-4" /> Edit
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  className="text-red-600 focus:text-red-600"
+                  onClick={() => handleDeleteArea(row)}
+                >
+                  <Trash className="mr-2 h-4 w-4" /> Delete
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       )
@@ -207,12 +213,14 @@ export default function AreasPage() {
           </h1>
           <p className="text-muted-foreground">Manage geographical areas for locations.</p>
         </div>
-        <Button onClick={() => {
-          setSelectedArea(null);
-          setFormDialogOpen(true);
-        }}>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add New Area
-        </Button>
+        {(role === "super_admin" || role === "admin") && (
+          <Button onClick={() => {
+            setSelectedArea(null);
+            setFormDialogOpen(true);
+          }}>
+            <PlusCircle className="mr-2 h-4 w-4" /> Add New Area
+          </Button>
+        )}
       </div>
 
       <Card className="shadow-md border-none overflow-hidden">

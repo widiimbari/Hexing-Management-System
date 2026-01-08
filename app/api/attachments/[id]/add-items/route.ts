@@ -85,6 +85,22 @@ export async function POST(
       }
     }
 
+import { createInventoryLog } from "@/lib/activity-logger";
+
+// ... end of POST ...
+    // Update attachment qty denormalized column
+    if (updatedCount > 0) {
+      await db.attachment.update({
+        where: { id: attachmentId },
+        data: {
+          qty: { increment: updatedCount }
+        }
+      });
+      
+      const att = await db.attachment.findUnique({ where: { id: attachmentId }, select: { nomor: true } });
+      await createInventoryLog("UPDATE", "PL Master", String(attachmentId), `Added ${updatedCount} items to Master PL: ${att?.nomor}`);
+    }
+
     return NextResponse.json({ success: true, count: updatedCount });
   } catch (error) {
     console.error("[ADD_ITEMS_TO_ATTACHMENT]", error);

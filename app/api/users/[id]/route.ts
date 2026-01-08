@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { dbManagement } from "@/lib/db";
-import crypto from "crypto";
+import { hashPassword } from "@/lib/password";
+import { logError, getErrorContext, getSafeErrorMessage } from "@/lib/error-logger";
+import { getCurrentUser } from "@/lib/auth";
 
 // Helper to get ID from params
 // Next.js 15+ (and recent 14) params might be promises or direct objects depending on config.
@@ -13,30 +15,46 @@ type Props = {
 
 export async function PUT(req: Request, { params }: Props) {
   try {
-    // In Next.js 15, params is a Promise. In 14 it's an object.
-    // The prompt says "Next.js", assuming recent version.
-    // Let's await it just in case or access it directly if it's not a promise.
-    const { id } = await params; 
+    // Authorization: Only super_admin can update users
+    const currentUser = await getCurrentUser();
+    if (!currentUser || currentUser.role !== "super_admin") {
+      return NextResponse.json(
+        { message: "Unauthorized: Super admin access required" },
+        { status: 403 }
+      );
+    }
+
+    const { id } = await params;
     const userId = parseInt(id);
 
     if (isNaN(userId)) {
       return NextResponse.json({ message: "Invalid user ID" }, { status: 400 });
     }
 
-    const { username, password, role } = await req.json();
+    const { username, password, role, name, image_url } = await req.json();
 
-    if (!username || !role) {
-        return NextResponse.json({ message: "Username and role are required" }, { status: 400 });
+    if (!username || !role || !name) {
+        return NextResponse.json({ message: "Username, role, and name are required" }, { status: 400 });
     }
 
     const dataToUpdate: any = {
       username,
       role,
+      name,
+      image_url,
     };
 
     if (password) {
-      // Hash password manually
-      dataToUpdate.password = crypto.createHash("md5").update(password).digest("hex");
+      // Validate password strength
+      if (password.length < 6) {
+        return NextResponse.json(
+          { message: "Password must be at least 6 characters long" },
+          { status: 400 }
+        );
+      }
+
+      // Hash password using bcrypt (secure)
+      dataToUpdate.password = await hashPassword(password);
     }
 
     const updatedUser = await dbManagement.users.update({
@@ -48,11 +66,26 @@ export async function PUT(req: Request, { params }: Props) {
       id: updatedUser.id,
       username: updatedUser.username,
       role: updatedUser.role,
+      name: updatedUser.name,
+      image_url: updatedUser.image_url,
     });
   } catch (error) {
-    console.error("Error updating user:", error);
+    const currentUser = await getCurrentUser();
+    const userContext = currentUser?.id
+      ? { id: currentUser.id as string, username: currentUser.username }
+      : undefined;
+
+    logError(
+      error as Error,
+      getErrorContext(req, userContext),
+      "medium"
+    );
+
+    const isDevelopment = process.env.NODE_ENV === "development";
+    const safeMessage = getSafeErrorMessage(error, isDevelopment);
+
     return NextResponse.json(
-      { message: "Internal server error" },
+      { message: safeMessage },
       { status: 500 }
     );
   }
@@ -60,11 +93,28 @@ export async function PUT(req: Request, { params }: Props) {
 
 export async function DELETE(req: Request, { params }: Props) {
   try {
+    // Authorization: Only super_admin can delete users
+    const currentUser = await getCurrentUser();
+    if (!currentUser || currentUser.role !== "super_admin") {
+      return NextResponse.json(
+        { message: "Unauthorized: Super admin access required" },
+        { status: 403 }
+      );
+    }
+
     const { id } = await params;
     const userId = parseInt(id);
 
     if (isNaN(userId)) {
       return NextResponse.json({ message: "Invalid user ID" }, { status: 400 });
+    }
+
+    // Prevent deleting yourself
+    if (currentUser.id === userId.toString()) {
+      return NextResponse.json(
+        { message: "Cannot delete your own account" },
+        { status: 400 }
+      );
     }
 
     await dbManagement.users.delete({
@@ -73,9 +123,22 @@ export async function DELETE(req: Request, { params }: Props) {
 
     return NextResponse.json({ message: "User deleted successfully" });
   } catch (error) {
-    console.error("Error deleting user:", error);
+    const currentUser = await getCurrentUser();
+    const userContext = currentUser?.id
+      ? { id: currentUser.id as string, username: currentUser.username }
+      : undefined;
+
+    logError(
+      error as Error,
+      getErrorContext(req, userContext),
+      "medium"
+    );
+
+    const isDevelopment = process.env.NODE_ENV === "development";
+    const safeMessage = getSafeErrorMessage(error, isDevelopment);
+
     return NextResponse.json(
-      { message: "Internal server error" },
+      { message: safeMessage },
       { status: 500 }
     );
   }

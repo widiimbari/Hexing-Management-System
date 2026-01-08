@@ -13,18 +13,50 @@ export async function DELETE(
       return new NextResponse("Invalid ID", { status: 400 });
     }
 
-    // Transaction to release products
-    await db.$transaction([
+import { createInventoryLog } from "@/lib/activity-logger";
+
+// ... inside DELETE ...
+    const slave = await db.attachment2.findUnique({ where: { id: attachmentId }, select: { nomor: true } });
+
+    // 1. Find products to see which master PLs are affected
+    const products = await db.product.findMany({
+      where: { attachment2_id: attachmentId },
+      select: { attachment_id: true }
+    });
+
+    // Group by master PL to know how much to decrement
+    const masterCounts = products.reduce((acc, p) => {
+      if (p.attachment_id) {
+        acc[p.attachment_id] = (acc[p.attachment_id] || 0) + 1;
+      }
+      return acc;
+    }, {} as Record<number, number>);
+
+    // Transaction to release products and update counts
+    await db.$transaction(async (tx) => {
+      // Update used_qty in master PLs
+      for (const [masterId, count] of Object.entries(masterCounts)) {
+        await tx.attachment.update({
+          where: { id: parseInt(masterId) },
+          data: {
+            used_qty: { decrement: count }
+          }
+        });
+      }
+
       // Reset attachment2_id in products
-      db.product.updateMany({
+      await tx.product.updateMany({
         where: { attachment2_id: attachmentId },
         data: { attachment2_id: null }
-      }),
+      });
+
       // Delete the attachment
-      db.attachment2.delete({
+      await tx.attachment2.delete({
         where: { id: attachmentId },
-      })
-    ]);
+      });
+    });
+
+    await createInventoryLog("DELETE", "PL Slave", String(attachmentId), `Deleted PL Slave: ${slave?.nomor}`);
 
     return new NextResponse(null, { status: 204 });
   } catch (error) {

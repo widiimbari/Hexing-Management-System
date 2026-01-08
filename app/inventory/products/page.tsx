@@ -73,6 +73,7 @@ export default function ProductsPage() {
   const [period, setPeriod] = useState<string>("all");
   const [meterTypes, setMeterTypes] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   // Debounced Search for Type Detection
   const debouncedStartSerial = useDebounce(startSerial, 500);
@@ -459,8 +460,13 @@ export default function ProductsPage() {
   return (
     <div className="container mx-auto py-10 space-y-6">
       
-      <div className="flex justify-between items-end">
-        <h1 className="text-3xl font-bold">Products</h1>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-2">
+            <Boxes className="h-8 w-8 text-primary" /> Products
+          </h1>
+          <p className="text-muted-foreground">Manage and track product production output and details.</p>
+        </div>
       </div>
 
       {/* Filter Bar */}
@@ -548,7 +554,7 @@ export default function ProductsPage() {
 
             {/* Date Range */}
             <div className="w-[220px]">
-                <Popover>
+                <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                     <PopoverTrigger asChild>
                     <Button
                         variant={"outline"}
@@ -561,10 +567,10 @@ export default function ProductsPage() {
                         {dateRange?.from ? (
                         dateRange.to ? (
                             <>
-                            {format(dateRange.from, "dd/MM/y")} - {format(dateRange.to, "dd/MM/y")}
+                            {format(dateRange.from, "dd/MM/yyyy")} - {format(dateRange.to, "dd/MM/yyyy")}
                             </>
                         ) : (
-                            format(dateRange.from, "dd/MM/y")
+                            format(dateRange.from, "dd/MM/yyyy")
                         )
                         ) : (
                         <span>Pick Date</span>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-export type Role = "admin" | "spv" | "user" | null;
+export type Role = "super_admin" | "admin" | "user" | null;
 
 export function useRole() {
   const [role, setRole] = useState<Role>(null);

@@ -1,8 +1,6 @@
 import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
-
-const SECRET_KEY = process.env.JWT_SECRET || "supersecretkey123";
-const key = new TextEncoder().encode(SECRET_KEY);
+import { JWT_KEY } from "./jwt";
 
 export async function getCurrentUser() {
   const cookieStore = await cookies();
@@ -11,7 +9,7 @@ export async function getCurrentUser() {
   if (!token) return null;
 
   try {
-    const { payload } = await jwtVerify(token, key);
+    const { payload } = await jwtVerify(token, JWT_KEY);
     return {
       id: payload.sub,
       username: payload.username as string,

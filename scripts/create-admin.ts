@@ -1,13 +1,14 @@
 
-import { PrismaClient } from "../generated/management-client";
-import crypto from "crypto";
+import { PrismaClient } from "../generated/management-client-v2";
+import bcrypt from "bcryptjs";
 
 const db = new PrismaClient();
 
 async function main() {
   const username = "admin";
   const password = "admin"; // Default password
-  const role = "admin";
+  const role = "super_admin"; // Use super_admin role
+  const name = "Administrator";
 
   const existing = await db.users.findFirst({
     where: { username },
@@ -18,17 +19,21 @@ async function main() {
     return;
   }
 
-  const hashedPassword = crypto.createHash("md5").update(password).digest("hex");
+  // Use bcrypt instead of MD5
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   const user = await db.users.create({
     data: {
       username,
       password: hashedPassword,
       role,
+      name,
     },
   });
 
-  console.log(`Created user: ${user.username} with password: ${password}`);
+  console.log(`✅ Created user: ${user.username} with password: ${password}`);
+  console.log(`   Role: ${role}`);
+  console.log(`   Name: ${name}`);
 }
 
 main()

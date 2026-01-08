@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "../../../generated/inventory-client-v2";
+import { createInventoryLog } from "@/lib/activity-logger";
 
 export async function GET(req: Request) {
   try {
@@ -106,6 +107,8 @@ export async function POST(req: Request) {
         active: true,
       },
     });
+
+    await createInventoryLog("CREATE", "PL Slave", String(newAttachment2.id), `Created PL Slave: ${nomor} (${type})`);
 
     return NextResponse.json(newAttachment2, { status: 201 });
   } catch (error: any) {
