@@ -54,9 +54,6 @@ async function verifyAssetDatabase() {
     const activityLogsCount = await pgAssetClient.activity_log.count();
     console.log(`✓ Activity Logs: ${activityLogsCount} records`);
 
-    const logCrudsCount = await pgAssetClient.log_crud.count();
-    console.log(`✓ Log CRUDs: ${logCrudsCount} records`);
-
     console.log('\n✅ Asset Database Verified!\n');
   } catch (error) {
     console.error('❌ Error verifying asset database:', error);

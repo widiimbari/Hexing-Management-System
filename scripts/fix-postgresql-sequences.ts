@@ -24,7 +24,6 @@ async function fixAssetSequences() {
     'departments',
     'employees',
     'locations',
-    'log_crud',
     'suppliers',
     'users',
   ];

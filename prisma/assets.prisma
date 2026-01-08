@@ -72,7 +72,6 @@ model assets {
   main_image     asset_images? @relation("AssetMainImage", fields: [image_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "assets_image_id_foreign")
   condition      AssetCondition @default(GOOD)
   transactions   asset_transactions[]
-  log_cruds      log_crud[]
   asset_images   asset_images[] @relation("AssetImages")
 
   @@index([type_id])
@@ -186,22 +185,6 @@ model locations {
   @@index([area_id])
 }
 
-model log_crud {
-  id         BigInt   @id @default(autoincrement())
-  table_name String   @db.VarChar(255)
-  sap_id     String?  @db.VarChar(255)
-  operation  String   @db.VarChar(10) // 'create', 'update', 'delete'
-  old_data   String?  @db.Text
-  new_data   String?  @db.Text
-  user_id    BigInt? 
-  created_at DateTime @default(now()) @db.Timestamp(0)
-  
-  user       users?   @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "log_crud_user_id_foreign")
-  assets     assets[]
-
-  @@index([user_id])
-}
-
 model suppliers {
   id             BigInt    @id @default(autoincrement())
   name           String    @db.VarChar(255)
@@ -224,7 +207,6 @@ model users {
   remember_token    String?   @db.VarChar(100)
   created_at        DateTime? @db.Timestamp(0)
   updated_at        DateTime? @db.Timestamp(0)
-  
+
   // transactions      asset_transactions[] @relation("TransactionCreator")
-  log_cruds         log_crud[]
 }
