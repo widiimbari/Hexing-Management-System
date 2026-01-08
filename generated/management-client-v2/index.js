@@ -102,6 +102,11 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+
 exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
@@ -148,8 +153,7 @@ const config = {
   "datasourceNames": [
     "db"
   ],
-  "activeProvider": "mysql",
-  "postinstall": false,
+  "activeProvider": "postgresql",
   "inlineDatasources": {
     "db": {
       "url": {
@@ -158,8 +162,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/management-client-v2\"\n}\n\ndatasource db {\n  provider = \"mysql\"\n  url      = env(\"MANAGEMENT_DATABASE_URL\")\n}\n\nmodel users {\n  id        Int     @id @default(autoincrement())\n  username  String  @unique @db.VarChar(255)\n  password  String  @db.VarChar(255)\n  role      String  @db.VarChar(100)\n  name      String? @db.VarChar(255)\n  image_url String? @db.Text\n}\n",
-  "inlineSchemaHash": "35d69b394b4b4f5bd2835ab5e39a76ce2912152e116fda70e4083fde85e48d39",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/management-client-v2\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"MANAGEMENT_DATABASE_URL\")\n}\n\nmodel users {\n  id        Int     @id @default(autoincrement())\n  username  String  @unique @db.VarChar(255)\n  password  String  @db.VarChar(255)\n  role      String  @db.VarChar(100)\n  name      String? @db.VarChar(255)\n  image_url String? @db.Text\n}\n",
+  "inlineSchemaHash": "917690df17a32aedbce31efe9eb43b76128d5b067bab593d3c2d1002feb68bd2",
   "copyEngine": true
 }
 

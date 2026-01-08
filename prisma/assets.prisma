@@ -4,12 +4,12 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("ASSET_DATABASE_URL")
 }
 
 model areas {
-  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  id         BigInt    @id @default(autoincrement())
   name       String    @unique @db.VarChar(255)
   created_at DateTime? @db.Timestamp(0)
   updated_at DateTime? @db.Timestamp(0)
@@ -18,11 +18,11 @@ model areas {
 }
 
 model asset_transactions {
-  id                 BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  asset_id           BigInt    @db.UnsignedBigInt
+  id                 BigInt    @id @default(autoincrement())
+  asset_id           BigInt   
   transaction_type   String    @db.VarChar(50) // PURCHASE, CONDITION_CHANGE, RELOCATION, ASSIGNMENT
-  previous_holder_id BigInt?   @db.UnsignedBigInt
-  new_holder_id      BigInt?   @db.UnsignedBigInt
+  previous_holder_id BigInt?  
+  new_holder_id      BigInt?  
   previous_location  String?   @db.VarChar(255)
   new_location       String?   @db.VarChar(255)
   previous_condition String?   @db.VarChar(50)
@@ -30,7 +30,7 @@ model asset_transactions {
   remarks            String?   @db.Text
   attachment_url     String?   @db.VarChar(255)
   transaction_date   DateTime  @default(now()) @db.Timestamp(0)
-  created_by         BigInt?   @db.UnsignedBigInt
+  created_by         BigInt?  
   creator_name       String?   @db.VarChar(255)
   created_at         DateTime? @db.Timestamp(0)
   updated_at         DateTime? @db.Timestamp(0)
@@ -40,27 +40,27 @@ model asset_transactions {
   previous_holder    employees? @relation("TransactionPreviousHolder", fields: [previous_holder_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "asset_transactions_previous_holder_id_foreign")
   new_holder         employees? @relation("TransactionNewHolder", fields: [new_holder_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "asset_transactions_new_holder_id_foreign")
 
-  @@index([asset_id], map: "asset_transactions_asset_id_foreign")
-  @@index([created_by], map: "asset_transactions_created_by_foreign")
-  @@index([previous_holder_id], map: "asset_transactions_previous_holder_id_foreign")
-  @@index([new_holder_id], map: "asset_transactions_new_holder_id_foreign")
+  @@index([asset_id])
+  @@index([created_by])
+  @@index([previous_holder_id])
+  @@index([new_holder_id])
 }
 
 model assets {
-  id             BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  type_id        BigInt?  @db.UnsignedBigInt
+  id             BigInt   @id @default(autoincrement())
+  type_id        BigInt? 
   serial_number  String   @unique @db.VarChar(255)
   sap_id         String?  @db.VarChar(255)
   purchase_date  DateTime? @db.Date
   created_at     DateTime? @db.Timestamp(0)
   updated_at     DateTime? @db.Timestamp(0)
-  category_id    BigInt?  @db.UnsignedBigInt
-  brand_id       BigInt?  @db.UnsignedBigInt
-  area_id        BigInt?  @db.UnsignedBigInt
-  location_id    BigInt?  @db.UnsignedBigInt
-  employee_id    BigInt?  @db.UnsignedBigInt
-  supplier_id    BigInt?  @db.UnsignedBigInt
-  image_id       BigInt?  @unique @db.UnsignedBigInt
+  category_id    BigInt? 
+  brand_id       BigInt? 
+  area_id        BigInt? 
+  location_id    BigInt? 
+  employee_id    BigInt? 
+  supplier_id    BigInt? 
+  image_id       BigInt?  @unique
   
   asset_type     asset_types? @relation(fields: [type_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "assets_type_id_foreign")
   category       categories? @relation(fields: [category_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "assets_category_id_foreign")
@@ -75,14 +75,14 @@ model assets {
   log_cruds      log_crud[]
   asset_images   asset_images[] @relation("AssetImages")
 
-  @@index([type_id], map: "assets_type_id_foreign")
-  @@index([category_id], map: "assets_category_id_foreign")
-  @@index([brand_id], map: "assets_brand_id_foreign")
-  @@index([area_id], map: "assets_area_id_foreign")
-  @@index([location_id], map: "assets_location_id_foreign")
-  @@index([employee_id], map: "assets_employee_id_foreign")
-  @@index([supplier_id], map: "assets_supplier_id_foreign")
-  @@index([image_id], map: "assets_image_id_foreign")
+  @@index([type_id])
+  @@index([category_id])
+  @@index([brand_id])
+  @@index([area_id])
+  @@index([location_id])
+  @@index([employee_id])
+  @@index([supplier_id])
+  @@index([image_id])
 }
 
 enum AssetCondition {
@@ -96,7 +96,7 @@ enum AssetCondition {
 }
 
 model activity_log {
-  id          BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  id          BigInt   @id @default(autoincrement())
   action      String   @db.VarChar(50) // CREATE, UPDATE, DELETE, IMPORT, EXPORT
   entity_type String   @db.VarChar(50) // Asset, Category, etc.
   entity_id   String   @db.VarChar(255) // ID of the entity
@@ -111,7 +111,7 @@ model activity_log {
 }
 
 model asset_types {
-  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  id         BigInt    @id @default(autoincrement())
   name       String    @unique @db.VarChar(255)
   created_at DateTime? @db.Timestamp(0)
   updated_at DateTime? @db.Timestamp(0)
@@ -119,8 +119,8 @@ model asset_types {
 }
 
 model asset_images {
-  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  asset_id   BigInt   @db.UnsignedBigInt
+  id         BigInt   @id @default(autoincrement())
+  asset_id   BigInt  
   name       String   @db.VarChar(255)
   url        String?  @db.VarChar(255)
   created_at DateTime @default(now()) @db.Timestamp(0)
@@ -128,11 +128,11 @@ model asset_images {
   asset      assets   @relation("AssetImages", fields: [asset_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "asset_images_asset_id_foreign")
   main_for   assets?  @relation("AssetMainImage")
 
-  @@index([asset_id], map: "asset_images_asset_id_foreign")
+  @@index([asset_id])
 }
 
 model brands {
-  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  id         BigInt    @id @default(autoincrement())
   name       String    @unique @db.VarChar(255)
   created_at DateTime? @db.Timestamp(0)
   updated_at DateTime? @db.Timestamp(0)
@@ -140,7 +140,7 @@ model brands {
 }
 
 model categories {
-  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  id         BigInt    @id @default(autoincrement())
   name       String    @unique @db.VarChar(255)
   created_at DateTime? @db.Timestamp(0)
   updated_at DateTime? @db.Timestamp(0)
@@ -148,7 +148,7 @@ model categories {
 }
 
 model departments {
-  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  id         BigInt    @id @default(autoincrement())
   name       String    @db.VarChar(255)
   created_at DateTime? @db.Timestamp(0)
   updated_at DateTime? @db.Timestamp(0)
@@ -156,13 +156,13 @@ model departments {
 }
 
 model employees {
-  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  id            BigInt    @id @default(autoincrement())
   nik           String    @unique @db.VarChar(255)
   nama          String    @db.VarChar(255)
   gender        String    @db.VarChar(1) // 'L' or 'P'
   created_at    DateTime? @default(now()) @db.Timestamp(0)
   updated_at    DateTime? @default(now()) @db.Timestamp(0)
-  department_id BigInt?   @db.UnsignedBigInt
+  department_id BigInt?  
   
   department    departments?  @relation(fields: [department_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "employees_department_id_foreign")
   
@@ -170,40 +170,40 @@ model employees {
   new_trans      asset_transactions[] @relation("TransactionNewHolder")
   assets         assets[]             @relation("AssetEmployee")
   
-  @@index([department_id], map: "employees_department_id_foreign")
+  @@index([department_id])
 }
 
 model locations {
-  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  id         BigInt    @id @default(autoincrement())
   name       String    @db.VarChar(255)
-  area_id    BigInt    @db.UnsignedBigInt
+  area_id    BigInt   
   created_at DateTime? @db.Timestamp(0)
   updated_at DateTime? @db.Timestamp(0)
   
   area       areas   @relation(fields: [area_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "locations_area_id_foreign")
   assets     assets[]
 
-  @@index([area_id], map: "locations_area_id_foreign")
+  @@index([area_id])
 }
 
 model log_crud {
-  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  id         BigInt   @id @default(autoincrement())
   table_name String   @db.VarChar(255)
   sap_id     String?  @db.VarChar(255)
   operation  String   @db.VarChar(10) // 'create', 'update', 'delete'
-  old_data   String?  @db.LongText
-  new_data   String?  @db.LongText
-  user_id    BigInt?  @db.UnsignedBigInt
+  old_data   String?  @db.Text
+  new_data   String?  @db.Text
+  user_id    BigInt? 
   created_at DateTime @default(now()) @db.Timestamp(0)
   
   user       users?   @relation(fields: [user_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "log_crud_user_id_foreign")
   assets     assets[]
 
-  @@index([user_id], map: "log_crud_user_id_foreign")
+  @@index([user_id])
 }
 
 model suppliers {
-  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  id             BigInt    @id @default(autoincrement())
   name           String    @db.VarChar(255)
   contact_person String?   @db.VarChar(255)
   phone          String?   @db.VarChar(255)
@@ -216,7 +216,7 @@ model suppliers {
 }
 
 model users {
-  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  id                BigInt    @id @default(autoincrement())
   name              String    @db.VarChar(255)
   email             String    @unique @db.VarChar(255)
   email_verified_at DateTime? @db.Timestamp(0)
