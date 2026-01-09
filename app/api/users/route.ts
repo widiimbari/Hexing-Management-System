@@ -3,6 +3,7 @@ import { dbManagement } from "@/lib/db";
 import { hashPassword } from "@/lib/password";
 import { logError, getErrorContext, getSafeErrorMessage } from "@/lib/error-logger";
 import { getCurrentUser } from "@/lib/auth";
+import { UserLog } from "@/lib/system-logger";
 
 export async function GET(req: Request) {
   try {
@@ -103,6 +104,13 @@ export async function POST(req: Request) {
         image_url,
       },
     });
+
+    // Log user creation
+    try {
+      await UserLog.create(newUser.id, `Created user ${newUser.username}`, { username, role, name });
+    } catch (logError) {
+      console.error("[User API] Failed to log user creation:", logError);
+    }
 
     return NextResponse.json({
       id: newUser.id,

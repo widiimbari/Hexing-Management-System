@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { createInventoryLog } from "@/lib/activity-logger";
 
 export async function POST(
   req: Request,
@@ -23,7 +24,7 @@ export async function POST(
     // 1. Fetch Slave details to check Type
     const slave = await db.attachment2.findUnique({
       where: { id: attachmentId },
-      select: { type: true }
+      select: { type: true, nomor: true }
     });
 
     if (!slave) {
@@ -191,9 +192,6 @@ export async function POST(
             used_qty: { increment: count }
           }
         });
-import { createInventoryLog } from "@/lib/activity-logger";
-
-// ... end of POST ...
       }
     });
 

@@ -30,7 +30,8 @@ import {
   MapPin,
   Truck,
   Settings2,
-  List
+  List,
+  Activity
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -79,7 +80,6 @@ const initialNavGroups: NavGroup[] = [
       { href: "/inventory/products", label: "Products", icon: Boxes },
       { href: "/inventory/pl-master", label: "PL Master", icon: ClipboardList },
       { href: "/inventory/pl-slave", label: "PL Slave", icon: FileSpreadsheet },
-      { href: "/inventory/history", label: "History", icon: History },
     ]
   },
   {
@@ -97,6 +97,12 @@ const initialNavGroups: NavGroup[] = [
       { href: "/asset-management/brands", label: "Brands", icon: Tag },
       { href: "/asset-management/types", label: "Asset Types", icon: Settings2 },
     ]
+  },
+  {
+    title: "System Logs",
+    icon: Activity,
+    href: "/system-logs",
+    items: []
   }
 ];
 
@@ -215,6 +221,8 @@ function NavItems({ pathname, isCollapsed, onLinkClick, groups }: { pathname: st
 interface UserInfo {
   username: string;
   role: string;
+  name?: string;
+  image_url?: string | null;
 }
 
 export function Sidebar({ isCollapsed, toggleSidebar }: { isCollapsed: boolean; toggleSidebar: () => void }) {

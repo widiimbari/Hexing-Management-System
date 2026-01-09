@@ -18,6 +18,11 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  * 
  */
 export type users = $Result.DefaultSelection<Prisma.$usersPayload>
+/**
+ * Model system_logs
+ * 
+ */
+export type system_logs = $Result.DefaultSelection<Prisma.$system_logsPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -150,6 +155,16 @@ export class PrismaClient<
     * ```
     */
   get users(): Prisma.usersDelegate<ExtArgs>;
+
+  /**
+   * `prisma.system_logs`: Exposes CRUD operations for the **system_logs** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more System_logs
+    * const system_logs = await prisma.system_logs.findMany()
+    * ```
+    */
+  get system_logs(): Prisma.system_logsDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -620,7 +635,8 @@ export namespace Prisma {
 
 
   export const ModelName: {
-    users: 'users'
+    users: 'users',
+    system_logs: 'system_logs'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -637,7 +653,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     meta: {
-      modelProps: 'users'
+      modelProps: 'users' | 'system_logs'
       txIsolationLevel: Prisma.TransactionIsolationLevel
     },
     model: {
@@ -704,6 +720,72 @@ export namespace Prisma {
           count: {
             args: Prisma.usersCountArgs<ExtArgs>,
             result: $Utils.Optional<UsersCountAggregateOutputType> | number
+          }
+        }
+      }
+      system_logs: {
+        payload: Prisma.$system_logsPayload<ExtArgs>
+        fields: Prisma.system_logsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.system_logsFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<Prisma.$system_logsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.system_logsFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<Prisma.$system_logsPayload>
+          }
+          findFirst: {
+            args: Prisma.system_logsFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<Prisma.$system_logsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.system_logsFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<Prisma.$system_logsPayload>
+          }
+          findMany: {
+            args: Prisma.system_logsFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<Prisma.$system_logsPayload>[]
+          }
+          create: {
+            args: Prisma.system_logsCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<Prisma.$system_logsPayload>
+          }
+          createMany: {
+            args: Prisma.system_logsCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.system_logsDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<Prisma.$system_logsPayload>
+          }
+          update: {
+            args: Prisma.system_logsUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<Prisma.$system_logsPayload>
+          }
+          deleteMany: {
+            args: Prisma.system_logsDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.system_logsUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.system_logsUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<Prisma.$system_logsPayload>
+          }
+          aggregate: {
+            args: Prisma.System_logsAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregateSystem_logs>
+          }
+          groupBy: {
+            args: Prisma.system_logsGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<System_logsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.system_logsCountArgs<ExtArgs>,
+            result: $Utils.Optional<System_logsCountAggregateOutputType> | number
           }
         }
       }
@@ -1782,6 +1864,994 @@ export namespace Prisma {
 
 
   /**
+   * Model system_logs
+   */
+
+  export type AggregateSystem_logs = {
+    _count: System_logsCountAggregateOutputType | null
+    _avg: System_logsAvgAggregateOutputType | null
+    _sum: System_logsSumAggregateOutputType | null
+    _min: System_logsMinAggregateOutputType | null
+    _max: System_logsMaxAggregateOutputType | null
+  }
+
+  export type System_logsAvgAggregateOutputType = {
+    id: number | null
+    user_id: number | null
+  }
+
+  export type System_logsSumAggregateOutputType = {
+    id: bigint | null
+    user_id: number | null
+  }
+
+  export type System_logsMinAggregateOutputType = {
+    id: bigint | null
+    module: string | null
+    action: string | null
+    entity_type: string | null
+    entity_id: string | null
+    description: string | null
+    user_id: number | null
+    user_name: string | null
+    ip_address: string | null
+    user_agent: string | null
+    created_at: Date | null
+  }
+
+  export type System_logsMaxAggregateOutputType = {
+    id: bigint | null
+    module: string | null
+    action: string | null
+    entity_type: string | null
+    entity_id: string | null
+    description: string | null
+    user_id: number | null
+    user_name: string | null
+    ip_address: string | null
+    user_agent: string | null
+    created_at: Date | null
+  }
+
+  export type System_logsCountAggregateOutputType = {
+    id: number
+    module: number
+    action: number
+    entity_type: number
+    entity_id: number
+    description: number
+    old_values: number
+    new_values: number
+    user_id: number
+    user_name: number
+    ip_address: number
+    user_agent: number
+    created_at: number
+    _all: number
+  }
+
+
+  export type System_logsAvgAggregateInputType = {
+    id?: true
+    user_id?: true
+  }
+
+  export type System_logsSumAggregateInputType = {
+    id?: true
+    user_id?: true
+  }
+
+  export type System_logsMinAggregateInputType = {
+    id?: true
+    module?: true
+    action?: true
+    entity_type?: true
+    entity_id?: true
+    description?: true
+    user_id?: true
+    user_name?: true
+    ip_address?: true
+    user_agent?: true
+    created_at?: true
+  }
+
+  export type System_logsMaxAggregateInputType = {
+    id?: true
+    module?: true
+    action?: true
+    entity_type?: true
+    entity_id?: true
+    description?: true
+    user_id?: true
+    user_name?: true
+    ip_address?: true
+    user_agent?: true
+    created_at?: true
+  }
+
+  export type System_logsCountAggregateInputType = {
+    id?: true
+    module?: true
+    action?: true
+    entity_type?: true
+    entity_id?: true
+    description?: true
+    old_values?: true
+    new_values?: true
+    user_id?: true
+    user_name?: true
+    ip_address?: true
+    user_agent?: true
+    created_at?: true
+    _all?: true
+  }
+
+  export type System_logsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which system_logs to aggregate.
+     */
+    where?: system_logsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of system_logs to fetch.
+     */
+    orderBy?: system_logsOrderByWithRelationInput | system_logsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: system_logsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` system_logs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` system_logs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned system_logs
+    **/
+    _count?: true | System_logsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: System_logsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: System_logsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: System_logsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: System_logsMaxAggregateInputType
+  }
+
+  export type GetSystem_logsAggregateType<T extends System_logsAggregateArgs> = {
+        [P in keyof T & keyof AggregateSystem_logs]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSystem_logs[P]>
+      : GetScalarType<T[P], AggregateSystem_logs[P]>
+  }
+
+
+
+
+  export type system_logsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: system_logsWhereInput
+    orderBy?: system_logsOrderByWithAggregationInput | system_logsOrderByWithAggregationInput[]
+    by: System_logsScalarFieldEnum[] | System_logsScalarFieldEnum
+    having?: system_logsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: System_logsCountAggregateInputType | true
+    _avg?: System_logsAvgAggregateInputType
+    _sum?: System_logsSumAggregateInputType
+    _min?: System_logsMinAggregateInputType
+    _max?: System_logsMaxAggregateInputType
+  }
+
+  export type System_logsGroupByOutputType = {
+    id: bigint
+    module: string
+    action: string
+    entity_type: string
+    entity_id: string | null
+    description: string | null
+    old_values: JsonValue | null
+    new_values: JsonValue | null
+    user_id: number | null
+    user_name: string | null
+    ip_address: string | null
+    user_agent: string | null
+    created_at: Date
+    _count: System_logsCountAggregateOutputType | null
+    _avg: System_logsAvgAggregateOutputType | null
+    _sum: System_logsSumAggregateOutputType | null
+    _min: System_logsMinAggregateOutputType | null
+    _max: System_logsMaxAggregateOutputType | null
+  }
+
+  type GetSystem_logsGroupByPayload<T extends system_logsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<System_logsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof System_logsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], System_logsGroupByOutputType[P]>
+            : GetScalarType<T[P], System_logsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type system_logsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    module?: boolean
+    action?: boolean
+    entity_type?: boolean
+    entity_id?: boolean
+    description?: boolean
+    old_values?: boolean
+    new_values?: boolean
+    user_id?: boolean
+    user_name?: boolean
+    ip_address?: boolean
+    user_agent?: boolean
+    created_at?: boolean
+  }, ExtArgs["result"]["system_logs"]>
+
+  export type system_logsSelectScalar = {
+    id?: boolean
+    module?: boolean
+    action?: boolean
+    entity_type?: boolean
+    entity_id?: boolean
+    description?: boolean
+    old_values?: boolean
+    new_values?: boolean
+    user_id?: boolean
+    user_name?: boolean
+    ip_address?: boolean
+    user_agent?: boolean
+    created_at?: boolean
+  }
+
+
+  export type $system_logsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "system_logs"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: bigint
+      module: string
+      action: string
+      entity_type: string
+      entity_id: string | null
+      description: string | null
+      old_values: Prisma.JsonValue | null
+      new_values: Prisma.JsonValue | null
+      user_id: number | null
+      user_name: string | null
+      ip_address: string | null
+      user_agent: string | null
+      created_at: Date
+    }, ExtArgs["result"]["system_logs"]>
+    composites: {}
+  }
+
+
+  type system_logsGetPayload<S extends boolean | null | undefined | system_logsDefaultArgs> = $Result.GetResult<Prisma.$system_logsPayload, S>
+
+  type system_logsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<system_logsFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: System_logsCountAggregateInputType | true
+    }
+
+  export interface system_logsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['system_logs'], meta: { name: 'system_logs' } }
+    /**
+     * Find zero or one System_logs that matches the filter.
+     * @param {system_logsFindUniqueArgs} args - Arguments to find a System_logs
+     * @example
+     * // Get one System_logs
+     * const system_logs = await prisma.system_logs.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends system_logsFindUniqueArgs<ExtArgs>>(
+      args: SelectSubset<T, system_logsFindUniqueArgs<ExtArgs>>
+    ): Prisma__system_logsClient<$Result.GetResult<Prisma.$system_logsPayload<ExtArgs>, T, 'findUnique'> | null, null, ExtArgs>
+
+    /**
+     * Find one System_logs that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {system_logsFindUniqueOrThrowArgs} args - Arguments to find a System_logs
+     * @example
+     * // Get one System_logs
+     * const system_logs = await prisma.system_logs.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends system_logsFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, system_logsFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__system_logsClient<$Result.GetResult<Prisma.$system_logsPayload<ExtArgs>, T, 'findUniqueOrThrow'>, never, ExtArgs>
+
+    /**
+     * Find the first System_logs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {system_logsFindFirstArgs} args - Arguments to find a System_logs
+     * @example
+     * // Get one System_logs
+     * const system_logs = await prisma.system_logs.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends system_logsFindFirstArgs<ExtArgs>>(
+      args?: SelectSubset<T, system_logsFindFirstArgs<ExtArgs>>
+    ): Prisma__system_logsClient<$Result.GetResult<Prisma.$system_logsPayload<ExtArgs>, T, 'findFirst'> | null, null, ExtArgs>
+
+    /**
+     * Find the first System_logs that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {system_logsFindFirstOrThrowArgs} args - Arguments to find a System_logs
+     * @example
+     * // Get one System_logs
+     * const system_logs = await prisma.system_logs.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends system_logsFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, system_logsFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__system_logsClient<$Result.GetResult<Prisma.$system_logsPayload<ExtArgs>, T, 'findFirstOrThrow'>, never, ExtArgs>
+
+    /**
+     * Find zero or more System_logs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {system_logsFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all System_logs
+     * const system_logs = await prisma.system_logs.findMany()
+     * 
+     * // Get first 10 System_logs
+     * const system_logs = await prisma.system_logs.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const system_logsWithIdOnly = await prisma.system_logs.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends system_logsFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, system_logsFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Result.GetResult<Prisma.$system_logsPayload<ExtArgs>, T, 'findMany'>>
+
+    /**
+     * Create a System_logs.
+     * @param {system_logsCreateArgs} args - Arguments to create a System_logs.
+     * @example
+     * // Create one System_logs
+     * const System_logs = await prisma.system_logs.create({
+     *   data: {
+     *     // ... data to create a System_logs
+     *   }
+     * })
+     * 
+    **/
+    create<T extends system_logsCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, system_logsCreateArgs<ExtArgs>>
+    ): Prisma__system_logsClient<$Result.GetResult<Prisma.$system_logsPayload<ExtArgs>, T, 'create'>, never, ExtArgs>
+
+    /**
+     * Create many System_logs.
+     *     @param {system_logsCreateManyArgs} args - Arguments to create many System_logs.
+     *     @example
+     *     // Create many System_logs
+     *     const system_logs = await prisma.system_logs.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends system_logsCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, system_logsCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a System_logs.
+     * @param {system_logsDeleteArgs} args - Arguments to delete one System_logs.
+     * @example
+     * // Delete one System_logs
+     * const System_logs = await prisma.system_logs.delete({
+     *   where: {
+     *     // ... filter to delete one System_logs
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends system_logsDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, system_logsDeleteArgs<ExtArgs>>
+    ): Prisma__system_logsClient<$Result.GetResult<Prisma.$system_logsPayload<ExtArgs>, T, 'delete'>, never, ExtArgs>
+
+    /**
+     * Update one System_logs.
+     * @param {system_logsUpdateArgs} args - Arguments to update one System_logs.
+     * @example
+     * // Update one System_logs
+     * const system_logs = await prisma.system_logs.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends system_logsUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, system_logsUpdateArgs<ExtArgs>>
+    ): Prisma__system_logsClient<$Result.GetResult<Prisma.$system_logsPayload<ExtArgs>, T, 'update'>, never, ExtArgs>
+
+    /**
+     * Delete zero or more System_logs.
+     * @param {system_logsDeleteManyArgs} args - Arguments to filter System_logs to delete.
+     * @example
+     * // Delete a few System_logs
+     * const { count } = await prisma.system_logs.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends system_logsDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, system_logsDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more System_logs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {system_logsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many System_logs
+     * const system_logs = await prisma.system_logs.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends system_logsUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, system_logsUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one System_logs.
+     * @param {system_logsUpsertArgs} args - Arguments to update or create a System_logs.
+     * @example
+     * // Update or create a System_logs
+     * const system_logs = await prisma.system_logs.upsert({
+     *   create: {
+     *     // ... data to create a System_logs
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the System_logs we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends system_logsUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, system_logsUpsertArgs<ExtArgs>>
+    ): Prisma__system_logsClient<$Result.GetResult<Prisma.$system_logsPayload<ExtArgs>, T, 'upsert'>, never, ExtArgs>
+
+    /**
+     * Count the number of System_logs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {system_logsCountArgs} args - Arguments to filter System_logs to count.
+     * @example
+     * // Count the number of System_logs
+     * const count = await prisma.system_logs.count({
+     *   where: {
+     *     // ... the filter for the System_logs we want to count
+     *   }
+     * })
+    **/
+    count<T extends system_logsCountArgs>(
+      args?: Subset<T, system_logsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], System_logsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a System_logs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {System_logsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends System_logsAggregateArgs>(args: Subset<T, System_logsAggregateArgs>): Prisma.PrismaPromise<GetSystem_logsAggregateType<T>>
+
+    /**
+     * Group by System_logs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {system_logsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends system_logsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: system_logsGroupByArgs['orderBy'] }
+        : { orderBy?: system_logsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, system_logsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSystem_logsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the system_logs model
+   */
+  readonly fields: system_logsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for system_logs.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__system_logsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+
+
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>;
+  }
+
+
+
+  /**
+   * Fields of the system_logs model
+   */ 
+  interface system_logsFieldRefs {
+    readonly id: FieldRef<"system_logs", 'BigInt'>
+    readonly module: FieldRef<"system_logs", 'String'>
+    readonly action: FieldRef<"system_logs", 'String'>
+    readonly entity_type: FieldRef<"system_logs", 'String'>
+    readonly entity_id: FieldRef<"system_logs", 'String'>
+    readonly description: FieldRef<"system_logs", 'String'>
+    readonly old_values: FieldRef<"system_logs", 'Json'>
+    readonly new_values: FieldRef<"system_logs", 'Json'>
+    readonly user_id: FieldRef<"system_logs", 'Int'>
+    readonly user_name: FieldRef<"system_logs", 'String'>
+    readonly ip_address: FieldRef<"system_logs", 'String'>
+    readonly user_agent: FieldRef<"system_logs", 'String'>
+    readonly created_at: FieldRef<"system_logs", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+
+  /**
+   * system_logs findUnique
+   */
+  export type system_logsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the system_logs
+     */
+    select?: system_logsSelect<ExtArgs> | null
+    /**
+     * Filter, which system_logs to fetch.
+     */
+    where: system_logsWhereUniqueInput
+  }
+
+
+  /**
+   * system_logs findUniqueOrThrow
+   */
+  export type system_logsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the system_logs
+     */
+    select?: system_logsSelect<ExtArgs> | null
+    /**
+     * Filter, which system_logs to fetch.
+     */
+    where: system_logsWhereUniqueInput
+  }
+
+
+  /**
+   * system_logs findFirst
+   */
+  export type system_logsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the system_logs
+     */
+    select?: system_logsSelect<ExtArgs> | null
+    /**
+     * Filter, which system_logs to fetch.
+     */
+    where?: system_logsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of system_logs to fetch.
+     */
+    orderBy?: system_logsOrderByWithRelationInput | system_logsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for system_logs.
+     */
+    cursor?: system_logsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` system_logs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` system_logs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of system_logs.
+     */
+    distinct?: System_logsScalarFieldEnum | System_logsScalarFieldEnum[]
+  }
+
+
+  /**
+   * system_logs findFirstOrThrow
+   */
+  export type system_logsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the system_logs
+     */
+    select?: system_logsSelect<ExtArgs> | null
+    /**
+     * Filter, which system_logs to fetch.
+     */
+    where?: system_logsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of system_logs to fetch.
+     */
+    orderBy?: system_logsOrderByWithRelationInput | system_logsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for system_logs.
+     */
+    cursor?: system_logsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` system_logs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` system_logs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of system_logs.
+     */
+    distinct?: System_logsScalarFieldEnum | System_logsScalarFieldEnum[]
+  }
+
+
+  /**
+   * system_logs findMany
+   */
+  export type system_logsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the system_logs
+     */
+    select?: system_logsSelect<ExtArgs> | null
+    /**
+     * Filter, which system_logs to fetch.
+     */
+    where?: system_logsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of system_logs to fetch.
+     */
+    orderBy?: system_logsOrderByWithRelationInput | system_logsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing system_logs.
+     */
+    cursor?: system_logsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` system_logs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` system_logs.
+     */
+    skip?: number
+    distinct?: System_logsScalarFieldEnum | System_logsScalarFieldEnum[]
+  }
+
+
+  /**
+   * system_logs create
+   */
+  export type system_logsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the system_logs
+     */
+    select?: system_logsSelect<ExtArgs> | null
+    /**
+     * The data needed to create a system_logs.
+     */
+    data: XOR<system_logsCreateInput, system_logsUncheckedCreateInput>
+  }
+
+
+  /**
+   * system_logs createMany
+   */
+  export type system_logsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many system_logs.
+     */
+    data: system_logsCreateManyInput | system_logsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * system_logs update
+   */
+  export type system_logsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the system_logs
+     */
+    select?: system_logsSelect<ExtArgs> | null
+    /**
+     * The data needed to update a system_logs.
+     */
+    data: XOR<system_logsUpdateInput, system_logsUncheckedUpdateInput>
+    /**
+     * Choose, which system_logs to update.
+     */
+    where: system_logsWhereUniqueInput
+  }
+
+
+  /**
+   * system_logs updateMany
+   */
+  export type system_logsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update system_logs.
+     */
+    data: XOR<system_logsUpdateManyMutationInput, system_logsUncheckedUpdateManyInput>
+    /**
+     * Filter which system_logs to update
+     */
+    where?: system_logsWhereInput
+  }
+
+
+  /**
+   * system_logs upsert
+   */
+  export type system_logsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the system_logs
+     */
+    select?: system_logsSelect<ExtArgs> | null
+    /**
+     * The filter to search for the system_logs to update in case it exists.
+     */
+    where: system_logsWhereUniqueInput
+    /**
+     * In case the system_logs found by the `where` argument doesn't exist, create a new system_logs with this data.
+     */
+    create: XOR<system_logsCreateInput, system_logsUncheckedCreateInput>
+    /**
+     * In case the system_logs was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<system_logsUpdateInput, system_logsUncheckedUpdateInput>
+  }
+
+
+  /**
+   * system_logs delete
+   */
+  export type system_logsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the system_logs
+     */
+    select?: system_logsSelect<ExtArgs> | null
+    /**
+     * Filter which system_logs to delete.
+     */
+    where: system_logsWhereUniqueInput
+  }
+
+
+  /**
+   * system_logs deleteMany
+   */
+  export type system_logsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which system_logs to delete
+     */
+    where?: system_logsWhereInput
+  }
+
+
+  /**
+   * system_logs without action
+   */
+  export type system_logsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the system_logs
+     */
+    select?: system_logsSelect<ExtArgs> | null
+  }
+
+
+
+  /**
    * Enums
    */
 
@@ -1807,12 +2877,39 @@ export namespace Prisma {
   export type UsersScalarFieldEnum = (typeof UsersScalarFieldEnum)[keyof typeof UsersScalarFieldEnum]
 
 
+  export const System_logsScalarFieldEnum: {
+    id: 'id',
+    module: 'module',
+    action: 'action',
+    entity_type: 'entity_type',
+    entity_id: 'entity_id',
+    description: 'description',
+    old_values: 'old_values',
+    new_values: 'new_values',
+    user_id: 'user_id',
+    user_name: 'user_name',
+    ip_address: 'ip_address',
+    user_agent: 'user_agent',
+    created_at: 'created_at'
+  };
+
+  export type System_logsScalarFieldEnum = (typeof System_logsScalarFieldEnum)[keyof typeof System_logsScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
   };
 
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+  export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  };
+
+  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
   export const QueryMode: {
@@ -1829,6 +2926,15 @@ export namespace Prisma {
   };
 
   export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+  export const JsonNullValueFilter: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull,
+    AnyNull: typeof AnyNull
+  };
+
+  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
   /**
@@ -1861,6 +2967,41 @@ export namespace Prisma {
    * Reference to a field of type 'String[]'
    */
   export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'BigInt'
+   */
+  export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt'>
+    
+
+
+  /**
+   * Reference to a field of type 'BigInt[]'
+   */
+  export type ListBigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'DateTime'
+   */
+  export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+  /**
+   * Reference to a field of type 'DateTime[]'
+   */
+  export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
     
 
 
@@ -1940,6 +3081,100 @@ export namespace Prisma {
     image_url?: StringNullableWithAggregatesFilter<"users"> | string | null
   }
 
+  export type system_logsWhereInput = {
+    AND?: system_logsWhereInput | system_logsWhereInput[]
+    OR?: system_logsWhereInput[]
+    NOT?: system_logsWhereInput | system_logsWhereInput[]
+    id?: BigIntFilter<"system_logs"> | bigint | number
+    module?: StringFilter<"system_logs"> | string
+    action?: StringFilter<"system_logs"> | string
+    entity_type?: StringFilter<"system_logs"> | string
+    entity_id?: StringNullableFilter<"system_logs"> | string | null
+    description?: StringNullableFilter<"system_logs"> | string | null
+    old_values?: JsonNullableFilter<"system_logs">
+    new_values?: JsonNullableFilter<"system_logs">
+    user_id?: IntNullableFilter<"system_logs"> | number | null
+    user_name?: StringNullableFilter<"system_logs"> | string | null
+    ip_address?: StringNullableFilter<"system_logs"> | string | null
+    user_agent?: StringNullableFilter<"system_logs"> | string | null
+    created_at?: DateTimeFilter<"system_logs"> | Date | string
+  }
+
+  export type system_logsOrderByWithRelationInput = {
+    id?: SortOrder
+    module?: SortOrder
+    action?: SortOrder
+    entity_type?: SortOrder
+    entity_id?: SortOrderInput | SortOrder
+    description?: SortOrderInput | SortOrder
+    old_values?: SortOrderInput | SortOrder
+    new_values?: SortOrderInput | SortOrder
+    user_id?: SortOrderInput | SortOrder
+    user_name?: SortOrderInput | SortOrder
+    ip_address?: SortOrderInput | SortOrder
+    user_agent?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+  }
+
+  export type system_logsWhereUniqueInput = Prisma.AtLeast<{
+    id?: bigint | number
+    AND?: system_logsWhereInput | system_logsWhereInput[]
+    OR?: system_logsWhereInput[]
+    NOT?: system_logsWhereInput | system_logsWhereInput[]
+    module?: StringFilter<"system_logs"> | string
+    action?: StringFilter<"system_logs"> | string
+    entity_type?: StringFilter<"system_logs"> | string
+    entity_id?: StringNullableFilter<"system_logs"> | string | null
+    description?: StringNullableFilter<"system_logs"> | string | null
+    old_values?: JsonNullableFilter<"system_logs">
+    new_values?: JsonNullableFilter<"system_logs">
+    user_id?: IntNullableFilter<"system_logs"> | number | null
+    user_name?: StringNullableFilter<"system_logs"> | string | null
+    ip_address?: StringNullableFilter<"system_logs"> | string | null
+    user_agent?: StringNullableFilter<"system_logs"> | string | null
+    created_at?: DateTimeFilter<"system_logs"> | Date | string
+  }, "id">
+
+  export type system_logsOrderByWithAggregationInput = {
+    id?: SortOrder
+    module?: SortOrder
+    action?: SortOrder
+    entity_type?: SortOrder
+    entity_id?: SortOrderInput | SortOrder
+    description?: SortOrderInput | SortOrder
+    old_values?: SortOrderInput | SortOrder
+    new_values?: SortOrderInput | SortOrder
+    user_id?: SortOrderInput | SortOrder
+    user_name?: SortOrderInput | SortOrder
+    ip_address?: SortOrderInput | SortOrder
+    user_agent?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    _count?: system_logsCountOrderByAggregateInput
+    _avg?: system_logsAvgOrderByAggregateInput
+    _max?: system_logsMaxOrderByAggregateInput
+    _min?: system_logsMinOrderByAggregateInput
+    _sum?: system_logsSumOrderByAggregateInput
+  }
+
+  export type system_logsScalarWhereWithAggregatesInput = {
+    AND?: system_logsScalarWhereWithAggregatesInput | system_logsScalarWhereWithAggregatesInput[]
+    OR?: system_logsScalarWhereWithAggregatesInput[]
+    NOT?: system_logsScalarWhereWithAggregatesInput | system_logsScalarWhereWithAggregatesInput[]
+    id?: BigIntWithAggregatesFilter<"system_logs"> | bigint | number
+    module?: StringWithAggregatesFilter<"system_logs"> | string
+    action?: StringWithAggregatesFilter<"system_logs"> | string
+    entity_type?: StringWithAggregatesFilter<"system_logs"> | string
+    entity_id?: StringNullableWithAggregatesFilter<"system_logs"> | string | null
+    description?: StringNullableWithAggregatesFilter<"system_logs"> | string | null
+    old_values?: JsonNullableWithAggregatesFilter<"system_logs">
+    new_values?: JsonNullableWithAggregatesFilter<"system_logs">
+    user_id?: IntNullableWithAggregatesFilter<"system_logs"> | number | null
+    user_name?: StringNullableWithAggregatesFilter<"system_logs"> | string | null
+    ip_address?: StringNullableWithAggregatesFilter<"system_logs"> | string | null
+    user_agent?: StringNullableWithAggregatesFilter<"system_logs"> | string | null
+    created_at?: DateTimeWithAggregatesFilter<"system_logs"> | Date | string
+  }
+
   export type usersCreateInput = {
     username: string
     password: string
@@ -1998,6 +3233,118 @@ export namespace Prisma {
     role?: StringFieldUpdateOperationsInput | string
     name?: NullableStringFieldUpdateOperationsInput | string | null
     image_url?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type system_logsCreateInput = {
+    id?: bigint | number
+    module: string
+    action: string
+    entity_type: string
+    entity_id?: string | null
+    description?: string | null
+    old_values?: NullableJsonNullValueInput | InputJsonValue
+    new_values?: NullableJsonNullValueInput | InputJsonValue
+    user_id?: number | null
+    user_name?: string | null
+    ip_address?: string | null
+    user_agent?: string | null
+    created_at?: Date | string
+  }
+
+  export type system_logsUncheckedCreateInput = {
+    id?: bigint | number
+    module: string
+    action: string
+    entity_type: string
+    entity_id?: string | null
+    description?: string | null
+    old_values?: NullableJsonNullValueInput | InputJsonValue
+    new_values?: NullableJsonNullValueInput | InputJsonValue
+    user_id?: number | null
+    user_name?: string | null
+    ip_address?: string | null
+    user_agent?: string | null
+    created_at?: Date | string
+  }
+
+  export type system_logsUpdateInput = {
+    id?: BigIntFieldUpdateOperationsInput | bigint | number
+    module?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    entity_type?: StringFieldUpdateOperationsInput | string
+    entity_id?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    old_values?: NullableJsonNullValueInput | InputJsonValue
+    new_values?: NullableJsonNullValueInput | InputJsonValue
+    user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    user_name?: NullableStringFieldUpdateOperationsInput | string | null
+    ip_address?: NullableStringFieldUpdateOperationsInput | string | null
+    user_agent?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type system_logsUncheckedUpdateInput = {
+    id?: BigIntFieldUpdateOperationsInput | bigint | number
+    module?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    entity_type?: StringFieldUpdateOperationsInput | string
+    entity_id?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    old_values?: NullableJsonNullValueInput | InputJsonValue
+    new_values?: NullableJsonNullValueInput | InputJsonValue
+    user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    user_name?: NullableStringFieldUpdateOperationsInput | string | null
+    ip_address?: NullableStringFieldUpdateOperationsInput | string | null
+    user_agent?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type system_logsCreateManyInput = {
+    id?: bigint | number
+    module: string
+    action: string
+    entity_type: string
+    entity_id?: string | null
+    description?: string | null
+    old_values?: NullableJsonNullValueInput | InputJsonValue
+    new_values?: NullableJsonNullValueInput | InputJsonValue
+    user_id?: number | null
+    user_name?: string | null
+    ip_address?: string | null
+    user_agent?: string | null
+    created_at?: Date | string
+  }
+
+  export type system_logsUpdateManyMutationInput = {
+    id?: BigIntFieldUpdateOperationsInput | bigint | number
+    module?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    entity_type?: StringFieldUpdateOperationsInput | string
+    entity_id?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    old_values?: NullableJsonNullValueInput | InputJsonValue
+    new_values?: NullableJsonNullValueInput | InputJsonValue
+    user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    user_name?: NullableStringFieldUpdateOperationsInput | string | null
+    ip_address?: NullableStringFieldUpdateOperationsInput | string | null
+    user_agent?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type system_logsUncheckedUpdateManyInput = {
+    id?: BigIntFieldUpdateOperationsInput | bigint | number
+    module?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    entity_type?: StringFieldUpdateOperationsInput | string
+    entity_id?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    old_values?: NullableJsonNullValueInput | InputJsonValue
+    new_values?: NullableJsonNullValueInput | InputJsonValue
+    user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    user_name?: NullableStringFieldUpdateOperationsInput | string | null
+    ip_address?: NullableStringFieldUpdateOperationsInput | string | null
+    user_agent?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -2133,6 +3480,186 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
+  export type BigIntFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntFilter<$PrismaModel> | bigint | number
+  }
+  export type JsonNullableFilter<$PrismaModel = never> = 
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type DateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type system_logsCountOrderByAggregateInput = {
+    id?: SortOrder
+    module?: SortOrder
+    action?: SortOrder
+    entity_type?: SortOrder
+    entity_id?: SortOrder
+    description?: SortOrder
+    old_values?: SortOrder
+    new_values?: SortOrder
+    user_id?: SortOrder
+    user_name?: SortOrder
+    ip_address?: SortOrder
+    user_agent?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type system_logsAvgOrderByAggregateInput = {
+    id?: SortOrder
+    user_id?: SortOrder
+  }
+
+  export type system_logsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    module?: SortOrder
+    action?: SortOrder
+    entity_type?: SortOrder
+    entity_id?: SortOrder
+    description?: SortOrder
+    user_id?: SortOrder
+    user_name?: SortOrder
+    ip_address?: SortOrder
+    user_agent?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type system_logsMinOrderByAggregateInput = {
+    id?: SortOrder
+    module?: SortOrder
+    action?: SortOrder
+    entity_type?: SortOrder
+    entity_id?: SortOrder
+    description?: SortOrder
+    user_id?: SortOrder
+    user_name?: SortOrder
+    ip_address?: SortOrder
+    user_agent?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type system_logsSumOrderByAggregateInput = {
+    id?: SortOrder
+    user_id?: SortOrder
+  }
+
+  export type BigIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntWithAggregatesFilter<$PrismaModel> | bigint | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedBigIntFilter<$PrismaModel>
+    _min?: NestedBigIntFilter<$PrismaModel>
+    _max?: NestedBigIntFilter<$PrismaModel>
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> = 
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -2147,6 +3674,26 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type BigIntFieldUpdateOperationsInput = {
+    set?: bigint | number
+    increment?: bigint | number
+    decrement?: bigint | number
+    multiply?: bigint | number
+    divide?: bigint | number
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type DateTimeFieldUpdateOperationsInput = {
+    set?: Date | string
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -2260,6 +3807,107 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
+  export type NestedBigIntFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntFilter<$PrismaModel> | bigint | number
+  }
+
+  export type NestedDateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
+  export type NestedBigIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntWithAggregatesFilter<$PrismaModel> | bigint | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedBigIntFilter<$PrismaModel>
+    _min?: NestedBigIntFilter<$PrismaModel>
+    _max?: NestedBigIntFilter<$PrismaModel>
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> = 
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
 
 
   /**
@@ -2269,6 +3917,10 @@ export namespace Prisma {
      * @deprecated Use usersDefaultArgs instead
      */
     export type usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = usersDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use system_logsDefaultArgs instead
+     */
+    export type system_logsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = system_logsDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

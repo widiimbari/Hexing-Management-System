@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { createInventoryLog } from "@/lib/activity-logger";
 
 export async function DELETE(
   req: Request,
@@ -13,9 +14,6 @@ export async function DELETE(
       return new NextResponse("Invalid ID", { status: 400 });
     }
 
-import { createInventoryLog } from "@/lib/activity-logger";
-
-// ... inside DELETE ...
     const attachment = await db.attachment.findUnique({ where: { id: attachmentId }, select: { nomor: true } });
 
     // Transaction to ensure data consistency

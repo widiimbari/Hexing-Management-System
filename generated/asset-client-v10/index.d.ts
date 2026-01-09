@@ -29,11 +29,6 @@ export type asset_transactions = $Result.DefaultSelection<Prisma.$asset_transact
  */
 export type assets = $Result.DefaultSelection<Prisma.$assetsPayload>
 /**
- * Model activity_log
- * 
- */
-export type activity_log = $Result.DefaultSelection<Prisma.$activity_logPayload>
-/**
  * Model asset_types
  * 
  */
@@ -68,11 +63,6 @@ export type employees = $Result.DefaultSelection<Prisma.$employeesPayload>
  * 
  */
 export type locations = $Result.DefaultSelection<Prisma.$locationsPayload>
-/**
- * Model log_crud
- * 
- */
-export type log_crud = $Result.DefaultSelection<Prisma.$log_crudPayload>
 /**
  * Model suppliers
  * 
@@ -259,16 +249,6 @@ export class PrismaClient<
   get assets(): Prisma.assetsDelegate<ExtArgs>;
 
   /**
-   * `prisma.activity_log`: Exposes CRUD operations for the **activity_log** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more Activity_logs
-    * const activity_logs = await prisma.activity_log.findMany()
-    * ```
-    */
-  get activity_log(): Prisma.activity_logDelegate<ExtArgs>;
-
-  /**
    * `prisma.asset_types`: Exposes CRUD operations for the **asset_types** model.
     * Example usage:
     * ```ts
@@ -337,16 +317,6 @@ export class PrismaClient<
     * ```
     */
   get locations(): Prisma.locationsDelegate<ExtArgs>;
-
-  /**
-   * `prisma.log_crud`: Exposes CRUD operations for the **log_crud** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more Log_cruds
-    * const log_cruds = await prisma.log_crud.findMany()
-    * ```
-    */
-  get log_crud(): Prisma.log_crudDelegate<ExtArgs>;
 
   /**
    * `prisma.suppliers`: Exposes CRUD operations for the **suppliers** model.
@@ -840,7 +810,6 @@ export namespace Prisma {
     areas: 'areas',
     asset_transactions: 'asset_transactions',
     assets: 'assets',
-    activity_log: 'activity_log',
     asset_types: 'asset_types',
     asset_images: 'asset_images',
     brands: 'brands',
@@ -848,7 +817,6 @@ export namespace Prisma {
     departments: 'departments',
     employees: 'employees',
     locations: 'locations',
-    log_crud: 'log_crud',
     suppliers: 'suppliers',
     users: 'users'
   };
@@ -867,7 +835,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     meta: {
-      modelProps: 'areas' | 'asset_transactions' | 'assets' | 'activity_log' | 'asset_types' | 'asset_images' | 'brands' | 'categories' | 'departments' | 'employees' | 'locations' | 'log_crud' | 'suppliers' | 'users'
+      modelProps: 'areas' | 'asset_transactions' | 'assets' | 'asset_types' | 'asset_images' | 'brands' | 'categories' | 'departments' | 'employees' | 'locations' | 'suppliers' | 'users'
       txIsolationLevel: Prisma.TransactionIsolationLevel
     },
     model: {
@@ -1066,72 +1034,6 @@ export namespace Prisma {
           count: {
             args: Prisma.assetsCountArgs<ExtArgs>,
             result: $Utils.Optional<AssetsCountAggregateOutputType> | number
-          }
-        }
-      }
-      activity_log: {
-        payload: Prisma.$activity_logPayload<ExtArgs>
-        fields: Prisma.activity_logFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.activity_logFindUniqueArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$activity_logPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.activity_logFindUniqueOrThrowArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$activity_logPayload>
-          }
-          findFirst: {
-            args: Prisma.activity_logFindFirstArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$activity_logPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.activity_logFindFirstOrThrowArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$activity_logPayload>
-          }
-          findMany: {
-            args: Prisma.activity_logFindManyArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$activity_logPayload>[]
-          }
-          create: {
-            args: Prisma.activity_logCreateArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$activity_logPayload>
-          }
-          createMany: {
-            args: Prisma.activity_logCreateManyArgs<ExtArgs>,
-            result: Prisma.BatchPayload
-          }
-          delete: {
-            args: Prisma.activity_logDeleteArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$activity_logPayload>
-          }
-          update: {
-            args: Prisma.activity_logUpdateArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$activity_logPayload>
-          }
-          deleteMany: {
-            args: Prisma.activity_logDeleteManyArgs<ExtArgs>,
-            result: Prisma.BatchPayload
-          }
-          updateMany: {
-            args: Prisma.activity_logUpdateManyArgs<ExtArgs>,
-            result: Prisma.BatchPayload
-          }
-          upsert: {
-            args: Prisma.activity_logUpsertArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$activity_logPayload>
-          }
-          aggregate: {
-            args: Prisma.Activity_logAggregateArgs<ExtArgs>,
-            result: $Utils.Optional<AggregateActivity_log>
-          }
-          groupBy: {
-            args: Prisma.activity_logGroupByArgs<ExtArgs>,
-            result: $Utils.Optional<Activity_logGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.activity_logCountArgs<ExtArgs>,
-            result: $Utils.Optional<Activity_logCountAggregateOutputType> | number
           }
         }
       }
@@ -1597,72 +1499,6 @@ export namespace Prisma {
           }
         }
       }
-      log_crud: {
-        payload: Prisma.$log_crudPayload<ExtArgs>
-        fields: Prisma.log_crudFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.log_crudFindUniqueArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$log_crudPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.log_crudFindUniqueOrThrowArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$log_crudPayload>
-          }
-          findFirst: {
-            args: Prisma.log_crudFindFirstArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$log_crudPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.log_crudFindFirstOrThrowArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$log_crudPayload>
-          }
-          findMany: {
-            args: Prisma.log_crudFindManyArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$log_crudPayload>[]
-          }
-          create: {
-            args: Prisma.log_crudCreateArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$log_crudPayload>
-          }
-          createMany: {
-            args: Prisma.log_crudCreateManyArgs<ExtArgs>,
-            result: Prisma.BatchPayload
-          }
-          delete: {
-            args: Prisma.log_crudDeleteArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$log_crudPayload>
-          }
-          update: {
-            args: Prisma.log_crudUpdateArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$log_crudPayload>
-          }
-          deleteMany: {
-            args: Prisma.log_crudDeleteManyArgs<ExtArgs>,
-            result: Prisma.BatchPayload
-          }
-          updateMany: {
-            args: Prisma.log_crudUpdateManyArgs<ExtArgs>,
-            result: Prisma.BatchPayload
-          }
-          upsert: {
-            args: Prisma.log_crudUpsertArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<Prisma.$log_crudPayload>
-          }
-          aggregate: {
-            args: Prisma.Log_crudAggregateArgs<ExtArgs>,
-            result: $Utils.Optional<AggregateLog_crud>
-          }
-          groupBy: {
-            args: Prisma.log_crudGroupByArgs<ExtArgs>,
-            result: $Utils.Optional<Log_crudGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.log_crudCountArgs<ExtArgs>,
-            result: $Utils.Optional<Log_crudCountAggregateOutputType> | number
-          }
-        }
-      }
       suppliers: {
         payload: Prisma.$suppliersPayload<ExtArgs>
         fields: Prisma.suppliersFieldRefs
@@ -1999,13 +1835,11 @@ export namespace Prisma {
 
   export type AssetsCountOutputType = {
     transactions: number
-    log_cruds: number
     asset_images: number
   }
 
   export type AssetsCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     transactions?: boolean | AssetsCountOutputTypeCountTransactionsArgs
-    log_cruds?: boolean | AssetsCountOutputTypeCountLog_crudsArgs
     asset_images?: boolean | AssetsCountOutputTypeCountAsset_imagesArgs
   }
 
@@ -2027,14 +1861,6 @@ export namespace Prisma {
    */
   export type AssetsCountOutputTypeCountTransactionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: asset_transactionsWhereInput
-  }
-
-
-  /**
-   * AssetsCountOutputType without action
-   */
-  export type AssetsCountOutputTypeCountLog_crudsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: log_crudWhereInput
   }
 
 
@@ -2272,40 +2098,6 @@ export namespace Prisma {
 
 
   /**
-   * Count Type Log_crudCountOutputType
-   */
-
-  export type Log_crudCountOutputType = {
-    assets: number
-  }
-
-  export type Log_crudCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    assets?: boolean | Log_crudCountOutputTypeCountAssetsArgs
-  }
-
-  // Custom InputTypes
-
-  /**
-   * Log_crudCountOutputType without action
-   */
-  export type Log_crudCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Log_crudCountOutputType
-     */
-    select?: Log_crudCountOutputTypeSelect<ExtArgs> | null
-  }
-
-
-  /**
-   * Log_crudCountOutputType without action
-   */
-  export type Log_crudCountOutputTypeCountAssetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: assetsWhereInput
-  }
-
-
-
-  /**
    * Count Type SuppliersCountOutputType
    */
 
@@ -2335,40 +2127,6 @@ export namespace Prisma {
    */
   export type SuppliersCountOutputTypeCountAssetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: assetsWhereInput
-  }
-
-
-
-  /**
-   * Count Type UsersCountOutputType
-   */
-
-  export type UsersCountOutputType = {
-    log_cruds: number
-  }
-
-  export type UsersCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    log_cruds?: boolean | UsersCountOutputTypeCountLog_crudsArgs
-  }
-
-  // Custom InputTypes
-
-  /**
-   * UsersCountOutputType without action
-   */
-  export type UsersCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UsersCountOutputType
-     */
-    select?: UsersCountOutputTypeSelect<ExtArgs> | null
-  }
-
-
-  /**
-   * UsersCountOutputType without action
-   */
-  export type UsersCountOutputTypeCountLog_crudsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: log_crudWhereInput
   }
 
 
@@ -4817,7 +4575,6 @@ export namespace Prisma {
     supplier_rec?: boolean | assets$supplier_recArgs<ExtArgs>
     main_image?: boolean | assets$main_imageArgs<ExtArgs>
     transactions?: boolean | assets$transactionsArgs<ExtArgs>
-    log_cruds?: boolean | assets$log_crudsArgs<ExtArgs>
     asset_images?: boolean | assets$asset_imagesArgs<ExtArgs>
     _count?: boolean | AssetsCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["assets"]>
@@ -4850,7 +4607,6 @@ export namespace Prisma {
     supplier_rec?: boolean | assets$supplier_recArgs<ExtArgs>
     main_image?: boolean | assets$main_imageArgs<ExtArgs>
     transactions?: boolean | assets$transactionsArgs<ExtArgs>
-    log_cruds?: boolean | assets$log_crudsArgs<ExtArgs>
     asset_images?: boolean | assets$asset_imagesArgs<ExtArgs>
     _count?: boolean | AssetsCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -4868,7 +4624,6 @@ export namespace Prisma {
       supplier_rec: Prisma.$suppliersPayload<ExtArgs> | null
       main_image: Prisma.$asset_imagesPayload<ExtArgs> | null
       transactions: Prisma.$asset_transactionsPayload<ExtArgs>[]
-      log_cruds: Prisma.$log_crudPayload<ExtArgs>[]
       asset_images: Prisma.$asset_imagesPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -5269,8 +5024,6 @@ export namespace Prisma {
     main_image<T extends assets$main_imageArgs<ExtArgs> = {}>(args?: Subset<T, assets$main_imageArgs<ExtArgs>>): Prisma__asset_imagesClient<$Result.GetResult<Prisma.$asset_imagesPayload<ExtArgs>, T, 'findUniqueOrThrow'> | null, null, ExtArgs>;
 
     transactions<T extends assets$transactionsArgs<ExtArgs> = {}>(args?: Subset<T, assets$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$asset_transactionsPayload<ExtArgs>, T, 'findMany'> | Null>;
-
-    log_cruds<T extends assets$log_crudsArgs<ExtArgs> = {}>(args?: Subset<T, assets$log_crudsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$log_crudPayload<ExtArgs>, T, 'findMany'> | Null>;
 
     asset_images<T extends assets$asset_imagesArgs<ExtArgs> = {}>(args?: Subset<T, assets$asset_imagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$asset_imagesPayload<ExtArgs>, T, 'findMany'> | Null>;
 
@@ -5778,27 +5531,6 @@ export namespace Prisma {
 
 
   /**
-   * assets.log_cruds
-   */
-  export type assets$log_crudsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the log_crud
-     */
-    select?: log_crudSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: log_crudInclude<ExtArgs> | null
-    where?: log_crudWhereInput
-    orderBy?: log_crudOrderByWithRelationInput | log_crudOrderByWithRelationInput[]
-    cursor?: log_crudWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: Log_crudScalarFieldEnum | Log_crudScalarFieldEnum[]
-  }
-
-
-  /**
    * assets.asset_images
    */
   export type assets$asset_imagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5831,954 +5563,6 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well.
      */
     include?: assetsInclude<ExtArgs> | null
-  }
-
-
-
-  /**
-   * Model activity_log
-   */
-
-  export type AggregateActivity_log = {
-    _count: Activity_logCountAggregateOutputType | null
-    _avg: Activity_logAvgAggregateOutputType | null
-    _sum: Activity_logSumAggregateOutputType | null
-    _min: Activity_logMinAggregateOutputType | null
-    _max: Activity_logMaxAggregateOutputType | null
-  }
-
-  export type Activity_logAvgAggregateOutputType = {
-    id: number | null
-  }
-
-  export type Activity_logSumAggregateOutputType = {
-    id: bigint | null
-  }
-
-  export type Activity_logMinAggregateOutputType = {
-    id: bigint | null
-    action: string | null
-    entity_type: string | null
-    entity_id: string | null
-    details: string | null
-    user_id: string | null
-    user_name: string | null
-    ip_address: string | null
-    created_at: Date | null
-  }
-
-  export type Activity_logMaxAggregateOutputType = {
-    id: bigint | null
-    action: string | null
-    entity_type: string | null
-    entity_id: string | null
-    details: string | null
-    user_id: string | null
-    user_name: string | null
-    ip_address: string | null
-    created_at: Date | null
-  }
-
-  export type Activity_logCountAggregateOutputType = {
-    id: number
-    action: number
-    entity_type: number
-    entity_id: number
-    details: number
-    user_id: number
-    user_name: number
-    ip_address: number
-    created_at: number
-    _all: number
-  }
-
-
-  export type Activity_logAvgAggregateInputType = {
-    id?: true
-  }
-
-  export type Activity_logSumAggregateInputType = {
-    id?: true
-  }
-
-  export type Activity_logMinAggregateInputType = {
-    id?: true
-    action?: true
-    entity_type?: true
-    entity_id?: true
-    details?: true
-    user_id?: true
-    user_name?: true
-    ip_address?: true
-    created_at?: true
-  }
-
-  export type Activity_logMaxAggregateInputType = {
-    id?: true
-    action?: true
-    entity_type?: true
-    entity_id?: true
-    details?: true
-    user_id?: true
-    user_name?: true
-    ip_address?: true
-    created_at?: true
-  }
-
-  export type Activity_logCountAggregateInputType = {
-    id?: true
-    action?: true
-    entity_type?: true
-    entity_id?: true
-    details?: true
-    user_id?: true
-    user_name?: true
-    ip_address?: true
-    created_at?: true
-    _all?: true
-  }
-
-  export type Activity_logAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which activity_log to aggregate.
-     */
-    where?: activity_logWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of activity_logs to fetch.
-     */
-    orderBy?: activity_logOrderByWithRelationInput | activity_logOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: activity_logWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` activity_logs from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` activity_logs.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned activity_logs
-    **/
-    _count?: true | Activity_logCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: Activity_logAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: Activity_logSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: Activity_logMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: Activity_logMaxAggregateInputType
-  }
-
-  export type GetActivity_logAggregateType<T extends Activity_logAggregateArgs> = {
-        [P in keyof T & keyof AggregateActivity_log]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateActivity_log[P]>
-      : GetScalarType<T[P], AggregateActivity_log[P]>
-  }
-
-
-
-
-  export type activity_logGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: activity_logWhereInput
-    orderBy?: activity_logOrderByWithAggregationInput | activity_logOrderByWithAggregationInput[]
-    by: Activity_logScalarFieldEnum[] | Activity_logScalarFieldEnum
-    having?: activity_logScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: Activity_logCountAggregateInputType | true
-    _avg?: Activity_logAvgAggregateInputType
-    _sum?: Activity_logSumAggregateInputType
-    _min?: Activity_logMinAggregateInputType
-    _max?: Activity_logMaxAggregateInputType
-  }
-
-  export type Activity_logGroupByOutputType = {
-    id: bigint
-    action: string
-    entity_type: string
-    entity_id: string
-    details: string | null
-    user_id: string | null
-    user_name: string | null
-    ip_address: string | null
-    created_at: Date
-    _count: Activity_logCountAggregateOutputType | null
-    _avg: Activity_logAvgAggregateOutputType | null
-    _sum: Activity_logSumAggregateOutputType | null
-    _min: Activity_logMinAggregateOutputType | null
-    _max: Activity_logMaxAggregateOutputType | null
-  }
-
-  type GetActivity_logGroupByPayload<T extends activity_logGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<Activity_logGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof Activity_logGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], Activity_logGroupByOutputType[P]>
-            : GetScalarType<T[P], Activity_logGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type activity_logSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    action?: boolean
-    entity_type?: boolean
-    entity_id?: boolean
-    details?: boolean
-    user_id?: boolean
-    user_name?: boolean
-    ip_address?: boolean
-    created_at?: boolean
-  }, ExtArgs["result"]["activity_log"]>
-
-  export type activity_logSelectScalar = {
-    id?: boolean
-    action?: boolean
-    entity_type?: boolean
-    entity_id?: boolean
-    details?: boolean
-    user_id?: boolean
-    user_name?: boolean
-    ip_address?: boolean
-    created_at?: boolean
-  }
-
-
-  export type $activity_logPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "activity_log"
-    objects: {}
-    scalars: $Extensions.GetPayloadResult<{
-      id: bigint
-      action: string
-      entity_type: string
-      entity_id: string
-      details: string | null
-      user_id: string | null
-      user_name: string | null
-      ip_address: string | null
-      created_at: Date
-    }, ExtArgs["result"]["activity_log"]>
-    composites: {}
-  }
-
-
-  type activity_logGetPayload<S extends boolean | null | undefined | activity_logDefaultArgs> = $Result.GetResult<Prisma.$activity_logPayload, S>
-
-  type activity_logCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<activity_logFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: Activity_logCountAggregateInputType | true
-    }
-
-  export interface activity_logDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['activity_log'], meta: { name: 'activity_log' } }
-    /**
-     * Find zero or one Activity_log that matches the filter.
-     * @param {activity_logFindUniqueArgs} args - Arguments to find a Activity_log
-     * @example
-     * // Get one Activity_log
-     * const activity_log = await prisma.activity_log.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-    **/
-    findUnique<T extends activity_logFindUniqueArgs<ExtArgs>>(
-      args: SelectSubset<T, activity_logFindUniqueArgs<ExtArgs>>
-    ): Prisma__activity_logClient<$Result.GetResult<Prisma.$activity_logPayload<ExtArgs>, T, 'findUnique'> | null, null, ExtArgs>
-
-    /**
-     * Find one Activity_log that matches the filter or throw an error  with `error.code='P2025'` 
-     *     if no matches were found.
-     * @param {activity_logFindUniqueOrThrowArgs} args - Arguments to find a Activity_log
-     * @example
-     * // Get one Activity_log
-     * const activity_log = await prisma.activity_log.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-    **/
-    findUniqueOrThrow<T extends activity_logFindUniqueOrThrowArgs<ExtArgs>>(
-      args?: SelectSubset<T, activity_logFindUniqueOrThrowArgs<ExtArgs>>
-    ): Prisma__activity_logClient<$Result.GetResult<Prisma.$activity_logPayload<ExtArgs>, T, 'findUniqueOrThrow'>, never, ExtArgs>
-
-    /**
-     * Find the first Activity_log that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {activity_logFindFirstArgs} args - Arguments to find a Activity_log
-     * @example
-     * // Get one Activity_log
-     * const activity_log = await prisma.activity_log.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-    **/
-    findFirst<T extends activity_logFindFirstArgs<ExtArgs>>(
-      args?: SelectSubset<T, activity_logFindFirstArgs<ExtArgs>>
-    ): Prisma__activity_logClient<$Result.GetResult<Prisma.$activity_logPayload<ExtArgs>, T, 'findFirst'> | null, null, ExtArgs>
-
-    /**
-     * Find the first Activity_log that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {activity_logFindFirstOrThrowArgs} args - Arguments to find a Activity_log
-     * @example
-     * // Get one Activity_log
-     * const activity_log = await prisma.activity_log.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-    **/
-    findFirstOrThrow<T extends activity_logFindFirstOrThrowArgs<ExtArgs>>(
-      args?: SelectSubset<T, activity_logFindFirstOrThrowArgs<ExtArgs>>
-    ): Prisma__activity_logClient<$Result.GetResult<Prisma.$activity_logPayload<ExtArgs>, T, 'findFirstOrThrow'>, never, ExtArgs>
-
-    /**
-     * Find zero or more Activity_logs that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {activity_logFindManyArgs=} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all Activity_logs
-     * const activity_logs = await prisma.activity_log.findMany()
-     * 
-     * // Get first 10 Activity_logs
-     * const activity_logs = await prisma.activity_log.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const activity_logWithIdOnly = await prisma.activity_log.findMany({ select: { id: true } })
-     * 
-    **/
-    findMany<T extends activity_logFindManyArgs<ExtArgs>>(
-      args?: SelectSubset<T, activity_logFindManyArgs<ExtArgs>>
-    ): Prisma.PrismaPromise<$Result.GetResult<Prisma.$activity_logPayload<ExtArgs>, T, 'findMany'>>
-
-    /**
-     * Create a Activity_log.
-     * @param {activity_logCreateArgs} args - Arguments to create a Activity_log.
-     * @example
-     * // Create one Activity_log
-     * const Activity_log = await prisma.activity_log.create({
-     *   data: {
-     *     // ... data to create a Activity_log
-     *   }
-     * })
-     * 
-    **/
-    create<T extends activity_logCreateArgs<ExtArgs>>(
-      args: SelectSubset<T, activity_logCreateArgs<ExtArgs>>
-    ): Prisma__activity_logClient<$Result.GetResult<Prisma.$activity_logPayload<ExtArgs>, T, 'create'>, never, ExtArgs>
-
-    /**
-     * Create many Activity_logs.
-     *     @param {activity_logCreateManyArgs} args - Arguments to create many Activity_logs.
-     *     @example
-     *     // Create many Activity_logs
-     *     const activity_log = await prisma.activity_log.createMany({
-     *       data: {
-     *         // ... provide data here
-     *       }
-     *     })
-     *     
-    **/
-    createMany<T extends activity_logCreateManyArgs<ExtArgs>>(
-      args?: SelectSubset<T, activity_logCreateManyArgs<ExtArgs>>
-    ): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Delete a Activity_log.
-     * @param {activity_logDeleteArgs} args - Arguments to delete one Activity_log.
-     * @example
-     * // Delete one Activity_log
-     * const Activity_log = await prisma.activity_log.delete({
-     *   where: {
-     *     // ... filter to delete one Activity_log
-     *   }
-     * })
-     * 
-    **/
-    delete<T extends activity_logDeleteArgs<ExtArgs>>(
-      args: SelectSubset<T, activity_logDeleteArgs<ExtArgs>>
-    ): Prisma__activity_logClient<$Result.GetResult<Prisma.$activity_logPayload<ExtArgs>, T, 'delete'>, never, ExtArgs>
-
-    /**
-     * Update one Activity_log.
-     * @param {activity_logUpdateArgs} args - Arguments to update one Activity_log.
-     * @example
-     * // Update one Activity_log
-     * const activity_log = await prisma.activity_log.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-    **/
-    update<T extends activity_logUpdateArgs<ExtArgs>>(
-      args: SelectSubset<T, activity_logUpdateArgs<ExtArgs>>
-    ): Prisma__activity_logClient<$Result.GetResult<Prisma.$activity_logPayload<ExtArgs>, T, 'update'>, never, ExtArgs>
-
-    /**
-     * Delete zero or more Activity_logs.
-     * @param {activity_logDeleteManyArgs} args - Arguments to filter Activity_logs to delete.
-     * @example
-     * // Delete a few Activity_logs
-     * const { count } = await prisma.activity_log.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-    **/
-    deleteMany<T extends activity_logDeleteManyArgs<ExtArgs>>(
-      args?: SelectSubset<T, activity_logDeleteManyArgs<ExtArgs>>
-    ): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Activity_logs.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {activity_logUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many Activity_logs
-     * const activity_log = await prisma.activity_log.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-    **/
-    updateMany<T extends activity_logUpdateManyArgs<ExtArgs>>(
-      args: SelectSubset<T, activity_logUpdateManyArgs<ExtArgs>>
-    ): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create or update one Activity_log.
-     * @param {activity_logUpsertArgs} args - Arguments to update or create a Activity_log.
-     * @example
-     * // Update or create a Activity_log
-     * const activity_log = await prisma.activity_log.upsert({
-     *   create: {
-     *     // ... data to create a Activity_log
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the Activity_log we want to update
-     *   }
-     * })
-    **/
-    upsert<T extends activity_logUpsertArgs<ExtArgs>>(
-      args: SelectSubset<T, activity_logUpsertArgs<ExtArgs>>
-    ): Prisma__activity_logClient<$Result.GetResult<Prisma.$activity_logPayload<ExtArgs>, T, 'upsert'>, never, ExtArgs>
-
-    /**
-     * Count the number of Activity_logs.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {activity_logCountArgs} args - Arguments to filter Activity_logs to count.
-     * @example
-     * // Count the number of Activity_logs
-     * const count = await prisma.activity_log.count({
-     *   where: {
-     *     // ... the filter for the Activity_logs we want to count
-     *   }
-     * })
-    **/
-    count<T extends activity_logCountArgs>(
-      args?: Subset<T, activity_logCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], Activity_logCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a Activity_log.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {Activity_logAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends Activity_logAggregateArgs>(args: Subset<T, Activity_logAggregateArgs>): Prisma.PrismaPromise<GetActivity_logAggregateType<T>>
-
-    /**
-     * Group by Activity_log.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {activity_logGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends activity_logGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: activity_logGroupByArgs['orderBy'] }
-        : { orderBy?: activity_logGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, activity_logGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetActivity_logGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the activity_log model
-   */
-  readonly fields: activity_logFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for activity_log.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__activity_logClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: 'PrismaPromise';
-
-
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>;
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>;
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>;
-  }
-
-
-
-  /**
-   * Fields of the activity_log model
-   */ 
-  interface activity_logFieldRefs {
-    readonly id: FieldRef<"activity_log", 'BigInt'>
-    readonly action: FieldRef<"activity_log", 'String'>
-    readonly entity_type: FieldRef<"activity_log", 'String'>
-    readonly entity_id: FieldRef<"activity_log", 'String'>
-    readonly details: FieldRef<"activity_log", 'String'>
-    readonly user_id: FieldRef<"activity_log", 'String'>
-    readonly user_name: FieldRef<"activity_log", 'String'>
-    readonly ip_address: FieldRef<"activity_log", 'String'>
-    readonly created_at: FieldRef<"activity_log", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-
-  /**
-   * activity_log findUnique
-   */
-  export type activity_logFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the activity_log
-     */
-    select?: activity_logSelect<ExtArgs> | null
-    /**
-     * Filter, which activity_log to fetch.
-     */
-    where: activity_logWhereUniqueInput
-  }
-
-
-  /**
-   * activity_log findUniqueOrThrow
-   */
-  export type activity_logFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the activity_log
-     */
-    select?: activity_logSelect<ExtArgs> | null
-    /**
-     * Filter, which activity_log to fetch.
-     */
-    where: activity_logWhereUniqueInput
-  }
-
-
-  /**
-   * activity_log findFirst
-   */
-  export type activity_logFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the activity_log
-     */
-    select?: activity_logSelect<ExtArgs> | null
-    /**
-     * Filter, which activity_log to fetch.
-     */
-    where?: activity_logWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of activity_logs to fetch.
-     */
-    orderBy?: activity_logOrderByWithRelationInput | activity_logOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for activity_logs.
-     */
-    cursor?: activity_logWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` activity_logs from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` activity_logs.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of activity_logs.
-     */
-    distinct?: Activity_logScalarFieldEnum | Activity_logScalarFieldEnum[]
-  }
-
-
-  /**
-   * activity_log findFirstOrThrow
-   */
-  export type activity_logFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the activity_log
-     */
-    select?: activity_logSelect<ExtArgs> | null
-    /**
-     * Filter, which activity_log to fetch.
-     */
-    where?: activity_logWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of activity_logs to fetch.
-     */
-    orderBy?: activity_logOrderByWithRelationInput | activity_logOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for activity_logs.
-     */
-    cursor?: activity_logWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` activity_logs from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` activity_logs.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of activity_logs.
-     */
-    distinct?: Activity_logScalarFieldEnum | Activity_logScalarFieldEnum[]
-  }
-
-
-  /**
-   * activity_log findMany
-   */
-  export type activity_logFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the activity_log
-     */
-    select?: activity_logSelect<ExtArgs> | null
-    /**
-     * Filter, which activity_logs to fetch.
-     */
-    where?: activity_logWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of activity_logs to fetch.
-     */
-    orderBy?: activity_logOrderByWithRelationInput | activity_logOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing activity_logs.
-     */
-    cursor?: activity_logWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` activity_logs from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` activity_logs.
-     */
-    skip?: number
-    distinct?: Activity_logScalarFieldEnum | Activity_logScalarFieldEnum[]
-  }
-
-
-  /**
-   * activity_log create
-   */
-  export type activity_logCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the activity_log
-     */
-    select?: activity_logSelect<ExtArgs> | null
-    /**
-     * The data needed to create a activity_log.
-     */
-    data: XOR<activity_logCreateInput, activity_logUncheckedCreateInput>
-  }
-
-
-  /**
-   * activity_log createMany
-   */
-  export type activity_logCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many activity_logs.
-     */
-    data: activity_logCreateManyInput | activity_logCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-
-  /**
-   * activity_log update
-   */
-  export type activity_logUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the activity_log
-     */
-    select?: activity_logSelect<ExtArgs> | null
-    /**
-     * The data needed to update a activity_log.
-     */
-    data: XOR<activity_logUpdateInput, activity_logUncheckedUpdateInput>
-    /**
-     * Choose, which activity_log to update.
-     */
-    where: activity_logWhereUniqueInput
-  }
-
-
-  /**
-   * activity_log updateMany
-   */
-  export type activity_logUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update activity_logs.
-     */
-    data: XOR<activity_logUpdateManyMutationInput, activity_logUncheckedUpdateManyInput>
-    /**
-     * Filter which activity_logs to update
-     */
-    where?: activity_logWhereInput
-  }
-
-
-  /**
-   * activity_log upsert
-   */
-  export type activity_logUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the activity_log
-     */
-    select?: activity_logSelect<ExtArgs> | null
-    /**
-     * The filter to search for the activity_log to update in case it exists.
-     */
-    where: activity_logWhereUniqueInput
-    /**
-     * In case the activity_log found by the `where` argument doesn't exist, create a new activity_log with this data.
-     */
-    create: XOR<activity_logCreateInput, activity_logUncheckedCreateInput>
-    /**
-     * In case the activity_log was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<activity_logUpdateInput, activity_logUncheckedUpdateInput>
-  }
-
-
-  /**
-   * activity_log delete
-   */
-  export type activity_logDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the activity_log
-     */
-    select?: activity_logSelect<ExtArgs> | null
-    /**
-     * Filter which activity_log to delete.
-     */
-    where: activity_logWhereUniqueInput
-  }
-
-
-  /**
-   * activity_log deleteMany
-   */
-  export type activity_logDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which activity_logs to delete
-     */
-    where?: activity_logWhereInput
-  }
-
-
-  /**
-   * activity_log without action
-   */
-  export type activity_logDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the activity_log
-     */
-    select?: activity_logSelect<ExtArgs> | null
   }
 
 
@@ -13675,1039 +12459,6 @@ export namespace Prisma {
 
 
   /**
-   * Model log_crud
-   */
-
-  export type AggregateLog_crud = {
-    _count: Log_crudCountAggregateOutputType | null
-    _avg: Log_crudAvgAggregateOutputType | null
-    _sum: Log_crudSumAggregateOutputType | null
-    _min: Log_crudMinAggregateOutputType | null
-    _max: Log_crudMaxAggregateOutputType | null
-  }
-
-  export type Log_crudAvgAggregateOutputType = {
-    id: number | null
-    user_id: number | null
-  }
-
-  export type Log_crudSumAggregateOutputType = {
-    id: bigint | null
-    user_id: bigint | null
-  }
-
-  export type Log_crudMinAggregateOutputType = {
-    id: bigint | null
-    table_name: string | null
-    sap_id: string | null
-    operation: string | null
-    old_data: string | null
-    new_data: string | null
-    user_id: bigint | null
-    created_at: Date | null
-  }
-
-  export type Log_crudMaxAggregateOutputType = {
-    id: bigint | null
-    table_name: string | null
-    sap_id: string | null
-    operation: string | null
-    old_data: string | null
-    new_data: string | null
-    user_id: bigint | null
-    created_at: Date | null
-  }
-
-  export type Log_crudCountAggregateOutputType = {
-    id: number
-    table_name: number
-    sap_id: number
-    operation: number
-    old_data: number
-    new_data: number
-    user_id: number
-    created_at: number
-    _all: number
-  }
-
-
-  export type Log_crudAvgAggregateInputType = {
-    id?: true
-    user_id?: true
-  }
-
-  export type Log_crudSumAggregateInputType = {
-    id?: true
-    user_id?: true
-  }
-
-  export type Log_crudMinAggregateInputType = {
-    id?: true
-    table_name?: true
-    sap_id?: true
-    operation?: true
-    old_data?: true
-    new_data?: true
-    user_id?: true
-    created_at?: true
-  }
-
-  export type Log_crudMaxAggregateInputType = {
-    id?: true
-    table_name?: true
-    sap_id?: true
-    operation?: true
-    old_data?: true
-    new_data?: true
-    user_id?: true
-    created_at?: true
-  }
-
-  export type Log_crudCountAggregateInputType = {
-    id?: true
-    table_name?: true
-    sap_id?: true
-    operation?: true
-    old_data?: true
-    new_data?: true
-    user_id?: true
-    created_at?: true
-    _all?: true
-  }
-
-  export type Log_crudAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which log_crud to aggregate.
-     */
-    where?: log_crudWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of log_cruds to fetch.
-     */
-    orderBy?: log_crudOrderByWithRelationInput | log_crudOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: log_crudWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` log_cruds from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` log_cruds.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned log_cruds
-    **/
-    _count?: true | Log_crudCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: Log_crudAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: Log_crudSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: Log_crudMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: Log_crudMaxAggregateInputType
-  }
-
-  export type GetLog_crudAggregateType<T extends Log_crudAggregateArgs> = {
-        [P in keyof T & keyof AggregateLog_crud]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateLog_crud[P]>
-      : GetScalarType<T[P], AggregateLog_crud[P]>
-  }
-
-
-
-
-  export type log_crudGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: log_crudWhereInput
-    orderBy?: log_crudOrderByWithAggregationInput | log_crudOrderByWithAggregationInput[]
-    by: Log_crudScalarFieldEnum[] | Log_crudScalarFieldEnum
-    having?: log_crudScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: Log_crudCountAggregateInputType | true
-    _avg?: Log_crudAvgAggregateInputType
-    _sum?: Log_crudSumAggregateInputType
-    _min?: Log_crudMinAggregateInputType
-    _max?: Log_crudMaxAggregateInputType
-  }
-
-  export type Log_crudGroupByOutputType = {
-    id: bigint
-    table_name: string
-    sap_id: string | null
-    operation: string
-    old_data: string | null
-    new_data: string | null
-    user_id: bigint | null
-    created_at: Date
-    _count: Log_crudCountAggregateOutputType | null
-    _avg: Log_crudAvgAggregateOutputType | null
-    _sum: Log_crudSumAggregateOutputType | null
-    _min: Log_crudMinAggregateOutputType | null
-    _max: Log_crudMaxAggregateOutputType | null
-  }
-
-  type GetLog_crudGroupByPayload<T extends log_crudGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<Log_crudGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof Log_crudGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], Log_crudGroupByOutputType[P]>
-            : GetScalarType<T[P], Log_crudGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type log_crudSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    table_name?: boolean
-    sap_id?: boolean
-    operation?: boolean
-    old_data?: boolean
-    new_data?: boolean
-    user_id?: boolean
-    created_at?: boolean
-    user?: boolean | log_crud$userArgs<ExtArgs>
-    assets?: boolean | log_crud$assetsArgs<ExtArgs>
-    _count?: boolean | Log_crudCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["log_crud"]>
-
-  export type log_crudSelectScalar = {
-    id?: boolean
-    table_name?: boolean
-    sap_id?: boolean
-    operation?: boolean
-    old_data?: boolean
-    new_data?: boolean
-    user_id?: boolean
-    created_at?: boolean
-  }
-
-  export type log_crudInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    user?: boolean | log_crud$userArgs<ExtArgs>
-    assets?: boolean | log_crud$assetsArgs<ExtArgs>
-    _count?: boolean | Log_crudCountOutputTypeDefaultArgs<ExtArgs>
-  }
-
-
-  export type $log_crudPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "log_crud"
-    objects: {
-      user: Prisma.$usersPayload<ExtArgs> | null
-      assets: Prisma.$assetsPayload<ExtArgs>[]
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: bigint
-      table_name: string
-      sap_id: string | null
-      operation: string
-      old_data: string | null
-      new_data: string | null
-      user_id: bigint | null
-      created_at: Date
-    }, ExtArgs["result"]["log_crud"]>
-    composites: {}
-  }
-
-
-  type log_crudGetPayload<S extends boolean | null | undefined | log_crudDefaultArgs> = $Result.GetResult<Prisma.$log_crudPayload, S>
-
-  type log_crudCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<log_crudFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: Log_crudCountAggregateInputType | true
-    }
-
-  export interface log_crudDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['log_crud'], meta: { name: 'log_crud' } }
-    /**
-     * Find zero or one Log_crud that matches the filter.
-     * @param {log_crudFindUniqueArgs} args - Arguments to find a Log_crud
-     * @example
-     * // Get one Log_crud
-     * const log_crud = await prisma.log_crud.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-    **/
-    findUnique<T extends log_crudFindUniqueArgs<ExtArgs>>(
-      args: SelectSubset<T, log_crudFindUniqueArgs<ExtArgs>>
-    ): Prisma__log_crudClient<$Result.GetResult<Prisma.$log_crudPayload<ExtArgs>, T, 'findUnique'> | null, null, ExtArgs>
-
-    /**
-     * Find one Log_crud that matches the filter or throw an error  with `error.code='P2025'` 
-     *     if no matches were found.
-     * @param {log_crudFindUniqueOrThrowArgs} args - Arguments to find a Log_crud
-     * @example
-     * // Get one Log_crud
-     * const log_crud = await prisma.log_crud.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-    **/
-    findUniqueOrThrow<T extends log_crudFindUniqueOrThrowArgs<ExtArgs>>(
-      args?: SelectSubset<T, log_crudFindUniqueOrThrowArgs<ExtArgs>>
-    ): Prisma__log_crudClient<$Result.GetResult<Prisma.$log_crudPayload<ExtArgs>, T, 'findUniqueOrThrow'>, never, ExtArgs>
-
-    /**
-     * Find the first Log_crud that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {log_crudFindFirstArgs} args - Arguments to find a Log_crud
-     * @example
-     * // Get one Log_crud
-     * const log_crud = await prisma.log_crud.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-    **/
-    findFirst<T extends log_crudFindFirstArgs<ExtArgs>>(
-      args?: SelectSubset<T, log_crudFindFirstArgs<ExtArgs>>
-    ): Prisma__log_crudClient<$Result.GetResult<Prisma.$log_crudPayload<ExtArgs>, T, 'findFirst'> | null, null, ExtArgs>
-
-    /**
-     * Find the first Log_crud that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {log_crudFindFirstOrThrowArgs} args - Arguments to find a Log_crud
-     * @example
-     * // Get one Log_crud
-     * const log_crud = await prisma.log_crud.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-    **/
-    findFirstOrThrow<T extends log_crudFindFirstOrThrowArgs<ExtArgs>>(
-      args?: SelectSubset<T, log_crudFindFirstOrThrowArgs<ExtArgs>>
-    ): Prisma__log_crudClient<$Result.GetResult<Prisma.$log_crudPayload<ExtArgs>, T, 'findFirstOrThrow'>, never, ExtArgs>
-
-    /**
-     * Find zero or more Log_cruds that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {log_crudFindManyArgs=} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all Log_cruds
-     * const log_cruds = await prisma.log_crud.findMany()
-     * 
-     * // Get first 10 Log_cruds
-     * const log_cruds = await prisma.log_crud.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const log_crudWithIdOnly = await prisma.log_crud.findMany({ select: { id: true } })
-     * 
-    **/
-    findMany<T extends log_crudFindManyArgs<ExtArgs>>(
-      args?: SelectSubset<T, log_crudFindManyArgs<ExtArgs>>
-    ): Prisma.PrismaPromise<$Result.GetResult<Prisma.$log_crudPayload<ExtArgs>, T, 'findMany'>>
-
-    /**
-     * Create a Log_crud.
-     * @param {log_crudCreateArgs} args - Arguments to create a Log_crud.
-     * @example
-     * // Create one Log_crud
-     * const Log_crud = await prisma.log_crud.create({
-     *   data: {
-     *     // ... data to create a Log_crud
-     *   }
-     * })
-     * 
-    **/
-    create<T extends log_crudCreateArgs<ExtArgs>>(
-      args: SelectSubset<T, log_crudCreateArgs<ExtArgs>>
-    ): Prisma__log_crudClient<$Result.GetResult<Prisma.$log_crudPayload<ExtArgs>, T, 'create'>, never, ExtArgs>
-
-    /**
-     * Create many Log_cruds.
-     *     @param {log_crudCreateManyArgs} args - Arguments to create many Log_cruds.
-     *     @example
-     *     // Create many Log_cruds
-     *     const log_crud = await prisma.log_crud.createMany({
-     *       data: {
-     *         // ... provide data here
-     *       }
-     *     })
-     *     
-    **/
-    createMany<T extends log_crudCreateManyArgs<ExtArgs>>(
-      args?: SelectSubset<T, log_crudCreateManyArgs<ExtArgs>>
-    ): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Delete a Log_crud.
-     * @param {log_crudDeleteArgs} args - Arguments to delete one Log_crud.
-     * @example
-     * // Delete one Log_crud
-     * const Log_crud = await prisma.log_crud.delete({
-     *   where: {
-     *     // ... filter to delete one Log_crud
-     *   }
-     * })
-     * 
-    **/
-    delete<T extends log_crudDeleteArgs<ExtArgs>>(
-      args: SelectSubset<T, log_crudDeleteArgs<ExtArgs>>
-    ): Prisma__log_crudClient<$Result.GetResult<Prisma.$log_crudPayload<ExtArgs>, T, 'delete'>, never, ExtArgs>
-
-    /**
-     * Update one Log_crud.
-     * @param {log_crudUpdateArgs} args - Arguments to update one Log_crud.
-     * @example
-     * // Update one Log_crud
-     * const log_crud = await prisma.log_crud.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-    **/
-    update<T extends log_crudUpdateArgs<ExtArgs>>(
-      args: SelectSubset<T, log_crudUpdateArgs<ExtArgs>>
-    ): Prisma__log_crudClient<$Result.GetResult<Prisma.$log_crudPayload<ExtArgs>, T, 'update'>, never, ExtArgs>
-
-    /**
-     * Delete zero or more Log_cruds.
-     * @param {log_crudDeleteManyArgs} args - Arguments to filter Log_cruds to delete.
-     * @example
-     * // Delete a few Log_cruds
-     * const { count } = await prisma.log_crud.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-    **/
-    deleteMany<T extends log_crudDeleteManyArgs<ExtArgs>>(
-      args?: SelectSubset<T, log_crudDeleteManyArgs<ExtArgs>>
-    ): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Log_cruds.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {log_crudUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many Log_cruds
-     * const log_crud = await prisma.log_crud.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-    **/
-    updateMany<T extends log_crudUpdateManyArgs<ExtArgs>>(
-      args: SelectSubset<T, log_crudUpdateManyArgs<ExtArgs>>
-    ): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create or update one Log_crud.
-     * @param {log_crudUpsertArgs} args - Arguments to update or create a Log_crud.
-     * @example
-     * // Update or create a Log_crud
-     * const log_crud = await prisma.log_crud.upsert({
-     *   create: {
-     *     // ... data to create a Log_crud
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the Log_crud we want to update
-     *   }
-     * })
-    **/
-    upsert<T extends log_crudUpsertArgs<ExtArgs>>(
-      args: SelectSubset<T, log_crudUpsertArgs<ExtArgs>>
-    ): Prisma__log_crudClient<$Result.GetResult<Prisma.$log_crudPayload<ExtArgs>, T, 'upsert'>, never, ExtArgs>
-
-    /**
-     * Count the number of Log_cruds.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {log_crudCountArgs} args - Arguments to filter Log_cruds to count.
-     * @example
-     * // Count the number of Log_cruds
-     * const count = await prisma.log_crud.count({
-     *   where: {
-     *     // ... the filter for the Log_cruds we want to count
-     *   }
-     * })
-    **/
-    count<T extends log_crudCountArgs>(
-      args?: Subset<T, log_crudCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], Log_crudCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a Log_crud.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {Log_crudAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends Log_crudAggregateArgs>(args: Subset<T, Log_crudAggregateArgs>): Prisma.PrismaPromise<GetLog_crudAggregateType<T>>
-
-    /**
-     * Group by Log_crud.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {log_crudGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends log_crudGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: log_crudGroupByArgs['orderBy'] }
-        : { orderBy?: log_crudGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, log_crudGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLog_crudGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the log_crud model
-   */
-  readonly fields: log_crudFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for log_crud.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__log_crudClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: 'PrismaPromise';
-
-    user<T extends log_crud$userArgs<ExtArgs> = {}>(args?: Subset<T, log_crud$userArgs<ExtArgs>>): Prisma__usersClient<$Result.GetResult<Prisma.$usersPayload<ExtArgs>, T, 'findUniqueOrThrow'> | null, null, ExtArgs>;
-
-    assets<T extends log_crud$assetsArgs<ExtArgs> = {}>(args?: Subset<T, log_crud$assetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$assetsPayload<ExtArgs>, T, 'findMany'> | Null>;
-
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>;
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>;
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>;
-  }
-
-
-
-  /**
-   * Fields of the log_crud model
-   */ 
-  interface log_crudFieldRefs {
-    readonly id: FieldRef<"log_crud", 'BigInt'>
-    readonly table_name: FieldRef<"log_crud", 'String'>
-    readonly sap_id: FieldRef<"log_crud", 'String'>
-    readonly operation: FieldRef<"log_crud", 'String'>
-    readonly old_data: FieldRef<"log_crud", 'String'>
-    readonly new_data: FieldRef<"log_crud", 'String'>
-    readonly user_id: FieldRef<"log_crud", 'BigInt'>
-    readonly created_at: FieldRef<"log_crud", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-
-  /**
-   * log_crud findUnique
-   */
-  export type log_crudFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the log_crud
-     */
-    select?: log_crudSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: log_crudInclude<ExtArgs> | null
-    /**
-     * Filter, which log_crud to fetch.
-     */
-    where: log_crudWhereUniqueInput
-  }
-
-
-  /**
-   * log_crud findUniqueOrThrow
-   */
-  export type log_crudFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the log_crud
-     */
-    select?: log_crudSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: log_crudInclude<ExtArgs> | null
-    /**
-     * Filter, which log_crud to fetch.
-     */
-    where: log_crudWhereUniqueInput
-  }
-
-
-  /**
-   * log_crud findFirst
-   */
-  export type log_crudFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the log_crud
-     */
-    select?: log_crudSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: log_crudInclude<ExtArgs> | null
-    /**
-     * Filter, which log_crud to fetch.
-     */
-    where?: log_crudWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of log_cruds to fetch.
-     */
-    orderBy?: log_crudOrderByWithRelationInput | log_crudOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for log_cruds.
-     */
-    cursor?: log_crudWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` log_cruds from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` log_cruds.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of log_cruds.
-     */
-    distinct?: Log_crudScalarFieldEnum | Log_crudScalarFieldEnum[]
-  }
-
-
-  /**
-   * log_crud findFirstOrThrow
-   */
-  export type log_crudFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the log_crud
-     */
-    select?: log_crudSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: log_crudInclude<ExtArgs> | null
-    /**
-     * Filter, which log_crud to fetch.
-     */
-    where?: log_crudWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of log_cruds to fetch.
-     */
-    orderBy?: log_crudOrderByWithRelationInput | log_crudOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for log_cruds.
-     */
-    cursor?: log_crudWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` log_cruds from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` log_cruds.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of log_cruds.
-     */
-    distinct?: Log_crudScalarFieldEnum | Log_crudScalarFieldEnum[]
-  }
-
-
-  /**
-   * log_crud findMany
-   */
-  export type log_crudFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the log_crud
-     */
-    select?: log_crudSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: log_crudInclude<ExtArgs> | null
-    /**
-     * Filter, which log_cruds to fetch.
-     */
-    where?: log_crudWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of log_cruds to fetch.
-     */
-    orderBy?: log_crudOrderByWithRelationInput | log_crudOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing log_cruds.
-     */
-    cursor?: log_crudWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` log_cruds from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` log_cruds.
-     */
-    skip?: number
-    distinct?: Log_crudScalarFieldEnum | Log_crudScalarFieldEnum[]
-  }
-
-
-  /**
-   * log_crud create
-   */
-  export type log_crudCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the log_crud
-     */
-    select?: log_crudSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: log_crudInclude<ExtArgs> | null
-    /**
-     * The data needed to create a log_crud.
-     */
-    data: XOR<log_crudCreateInput, log_crudUncheckedCreateInput>
-  }
-
-
-  /**
-   * log_crud createMany
-   */
-  export type log_crudCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many log_cruds.
-     */
-    data: log_crudCreateManyInput | log_crudCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-
-  /**
-   * log_crud update
-   */
-  export type log_crudUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the log_crud
-     */
-    select?: log_crudSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: log_crudInclude<ExtArgs> | null
-    /**
-     * The data needed to update a log_crud.
-     */
-    data: XOR<log_crudUpdateInput, log_crudUncheckedUpdateInput>
-    /**
-     * Choose, which log_crud to update.
-     */
-    where: log_crudWhereUniqueInput
-  }
-
-
-  /**
-   * log_crud updateMany
-   */
-  export type log_crudUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update log_cruds.
-     */
-    data: XOR<log_crudUpdateManyMutationInput, log_crudUncheckedUpdateManyInput>
-    /**
-     * Filter which log_cruds to update
-     */
-    where?: log_crudWhereInput
-  }
-
-
-  /**
-   * log_crud upsert
-   */
-  export type log_crudUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the log_crud
-     */
-    select?: log_crudSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: log_crudInclude<ExtArgs> | null
-    /**
-     * The filter to search for the log_crud to update in case it exists.
-     */
-    where: log_crudWhereUniqueInput
-    /**
-     * In case the log_crud found by the `where` argument doesn't exist, create a new log_crud with this data.
-     */
-    create: XOR<log_crudCreateInput, log_crudUncheckedCreateInput>
-    /**
-     * In case the log_crud was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<log_crudUpdateInput, log_crudUncheckedUpdateInput>
-  }
-
-
-  /**
-   * log_crud delete
-   */
-  export type log_crudDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the log_crud
-     */
-    select?: log_crudSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: log_crudInclude<ExtArgs> | null
-    /**
-     * Filter which log_crud to delete.
-     */
-    where: log_crudWhereUniqueInput
-  }
-
-
-  /**
-   * log_crud deleteMany
-   */
-  export type log_crudDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which log_cruds to delete
-     */
-    where?: log_crudWhereInput
-  }
-
-
-  /**
-   * log_crud.user
-   */
-  export type log_crud$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the users
-     */
-    select?: usersSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: usersInclude<ExtArgs> | null
-    where?: usersWhereInput
-  }
-
-
-  /**
-   * log_crud.assets
-   */
-  export type log_crud$assetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the assets
-     */
-    select?: assetsSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: assetsInclude<ExtArgs> | null
-    where?: assetsWhereInput
-    orderBy?: assetsOrderByWithRelationInput | assetsOrderByWithRelationInput[]
-    cursor?: assetsWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: AssetsScalarFieldEnum | AssetsScalarFieldEnum[]
-  }
-
-
-  /**
-   * log_crud without action
-   */
-  export type log_crudDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the log_crud
-     */
-    select?: log_crudSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: log_crudInclude<ExtArgs> | null
-  }
-
-
-
-  /**
    * Model suppliers
    */
 
@@ -15937,8 +13688,6 @@ export namespace Prisma {
     remember_token?: boolean
     created_at?: boolean
     updated_at?: boolean
-    log_cruds?: boolean | users$log_crudsArgs<ExtArgs>
-    _count?: boolean | UsersCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["users"]>
 
   export type usersSelectScalar = {
@@ -15952,17 +13701,10 @@ export namespace Prisma {
     updated_at?: boolean
   }
 
-  export type usersInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    log_cruds?: boolean | users$log_crudsArgs<ExtArgs>
-    _count?: boolean | UsersCountOutputTypeDefaultArgs<ExtArgs>
-  }
-
 
   export type $usersPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "users"
-    objects: {
-      log_cruds: Prisma.$log_crudPayload<ExtArgs>[]
-    }
+    objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id: bigint
       name: string
@@ -16337,7 +14079,6 @@ export namespace Prisma {
   export interface Prisma__usersClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: 'PrismaPromise';
 
-    log_cruds<T extends users$log_crudsArgs<ExtArgs> = {}>(args?: Subset<T, users$log_crudsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$log_crudPayload<ExtArgs>, T, 'findMany'> | Null>;
 
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -16389,10 +14130,6 @@ export namespace Prisma {
      */
     select?: usersSelect<ExtArgs> | null
     /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: usersInclude<ExtArgs> | null
-    /**
      * Filter, which users to fetch.
      */
     where: usersWhereUniqueInput
@@ -16408,10 +14145,6 @@ export namespace Prisma {
      */
     select?: usersSelect<ExtArgs> | null
     /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: usersInclude<ExtArgs> | null
-    /**
      * Filter, which users to fetch.
      */
     where: usersWhereUniqueInput
@@ -16426,10 +14159,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the users
      */
     select?: usersSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: usersInclude<ExtArgs> | null
     /**
      * Filter, which users to fetch.
      */
@@ -16476,10 +14205,6 @@ export namespace Prisma {
      */
     select?: usersSelect<ExtArgs> | null
     /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: usersInclude<ExtArgs> | null
-    /**
      * Filter, which users to fetch.
      */
     where?: usersWhereInput
@@ -16525,10 +14250,6 @@ export namespace Prisma {
      */
     select?: usersSelect<ExtArgs> | null
     /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: usersInclude<ExtArgs> | null
-    /**
      * Filter, which users to fetch.
      */
     where?: usersWhereInput
@@ -16569,10 +14290,6 @@ export namespace Prisma {
      */
     select?: usersSelect<ExtArgs> | null
     /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: usersInclude<ExtArgs> | null
-    /**
      * The data needed to create a users.
      */
     data: XOR<usersCreateInput, usersUncheckedCreateInput>
@@ -16599,10 +14316,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the users
      */
     select?: usersSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: usersInclude<ExtArgs> | null
     /**
      * The data needed to update a users.
      */
@@ -16638,10 +14351,6 @@ export namespace Prisma {
      */
     select?: usersSelect<ExtArgs> | null
     /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: usersInclude<ExtArgs> | null
-    /**
      * The filter to search for the users to update in case it exists.
      */
     where: usersWhereUniqueInput
@@ -16665,10 +14374,6 @@ export namespace Prisma {
      */
     select?: usersSelect<ExtArgs> | null
     /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: usersInclude<ExtArgs> | null
-    /**
      * Filter which users to delete.
      */
     where: usersWhereUniqueInput
@@ -16687,27 +14392,6 @@ export namespace Prisma {
 
 
   /**
-   * users.log_cruds
-   */
-  export type users$log_crudsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the log_crud
-     */
-    select?: log_crudSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: log_crudInclude<ExtArgs> | null
-    where?: log_crudWhereInput
-    orderBy?: log_crudOrderByWithRelationInput | log_crudOrderByWithRelationInput[]
-    cursor?: log_crudWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: Log_crudScalarFieldEnum | Log_crudScalarFieldEnum[]
-  }
-
-
-  /**
    * users without action
    */
   export type usersDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -16715,10 +14399,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the users
      */
     select?: usersSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: usersInclude<ExtArgs> | null
   }
 
 
@@ -16788,21 +14468,6 @@ export namespace Prisma {
   };
 
   export type AssetsScalarFieldEnum = (typeof AssetsScalarFieldEnum)[keyof typeof AssetsScalarFieldEnum]
-
-
-  export const Activity_logScalarFieldEnum: {
-    id: 'id',
-    action: 'action',
-    entity_type: 'entity_type',
-    entity_id: 'entity_id',
-    details: 'details',
-    user_id: 'user_id',
-    user_name: 'user_name',
-    ip_address: 'ip_address',
-    created_at: 'created_at'
-  };
-
-  export type Activity_logScalarFieldEnum = (typeof Activity_logScalarFieldEnum)[keyof typeof Activity_logScalarFieldEnum]
 
 
   export const Asset_typesScalarFieldEnum: {
@@ -16878,20 +14543,6 @@ export namespace Prisma {
   };
 
   export type LocationsScalarFieldEnum = (typeof LocationsScalarFieldEnum)[keyof typeof LocationsScalarFieldEnum]
-
-
-  export const Log_crudScalarFieldEnum: {
-    id: 'id',
-    table_name: 'table_name',
-    sap_id: 'sap_id',
-    operation: 'operation',
-    old_data: 'old_data',
-    new_data: 'new_data',
-    user_id: 'user_id',
-    created_at: 'created_at'
-  };
-
-  export type Log_crudScalarFieldEnum = (typeof Log_crudScalarFieldEnum)[keyof typeof Log_crudScalarFieldEnum]
 
 
   export const SuppliersScalarFieldEnum: {
@@ -17239,7 +14890,6 @@ export namespace Prisma {
     supplier_rec?: XOR<SuppliersNullableRelationFilter, suppliersWhereInput> | null
     main_image?: XOR<Asset_imagesNullableRelationFilter, asset_imagesWhereInput> | null
     transactions?: Asset_transactionsListRelationFilter
-    log_cruds?: Log_crudListRelationFilter
     asset_images?: Asset_imagesListRelationFilter
   }
 
@@ -17268,7 +14918,6 @@ export namespace Prisma {
     supplier_rec?: suppliersOrderByWithRelationInput
     main_image?: asset_imagesOrderByWithRelationInput
     transactions?: asset_transactionsOrderByRelationAggregateInput
-    log_cruds?: log_crudOrderByRelationAggregateInput
     asset_images?: asset_imagesOrderByRelationAggregateInput
   }
 
@@ -17300,7 +14949,6 @@ export namespace Prisma {
     supplier_rec?: XOR<SuppliersNullableRelationFilter, suppliersWhereInput> | null
     main_image?: XOR<Asset_imagesNullableRelationFilter, asset_imagesWhereInput> | null
     transactions?: Asset_transactionsListRelationFilter
-    log_cruds?: Log_crudListRelationFilter
     asset_images?: Asset_imagesListRelationFilter
   }, "id" | "serial_number" | "image_id">
 
@@ -17346,80 +14994,6 @@ export namespace Prisma {
     supplier_id?: BigIntNullableWithAggregatesFilter<"assets"> | bigint | number | null
     image_id?: BigIntNullableWithAggregatesFilter<"assets"> | bigint | number | null
     condition?: EnumAssetConditionWithAggregatesFilter<"assets"> | $Enums.AssetCondition
-  }
-
-  export type activity_logWhereInput = {
-    AND?: activity_logWhereInput | activity_logWhereInput[]
-    OR?: activity_logWhereInput[]
-    NOT?: activity_logWhereInput | activity_logWhereInput[]
-    id?: BigIntFilter<"activity_log"> | bigint | number
-    action?: StringFilter<"activity_log"> | string
-    entity_type?: StringFilter<"activity_log"> | string
-    entity_id?: StringFilter<"activity_log"> | string
-    details?: StringNullableFilter<"activity_log"> | string | null
-    user_id?: StringNullableFilter<"activity_log"> | string | null
-    user_name?: StringNullableFilter<"activity_log"> | string | null
-    ip_address?: StringNullableFilter<"activity_log"> | string | null
-    created_at?: DateTimeFilter<"activity_log"> | Date | string
-  }
-
-  export type activity_logOrderByWithRelationInput = {
-    id?: SortOrder
-    action?: SortOrder
-    entity_type?: SortOrder
-    entity_id?: SortOrder
-    details?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    user_name?: SortOrderInput | SortOrder
-    ip_address?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-  }
-
-  export type activity_logWhereUniqueInput = Prisma.AtLeast<{
-    id?: bigint | number
-    AND?: activity_logWhereInput | activity_logWhereInput[]
-    OR?: activity_logWhereInput[]
-    NOT?: activity_logWhereInput | activity_logWhereInput[]
-    action?: StringFilter<"activity_log"> | string
-    entity_type?: StringFilter<"activity_log"> | string
-    entity_id?: StringFilter<"activity_log"> | string
-    details?: StringNullableFilter<"activity_log"> | string | null
-    user_id?: StringNullableFilter<"activity_log"> | string | null
-    user_name?: StringNullableFilter<"activity_log"> | string | null
-    ip_address?: StringNullableFilter<"activity_log"> | string | null
-    created_at?: DateTimeFilter<"activity_log"> | Date | string
-  }, "id">
-
-  export type activity_logOrderByWithAggregationInput = {
-    id?: SortOrder
-    action?: SortOrder
-    entity_type?: SortOrder
-    entity_id?: SortOrder
-    details?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    user_name?: SortOrderInput | SortOrder
-    ip_address?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    _count?: activity_logCountOrderByAggregateInput
-    _avg?: activity_logAvgOrderByAggregateInput
-    _max?: activity_logMaxOrderByAggregateInput
-    _min?: activity_logMinOrderByAggregateInput
-    _sum?: activity_logSumOrderByAggregateInput
-  }
-
-  export type activity_logScalarWhereWithAggregatesInput = {
-    AND?: activity_logScalarWhereWithAggregatesInput | activity_logScalarWhereWithAggregatesInput[]
-    OR?: activity_logScalarWhereWithAggregatesInput[]
-    NOT?: activity_logScalarWhereWithAggregatesInput | activity_logScalarWhereWithAggregatesInput[]
-    id?: BigIntWithAggregatesFilter<"activity_log"> | bigint | number
-    action?: StringWithAggregatesFilter<"activity_log"> | string
-    entity_type?: StringWithAggregatesFilter<"activity_log"> | string
-    entity_id?: StringWithAggregatesFilter<"activity_log"> | string
-    details?: StringNullableWithAggregatesFilter<"activity_log"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"activity_log"> | string | null
-    user_name?: StringNullableWithAggregatesFilter<"activity_log"> | string | null
-    ip_address?: StringNullableWithAggregatesFilter<"activity_log"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"activity_log"> | Date | string
   }
 
   export type asset_typesWhereInput = {
@@ -17826,81 +15400,6 @@ export namespace Prisma {
     updated_at?: DateTimeNullableWithAggregatesFilter<"locations"> | Date | string | null
   }
 
-  export type log_crudWhereInput = {
-    AND?: log_crudWhereInput | log_crudWhereInput[]
-    OR?: log_crudWhereInput[]
-    NOT?: log_crudWhereInput | log_crudWhereInput[]
-    id?: BigIntFilter<"log_crud"> | bigint | number
-    table_name?: StringFilter<"log_crud"> | string
-    sap_id?: StringNullableFilter<"log_crud"> | string | null
-    operation?: StringFilter<"log_crud"> | string
-    old_data?: StringNullableFilter<"log_crud"> | string | null
-    new_data?: StringNullableFilter<"log_crud"> | string | null
-    user_id?: BigIntNullableFilter<"log_crud"> | bigint | number | null
-    created_at?: DateTimeFilter<"log_crud"> | Date | string
-    user?: XOR<UsersNullableRelationFilter, usersWhereInput> | null
-    assets?: AssetsListRelationFilter
-  }
-
-  export type log_crudOrderByWithRelationInput = {
-    id?: SortOrder
-    table_name?: SortOrder
-    sap_id?: SortOrderInput | SortOrder
-    operation?: SortOrder
-    old_data?: SortOrderInput | SortOrder
-    new_data?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    user?: usersOrderByWithRelationInput
-    assets?: assetsOrderByRelationAggregateInput
-  }
-
-  export type log_crudWhereUniqueInput = Prisma.AtLeast<{
-    id?: bigint | number
-    AND?: log_crudWhereInput | log_crudWhereInput[]
-    OR?: log_crudWhereInput[]
-    NOT?: log_crudWhereInput | log_crudWhereInput[]
-    table_name?: StringFilter<"log_crud"> | string
-    sap_id?: StringNullableFilter<"log_crud"> | string | null
-    operation?: StringFilter<"log_crud"> | string
-    old_data?: StringNullableFilter<"log_crud"> | string | null
-    new_data?: StringNullableFilter<"log_crud"> | string | null
-    user_id?: BigIntNullableFilter<"log_crud"> | bigint | number | null
-    created_at?: DateTimeFilter<"log_crud"> | Date | string
-    user?: XOR<UsersNullableRelationFilter, usersWhereInput> | null
-    assets?: AssetsListRelationFilter
-  }, "id">
-
-  export type log_crudOrderByWithAggregationInput = {
-    id?: SortOrder
-    table_name?: SortOrder
-    sap_id?: SortOrderInput | SortOrder
-    operation?: SortOrder
-    old_data?: SortOrderInput | SortOrder
-    new_data?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    _count?: log_crudCountOrderByAggregateInput
-    _avg?: log_crudAvgOrderByAggregateInput
-    _max?: log_crudMaxOrderByAggregateInput
-    _min?: log_crudMinOrderByAggregateInput
-    _sum?: log_crudSumOrderByAggregateInput
-  }
-
-  export type log_crudScalarWhereWithAggregatesInput = {
-    AND?: log_crudScalarWhereWithAggregatesInput | log_crudScalarWhereWithAggregatesInput[]
-    OR?: log_crudScalarWhereWithAggregatesInput[]
-    NOT?: log_crudScalarWhereWithAggregatesInput | log_crudScalarWhereWithAggregatesInput[]
-    id?: BigIntWithAggregatesFilter<"log_crud"> | bigint | number
-    table_name?: StringWithAggregatesFilter<"log_crud"> | string
-    sap_id?: StringNullableWithAggregatesFilter<"log_crud"> | string | null
-    operation?: StringWithAggregatesFilter<"log_crud"> | string
-    old_data?: StringNullableWithAggregatesFilter<"log_crud"> | string | null
-    new_data?: StringNullableWithAggregatesFilter<"log_crud"> | string | null
-    user_id?: BigIntNullableWithAggregatesFilter<"log_crud"> | bigint | number | null
-    created_at?: DateTimeWithAggregatesFilter<"log_crud"> | Date | string
-  }
-
   export type suppliersWhereInput = {
     AND?: suppliersWhereInput | suppliersWhereInput[]
     OR?: suppliersWhereInput[]
@@ -17985,7 +15484,6 @@ export namespace Prisma {
     remember_token?: StringNullableFilter<"users"> | string | null
     created_at?: DateTimeNullableFilter<"users"> | Date | string | null
     updated_at?: DateTimeNullableFilter<"users"> | Date | string | null
-    log_cruds?: Log_crudListRelationFilter
   }
 
   export type usersOrderByWithRelationInput = {
@@ -17997,7 +15495,6 @@ export namespace Prisma {
     remember_token?: SortOrderInput | SortOrder
     created_at?: SortOrderInput | SortOrder
     updated_at?: SortOrderInput | SortOrder
-    log_cruds?: log_crudOrderByRelationAggregateInput
   }
 
   export type usersWhereUniqueInput = Prisma.AtLeast<{
@@ -18012,7 +15509,6 @@ export namespace Prisma {
     remember_token?: StringNullableFilter<"users"> | string | null
     created_at?: DateTimeNullableFilter<"users"> | Date | string | null
     updated_at?: DateTimeNullableFilter<"users"> | Date | string | null
-    log_cruds?: Log_crudListRelationFilter
   }, "id" | "email">
 
   export type usersOrderByWithAggregationInput = {
@@ -18249,7 +15745,6 @@ export namespace Prisma {
     supplier_rec?: suppliersCreateNestedOneWithoutAssetsInput
     main_image?: asset_imagesCreateNestedOneWithoutMain_forInput
     transactions?: asset_transactionsCreateNestedManyWithoutAssetInput
-    log_cruds?: log_crudCreateNestedManyWithoutAssetsInput
     asset_images?: asset_imagesCreateNestedManyWithoutAssetInput
   }
 
@@ -18270,7 +15765,6 @@ export namespace Prisma {
     image_id?: bigint | number | null
     condition?: $Enums.AssetCondition
     transactions?: asset_transactionsUncheckedCreateNestedManyWithoutAssetInput
-    log_cruds?: log_crudUncheckedCreateNestedManyWithoutAssetsInput
     asset_images?: asset_imagesUncheckedCreateNestedManyWithoutAssetInput
   }
 
@@ -18291,7 +15785,6 @@ export namespace Prisma {
     supplier_rec?: suppliersUpdateOneWithoutAssetsNestedInput
     main_image?: asset_imagesUpdateOneWithoutMain_forNestedInput
     transactions?: asset_transactionsUpdateManyWithoutAssetNestedInput
-    log_cruds?: log_crudUpdateManyWithoutAssetsNestedInput
     asset_images?: asset_imagesUpdateManyWithoutAssetNestedInput
   }
 
@@ -18312,7 +15805,6 @@ export namespace Prisma {
     image_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     condition?: EnumAssetConditionFieldUpdateOperationsInput | $Enums.AssetCondition
     transactions?: asset_transactionsUncheckedUpdateManyWithoutAssetNestedInput
-    log_cruds?: log_crudUncheckedUpdateManyWithoutAssetsNestedInput
     asset_images?: asset_imagesUncheckedUpdateManyWithoutAssetNestedInput
   }
 
@@ -18360,90 +15852,6 @@ export namespace Prisma {
     supplier_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     image_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     condition?: EnumAssetConditionFieldUpdateOperationsInput | $Enums.AssetCondition
-  }
-
-  export type activity_logCreateInput = {
-    id?: bigint | number
-    action: string
-    entity_type: string
-    entity_id: string
-    details?: string | null
-    user_id?: string | null
-    user_name?: string | null
-    ip_address?: string | null
-    created_at?: Date | string
-  }
-
-  export type activity_logUncheckedCreateInput = {
-    id?: bigint | number
-    action: string
-    entity_type: string
-    entity_id: string
-    details?: string | null
-    user_id?: string | null
-    user_name?: string | null
-    ip_address?: string | null
-    created_at?: Date | string
-  }
-
-  export type activity_logUpdateInput = {
-    id?: BigIntFieldUpdateOperationsInput | bigint | number
-    action?: StringFieldUpdateOperationsInput | string
-    entity_type?: StringFieldUpdateOperationsInput | string
-    entity_id?: StringFieldUpdateOperationsInput | string
-    details?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_name?: NullableStringFieldUpdateOperationsInput | string | null
-    ip_address?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type activity_logUncheckedUpdateInput = {
-    id?: BigIntFieldUpdateOperationsInput | bigint | number
-    action?: StringFieldUpdateOperationsInput | string
-    entity_type?: StringFieldUpdateOperationsInput | string
-    entity_id?: StringFieldUpdateOperationsInput | string
-    details?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_name?: NullableStringFieldUpdateOperationsInput | string | null
-    ip_address?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type activity_logCreateManyInput = {
-    id?: bigint | number
-    action: string
-    entity_type: string
-    entity_id: string
-    details?: string | null
-    user_id?: string | null
-    user_name?: string | null
-    ip_address?: string | null
-    created_at?: Date | string
-  }
-
-  export type activity_logUpdateManyMutationInput = {
-    id?: BigIntFieldUpdateOperationsInput | bigint | number
-    action?: StringFieldUpdateOperationsInput | string
-    entity_type?: StringFieldUpdateOperationsInput | string
-    entity_id?: StringFieldUpdateOperationsInput | string
-    details?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_name?: NullableStringFieldUpdateOperationsInput | string | null
-    ip_address?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type activity_logUncheckedUpdateManyInput = {
-    id?: BigIntFieldUpdateOperationsInput | bigint | number
-    action?: StringFieldUpdateOperationsInput | string
-    entity_type?: StringFieldUpdateOperationsInput | string
-    entity_id?: StringFieldUpdateOperationsInput | string
-    details?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_name?: NullableStringFieldUpdateOperationsInput | string | null
-    ip_address?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type asset_typesCreateInput = {
@@ -18857,86 +16265,6 @@ export namespace Prisma {
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
-  export type log_crudCreateInput = {
-    id?: bigint | number
-    table_name: string
-    sap_id?: string | null
-    operation: string
-    old_data?: string | null
-    new_data?: string | null
-    created_at?: Date | string
-    user?: usersCreateNestedOneWithoutLog_crudsInput
-    assets?: assetsCreateNestedManyWithoutLog_crudsInput
-  }
-
-  export type log_crudUncheckedCreateInput = {
-    id?: bigint | number
-    table_name: string
-    sap_id?: string | null
-    operation: string
-    old_data?: string | null
-    new_data?: string | null
-    user_id?: bigint | number | null
-    created_at?: Date | string
-    assets?: assetsUncheckedCreateNestedManyWithoutLog_crudsInput
-  }
-
-  export type log_crudUpdateInput = {
-    id?: BigIntFieldUpdateOperationsInput | bigint | number
-    table_name?: StringFieldUpdateOperationsInput | string
-    sap_id?: NullableStringFieldUpdateOperationsInput | string | null
-    operation?: StringFieldUpdateOperationsInput | string
-    old_data?: NullableStringFieldUpdateOperationsInput | string | null
-    new_data?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: usersUpdateOneWithoutLog_crudsNestedInput
-    assets?: assetsUpdateManyWithoutLog_crudsNestedInput
-  }
-
-  export type log_crudUncheckedUpdateInput = {
-    id?: BigIntFieldUpdateOperationsInput | bigint | number
-    table_name?: StringFieldUpdateOperationsInput | string
-    sap_id?: NullableStringFieldUpdateOperationsInput | string | null
-    operation?: StringFieldUpdateOperationsInput | string
-    old_data?: NullableStringFieldUpdateOperationsInput | string | null
-    new_data?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    assets?: assetsUncheckedUpdateManyWithoutLog_crudsNestedInput
-  }
-
-  export type log_crudCreateManyInput = {
-    id?: bigint | number
-    table_name: string
-    sap_id?: string | null
-    operation: string
-    old_data?: string | null
-    new_data?: string | null
-    user_id?: bigint | number | null
-    created_at?: Date | string
-  }
-
-  export type log_crudUpdateManyMutationInput = {
-    id?: BigIntFieldUpdateOperationsInput | bigint | number
-    table_name?: StringFieldUpdateOperationsInput | string
-    sap_id?: NullableStringFieldUpdateOperationsInput | string | null
-    operation?: StringFieldUpdateOperationsInput | string
-    old_data?: NullableStringFieldUpdateOperationsInput | string | null
-    new_data?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type log_crudUncheckedUpdateManyInput = {
-    id?: BigIntFieldUpdateOperationsInput | bigint | number
-    table_name?: StringFieldUpdateOperationsInput | string
-    sap_id?: NullableStringFieldUpdateOperationsInput | string | null
-    operation?: StringFieldUpdateOperationsInput | string
-    old_data?: NullableStringFieldUpdateOperationsInput | string | null
-    new_data?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type suppliersCreateInput = {
     id?: bigint | number
     name: string
@@ -19027,7 +16355,6 @@ export namespace Prisma {
     remember_token?: string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
-    log_cruds?: log_crudCreateNestedManyWithoutUserInput
   }
 
   export type usersUncheckedCreateInput = {
@@ -19039,7 +16366,6 @@ export namespace Prisma {
     remember_token?: string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
-    log_cruds?: log_crudUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type usersUpdateInput = {
@@ -19051,7 +16377,6 @@ export namespace Prisma {
     remember_token?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    log_cruds?: log_crudUpdateManyWithoutUserNestedInput
   }
 
   export type usersUncheckedUpdateInput = {
@@ -19063,7 +16388,6 @@ export namespace Prisma {
     remember_token?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    log_cruds?: log_crudUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type usersCreateManyInput = {
@@ -19454,12 +16778,6 @@ export namespace Prisma {
     none?: asset_transactionsWhereInput
   }
 
-  export type Log_crudListRelationFilter = {
-    every?: log_crudWhereInput
-    some?: log_crudWhereInput
-    none?: log_crudWhereInput
-  }
-
   export type Asset_imagesListRelationFilter = {
     every?: asset_imagesWhereInput
     some?: asset_imagesWhereInput
@@ -19467,10 +16785,6 @@ export namespace Prisma {
   }
 
   export type asset_transactionsOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type log_crudOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -19564,50 +16878,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumAssetConditionFilter<$PrismaModel>
     _max?: NestedEnumAssetConditionFilter<$PrismaModel>
-  }
-
-  export type activity_logCountOrderByAggregateInput = {
-    id?: SortOrder
-    action?: SortOrder
-    entity_type?: SortOrder
-    entity_id?: SortOrder
-    details?: SortOrder
-    user_id?: SortOrder
-    user_name?: SortOrder
-    ip_address?: SortOrder
-    created_at?: SortOrder
-  }
-
-  export type activity_logAvgOrderByAggregateInput = {
-    id?: SortOrder
-  }
-
-  export type activity_logMaxOrderByAggregateInput = {
-    id?: SortOrder
-    action?: SortOrder
-    entity_type?: SortOrder
-    entity_id?: SortOrder
-    details?: SortOrder
-    user_id?: SortOrder
-    user_name?: SortOrder
-    ip_address?: SortOrder
-    created_at?: SortOrder
-  }
-
-  export type activity_logMinOrderByAggregateInput = {
-    id?: SortOrder
-    action?: SortOrder
-    entity_type?: SortOrder
-    entity_id?: SortOrder
-    details?: SortOrder
-    user_id?: SortOrder
-    user_name?: SortOrder
-    ip_address?: SortOrder
-    created_at?: SortOrder
-  }
-
-  export type activity_logSumOrderByAggregateInput = {
-    id?: SortOrder
   }
 
   export type asset_typesCountOrderByAggregateInput = {
@@ -19857,54 +17127,6 @@ export namespace Prisma {
   export type locationsSumOrderByAggregateInput = {
     id?: SortOrder
     area_id?: SortOrder
-  }
-
-  export type UsersNullableRelationFilter = {
-    is?: usersWhereInput | null
-    isNot?: usersWhereInput | null
-  }
-
-  export type log_crudCountOrderByAggregateInput = {
-    id?: SortOrder
-    table_name?: SortOrder
-    sap_id?: SortOrder
-    operation?: SortOrder
-    old_data?: SortOrder
-    new_data?: SortOrder
-    user_id?: SortOrder
-    created_at?: SortOrder
-  }
-
-  export type log_crudAvgOrderByAggregateInput = {
-    id?: SortOrder
-    user_id?: SortOrder
-  }
-
-  export type log_crudMaxOrderByAggregateInput = {
-    id?: SortOrder
-    table_name?: SortOrder
-    sap_id?: SortOrder
-    operation?: SortOrder
-    old_data?: SortOrder
-    new_data?: SortOrder
-    user_id?: SortOrder
-    created_at?: SortOrder
-  }
-
-  export type log_crudMinOrderByAggregateInput = {
-    id?: SortOrder
-    table_name?: SortOrder
-    sap_id?: SortOrder
-    operation?: SortOrder
-    old_data?: SortOrder
-    new_data?: SortOrder
-    user_id?: SortOrder
-    created_at?: SortOrder
-  }
-
-  export type log_crudSumOrderByAggregateInput = {
-    id?: SortOrder
-    user_id?: SortOrder
   }
 
   export type suppliersCountOrderByAggregateInput = {
@@ -20206,12 +17428,6 @@ export namespace Prisma {
     connect?: asset_transactionsWhereUniqueInput | asset_transactionsWhereUniqueInput[]
   }
 
-  export type log_crudCreateNestedManyWithoutAssetsInput = {
-    create?: XOR<log_crudCreateWithoutAssetsInput, log_crudUncheckedCreateWithoutAssetsInput> | log_crudCreateWithoutAssetsInput[] | log_crudUncheckedCreateWithoutAssetsInput[]
-    connectOrCreate?: log_crudCreateOrConnectWithoutAssetsInput | log_crudCreateOrConnectWithoutAssetsInput[]
-    connect?: log_crudWhereUniqueInput | log_crudWhereUniqueInput[]
-  }
-
   export type asset_imagesCreateNestedManyWithoutAssetInput = {
     create?: XOR<asset_imagesCreateWithoutAssetInput, asset_imagesUncheckedCreateWithoutAssetInput> | asset_imagesCreateWithoutAssetInput[] | asset_imagesUncheckedCreateWithoutAssetInput[]
     connectOrCreate?: asset_imagesCreateOrConnectWithoutAssetInput | asset_imagesCreateOrConnectWithoutAssetInput[]
@@ -20224,12 +17440,6 @@ export namespace Prisma {
     connectOrCreate?: asset_transactionsCreateOrConnectWithoutAssetInput | asset_transactionsCreateOrConnectWithoutAssetInput[]
     createMany?: asset_transactionsCreateManyAssetInputEnvelope
     connect?: asset_transactionsWhereUniqueInput | asset_transactionsWhereUniqueInput[]
-  }
-
-  export type log_crudUncheckedCreateNestedManyWithoutAssetsInput = {
-    create?: XOR<log_crudCreateWithoutAssetsInput, log_crudUncheckedCreateWithoutAssetsInput> | log_crudCreateWithoutAssetsInput[] | log_crudUncheckedCreateWithoutAssetsInput[]
-    connectOrCreate?: log_crudCreateOrConnectWithoutAssetsInput | log_crudCreateOrConnectWithoutAssetsInput[]
-    connect?: log_crudWhereUniqueInput | log_crudWhereUniqueInput[]
   }
 
   export type asset_imagesUncheckedCreateNestedManyWithoutAssetInput = {
@@ -20337,19 +17547,6 @@ export namespace Prisma {
     deleteMany?: asset_transactionsScalarWhereInput | asset_transactionsScalarWhereInput[]
   }
 
-  export type log_crudUpdateManyWithoutAssetsNestedInput = {
-    create?: XOR<log_crudCreateWithoutAssetsInput, log_crudUncheckedCreateWithoutAssetsInput> | log_crudCreateWithoutAssetsInput[] | log_crudUncheckedCreateWithoutAssetsInput[]
-    connectOrCreate?: log_crudCreateOrConnectWithoutAssetsInput | log_crudCreateOrConnectWithoutAssetsInput[]
-    upsert?: log_crudUpsertWithWhereUniqueWithoutAssetsInput | log_crudUpsertWithWhereUniqueWithoutAssetsInput[]
-    set?: log_crudWhereUniqueInput | log_crudWhereUniqueInput[]
-    disconnect?: log_crudWhereUniqueInput | log_crudWhereUniqueInput[]
-    delete?: log_crudWhereUniqueInput | log_crudWhereUniqueInput[]
-    connect?: log_crudWhereUniqueInput | log_crudWhereUniqueInput[]
-    update?: log_crudUpdateWithWhereUniqueWithoutAssetsInput | log_crudUpdateWithWhereUniqueWithoutAssetsInput[]
-    updateMany?: log_crudUpdateManyWithWhereWithoutAssetsInput | log_crudUpdateManyWithWhereWithoutAssetsInput[]
-    deleteMany?: log_crudScalarWhereInput | log_crudScalarWhereInput[]
-  }
-
   export type asset_imagesUpdateManyWithoutAssetNestedInput = {
     create?: XOR<asset_imagesCreateWithoutAssetInput, asset_imagesUncheckedCreateWithoutAssetInput> | asset_imagesCreateWithoutAssetInput[] | asset_imagesUncheckedCreateWithoutAssetInput[]
     connectOrCreate?: asset_imagesCreateOrConnectWithoutAssetInput | asset_imagesCreateOrConnectWithoutAssetInput[]
@@ -20376,19 +17573,6 @@ export namespace Prisma {
     update?: asset_transactionsUpdateWithWhereUniqueWithoutAssetInput | asset_transactionsUpdateWithWhereUniqueWithoutAssetInput[]
     updateMany?: asset_transactionsUpdateManyWithWhereWithoutAssetInput | asset_transactionsUpdateManyWithWhereWithoutAssetInput[]
     deleteMany?: asset_transactionsScalarWhereInput | asset_transactionsScalarWhereInput[]
-  }
-
-  export type log_crudUncheckedUpdateManyWithoutAssetsNestedInput = {
-    create?: XOR<log_crudCreateWithoutAssetsInput, log_crudUncheckedCreateWithoutAssetsInput> | log_crudCreateWithoutAssetsInput[] | log_crudUncheckedCreateWithoutAssetsInput[]
-    connectOrCreate?: log_crudCreateOrConnectWithoutAssetsInput | log_crudCreateOrConnectWithoutAssetsInput[]
-    upsert?: log_crudUpsertWithWhereUniqueWithoutAssetsInput | log_crudUpsertWithWhereUniqueWithoutAssetsInput[]
-    set?: log_crudWhereUniqueInput | log_crudWhereUniqueInput[]
-    disconnect?: log_crudWhereUniqueInput | log_crudWhereUniqueInput[]
-    delete?: log_crudWhereUniqueInput | log_crudWhereUniqueInput[]
-    connect?: log_crudWhereUniqueInput | log_crudWhereUniqueInput[]
-    update?: log_crudUpdateWithWhereUniqueWithoutAssetsInput | log_crudUpdateWithWhereUniqueWithoutAssetsInput[]
-    updateMany?: log_crudUpdateManyWithWhereWithoutAssetsInput | log_crudUpdateManyWithWhereWithoutAssetsInput[]
-    deleteMany?: log_crudScalarWhereInput | log_crudScalarWhereInput[]
   }
 
   export type asset_imagesUncheckedUpdateManyWithoutAssetNestedInput = {
@@ -20817,60 +18001,6 @@ export namespace Prisma {
     deleteMany?: assetsScalarWhereInput | assetsScalarWhereInput[]
   }
 
-  export type usersCreateNestedOneWithoutLog_crudsInput = {
-    create?: XOR<usersCreateWithoutLog_crudsInput, usersUncheckedCreateWithoutLog_crudsInput>
-    connectOrCreate?: usersCreateOrConnectWithoutLog_crudsInput
-    connect?: usersWhereUniqueInput
-  }
-
-  export type assetsCreateNestedManyWithoutLog_crudsInput = {
-    create?: XOR<assetsCreateWithoutLog_crudsInput, assetsUncheckedCreateWithoutLog_crudsInput> | assetsCreateWithoutLog_crudsInput[] | assetsUncheckedCreateWithoutLog_crudsInput[]
-    connectOrCreate?: assetsCreateOrConnectWithoutLog_crudsInput | assetsCreateOrConnectWithoutLog_crudsInput[]
-    connect?: assetsWhereUniqueInput | assetsWhereUniqueInput[]
-  }
-
-  export type assetsUncheckedCreateNestedManyWithoutLog_crudsInput = {
-    create?: XOR<assetsCreateWithoutLog_crudsInput, assetsUncheckedCreateWithoutLog_crudsInput> | assetsCreateWithoutLog_crudsInput[] | assetsUncheckedCreateWithoutLog_crudsInput[]
-    connectOrCreate?: assetsCreateOrConnectWithoutLog_crudsInput | assetsCreateOrConnectWithoutLog_crudsInput[]
-    connect?: assetsWhereUniqueInput | assetsWhereUniqueInput[]
-  }
-
-  export type usersUpdateOneWithoutLog_crudsNestedInput = {
-    create?: XOR<usersCreateWithoutLog_crudsInput, usersUncheckedCreateWithoutLog_crudsInput>
-    connectOrCreate?: usersCreateOrConnectWithoutLog_crudsInput
-    upsert?: usersUpsertWithoutLog_crudsInput
-    disconnect?: usersWhereInput | boolean
-    delete?: usersWhereInput | boolean
-    connect?: usersWhereUniqueInput
-    update?: XOR<XOR<usersUpdateToOneWithWhereWithoutLog_crudsInput, usersUpdateWithoutLog_crudsInput>, usersUncheckedUpdateWithoutLog_crudsInput>
-  }
-
-  export type assetsUpdateManyWithoutLog_crudsNestedInput = {
-    create?: XOR<assetsCreateWithoutLog_crudsInput, assetsUncheckedCreateWithoutLog_crudsInput> | assetsCreateWithoutLog_crudsInput[] | assetsUncheckedCreateWithoutLog_crudsInput[]
-    connectOrCreate?: assetsCreateOrConnectWithoutLog_crudsInput | assetsCreateOrConnectWithoutLog_crudsInput[]
-    upsert?: assetsUpsertWithWhereUniqueWithoutLog_crudsInput | assetsUpsertWithWhereUniqueWithoutLog_crudsInput[]
-    set?: assetsWhereUniqueInput | assetsWhereUniqueInput[]
-    disconnect?: assetsWhereUniqueInput | assetsWhereUniqueInput[]
-    delete?: assetsWhereUniqueInput | assetsWhereUniqueInput[]
-    connect?: assetsWhereUniqueInput | assetsWhereUniqueInput[]
-    update?: assetsUpdateWithWhereUniqueWithoutLog_crudsInput | assetsUpdateWithWhereUniqueWithoutLog_crudsInput[]
-    updateMany?: assetsUpdateManyWithWhereWithoutLog_crudsInput | assetsUpdateManyWithWhereWithoutLog_crudsInput[]
-    deleteMany?: assetsScalarWhereInput | assetsScalarWhereInput[]
-  }
-
-  export type assetsUncheckedUpdateManyWithoutLog_crudsNestedInput = {
-    create?: XOR<assetsCreateWithoutLog_crudsInput, assetsUncheckedCreateWithoutLog_crudsInput> | assetsCreateWithoutLog_crudsInput[] | assetsUncheckedCreateWithoutLog_crudsInput[]
-    connectOrCreate?: assetsCreateOrConnectWithoutLog_crudsInput | assetsCreateOrConnectWithoutLog_crudsInput[]
-    upsert?: assetsUpsertWithWhereUniqueWithoutLog_crudsInput | assetsUpsertWithWhereUniqueWithoutLog_crudsInput[]
-    set?: assetsWhereUniqueInput | assetsWhereUniqueInput[]
-    disconnect?: assetsWhereUniqueInput | assetsWhereUniqueInput[]
-    delete?: assetsWhereUniqueInput | assetsWhereUniqueInput[]
-    connect?: assetsWhereUniqueInput | assetsWhereUniqueInput[]
-    update?: assetsUpdateWithWhereUniqueWithoutLog_crudsInput | assetsUpdateWithWhereUniqueWithoutLog_crudsInput[]
-    updateMany?: assetsUpdateManyWithWhereWithoutLog_crudsInput | assetsUpdateManyWithWhereWithoutLog_crudsInput[]
-    deleteMany?: assetsScalarWhereInput | assetsScalarWhereInput[]
-  }
-
   export type assetsCreateNestedManyWithoutSupplier_recInput = {
     create?: XOR<assetsCreateWithoutSupplier_recInput, assetsUncheckedCreateWithoutSupplier_recInput> | assetsCreateWithoutSupplier_recInput[] | assetsUncheckedCreateWithoutSupplier_recInput[]
     connectOrCreate?: assetsCreateOrConnectWithoutSupplier_recInput | assetsCreateOrConnectWithoutSupplier_recInput[]
@@ -20911,48 +18041,6 @@ export namespace Prisma {
     update?: assetsUpdateWithWhereUniqueWithoutSupplier_recInput | assetsUpdateWithWhereUniqueWithoutSupplier_recInput[]
     updateMany?: assetsUpdateManyWithWhereWithoutSupplier_recInput | assetsUpdateManyWithWhereWithoutSupplier_recInput[]
     deleteMany?: assetsScalarWhereInput | assetsScalarWhereInput[]
-  }
-
-  export type log_crudCreateNestedManyWithoutUserInput = {
-    create?: XOR<log_crudCreateWithoutUserInput, log_crudUncheckedCreateWithoutUserInput> | log_crudCreateWithoutUserInput[] | log_crudUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: log_crudCreateOrConnectWithoutUserInput | log_crudCreateOrConnectWithoutUserInput[]
-    createMany?: log_crudCreateManyUserInputEnvelope
-    connect?: log_crudWhereUniqueInput | log_crudWhereUniqueInput[]
-  }
-
-  export type log_crudUncheckedCreateNestedManyWithoutUserInput = {
-    create?: XOR<log_crudCreateWithoutUserInput, log_crudUncheckedCreateWithoutUserInput> | log_crudCreateWithoutUserInput[] | log_crudUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: log_crudCreateOrConnectWithoutUserInput | log_crudCreateOrConnectWithoutUserInput[]
-    createMany?: log_crudCreateManyUserInputEnvelope
-    connect?: log_crudWhereUniqueInput | log_crudWhereUniqueInput[]
-  }
-
-  export type log_crudUpdateManyWithoutUserNestedInput = {
-    create?: XOR<log_crudCreateWithoutUserInput, log_crudUncheckedCreateWithoutUserInput> | log_crudCreateWithoutUserInput[] | log_crudUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: log_crudCreateOrConnectWithoutUserInput | log_crudCreateOrConnectWithoutUserInput[]
-    upsert?: log_crudUpsertWithWhereUniqueWithoutUserInput | log_crudUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: log_crudCreateManyUserInputEnvelope
-    set?: log_crudWhereUniqueInput | log_crudWhereUniqueInput[]
-    disconnect?: log_crudWhereUniqueInput | log_crudWhereUniqueInput[]
-    delete?: log_crudWhereUniqueInput | log_crudWhereUniqueInput[]
-    connect?: log_crudWhereUniqueInput | log_crudWhereUniqueInput[]
-    update?: log_crudUpdateWithWhereUniqueWithoutUserInput | log_crudUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: log_crudUpdateManyWithWhereWithoutUserInput | log_crudUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: log_crudScalarWhereInput | log_crudScalarWhereInput[]
-  }
-
-  export type log_crudUncheckedUpdateManyWithoutUserNestedInput = {
-    create?: XOR<log_crudCreateWithoutUserInput, log_crudUncheckedCreateWithoutUserInput> | log_crudCreateWithoutUserInput[] | log_crudUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: log_crudCreateOrConnectWithoutUserInput | log_crudCreateOrConnectWithoutUserInput[]
-    upsert?: log_crudUpsertWithWhereUniqueWithoutUserInput | log_crudUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: log_crudCreateManyUserInputEnvelope
-    set?: log_crudWhereUniqueInput | log_crudWhereUniqueInput[]
-    disconnect?: log_crudWhereUniqueInput | log_crudWhereUniqueInput[]
-    delete?: log_crudWhereUniqueInput | log_crudWhereUniqueInput[]
-    connect?: log_crudWhereUniqueInput | log_crudWhereUniqueInput[]
-    update?: log_crudUpdateWithWhereUniqueWithoutUserInput | log_crudUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: log_crudUpdateManyWithWhereWithoutUserInput | log_crudUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: log_crudScalarWhereInput | log_crudScalarWhereInput[]
   }
 
   export type NestedBigIntFilter<$PrismaModel = never> = {
@@ -21224,7 +18312,6 @@ export namespace Prisma {
     supplier_rec?: suppliersCreateNestedOneWithoutAssetsInput
     main_image?: asset_imagesCreateNestedOneWithoutMain_forInput
     transactions?: asset_transactionsCreateNestedManyWithoutAssetInput
-    log_cruds?: log_crudCreateNestedManyWithoutAssetsInput
     asset_images?: asset_imagesCreateNestedManyWithoutAssetInput
   }
 
@@ -21244,7 +18331,6 @@ export namespace Prisma {
     image_id?: bigint | number | null
     condition?: $Enums.AssetCondition
     transactions?: asset_transactionsUncheckedCreateNestedManyWithoutAssetInput
-    log_cruds?: log_crudUncheckedCreateNestedManyWithoutAssetsInput
     asset_images?: asset_imagesUncheckedCreateNestedManyWithoutAssetInput
   }
 
@@ -21338,7 +18424,6 @@ export namespace Prisma {
     employee?: employeesCreateNestedOneWithoutAssetsInput
     supplier_rec?: suppliersCreateNestedOneWithoutAssetsInput
     main_image?: asset_imagesCreateNestedOneWithoutMain_forInput
-    log_cruds?: log_crudCreateNestedManyWithoutAssetsInput
     asset_images?: asset_imagesCreateNestedManyWithoutAssetInput
   }
 
@@ -21358,7 +18443,6 @@ export namespace Prisma {
     supplier_id?: bigint | number | null
     image_id?: bigint | number | null
     condition?: $Enums.AssetCondition
-    log_cruds?: log_crudUncheckedCreateNestedManyWithoutAssetsInput
     asset_images?: asset_imagesUncheckedCreateNestedManyWithoutAssetInput
   }
 
@@ -21452,7 +18536,6 @@ export namespace Prisma {
     employee?: employeesUpdateOneWithoutAssetsNestedInput
     supplier_rec?: suppliersUpdateOneWithoutAssetsNestedInput
     main_image?: asset_imagesUpdateOneWithoutMain_forNestedInput
-    log_cruds?: log_crudUpdateManyWithoutAssetsNestedInput
     asset_images?: asset_imagesUpdateManyWithoutAssetNestedInput
   }
 
@@ -21472,7 +18555,6 @@ export namespace Prisma {
     supplier_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     image_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     condition?: EnumAssetConditionFieldUpdateOperationsInput | $Enums.AssetCondition
-    log_cruds?: log_crudUncheckedUpdateManyWithoutAssetsNestedInput
     asset_images?: asset_imagesUncheckedUpdateManyWithoutAssetNestedInput
   }
 
@@ -21768,33 +18850,6 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type log_crudCreateWithoutAssetsInput = {
-    id?: bigint | number
-    table_name: string
-    sap_id?: string | null
-    operation: string
-    old_data?: string | null
-    new_data?: string | null
-    created_at?: Date | string
-    user?: usersCreateNestedOneWithoutLog_crudsInput
-  }
-
-  export type log_crudUncheckedCreateWithoutAssetsInput = {
-    id?: bigint | number
-    table_name: string
-    sap_id?: string | null
-    operation: string
-    old_data?: string | null
-    new_data?: string | null
-    user_id?: bigint | number | null
-    created_at?: Date | string
-  }
-
-  export type log_crudCreateOrConnectWithoutAssetsInput = {
-    where: log_crudWhereUniqueInput
-    create: XOR<log_crudCreateWithoutAssetsInput, log_crudUncheckedCreateWithoutAssetsInput>
-  }
-
   export type asset_imagesCreateWithoutAssetInput = {
     id?: bigint | number
     name: string
@@ -22083,36 +19138,6 @@ export namespace Prisma {
     updated_at?: DateTimeNullableFilter<"asset_transactions"> | Date | string | null
   }
 
-  export type log_crudUpsertWithWhereUniqueWithoutAssetsInput = {
-    where: log_crudWhereUniqueInput
-    update: XOR<log_crudUpdateWithoutAssetsInput, log_crudUncheckedUpdateWithoutAssetsInput>
-    create: XOR<log_crudCreateWithoutAssetsInput, log_crudUncheckedCreateWithoutAssetsInput>
-  }
-
-  export type log_crudUpdateWithWhereUniqueWithoutAssetsInput = {
-    where: log_crudWhereUniqueInput
-    data: XOR<log_crudUpdateWithoutAssetsInput, log_crudUncheckedUpdateWithoutAssetsInput>
-  }
-
-  export type log_crudUpdateManyWithWhereWithoutAssetsInput = {
-    where: log_crudScalarWhereInput
-    data: XOR<log_crudUpdateManyMutationInput, log_crudUncheckedUpdateManyWithoutAssetsInput>
-  }
-
-  export type log_crudScalarWhereInput = {
-    AND?: log_crudScalarWhereInput | log_crudScalarWhereInput[]
-    OR?: log_crudScalarWhereInput[]
-    NOT?: log_crudScalarWhereInput | log_crudScalarWhereInput[]
-    id?: BigIntFilter<"log_crud"> | bigint | number
-    table_name?: StringFilter<"log_crud"> | string
-    sap_id?: StringNullableFilter<"log_crud"> | string | null
-    operation?: StringFilter<"log_crud"> | string
-    old_data?: StringNullableFilter<"log_crud"> | string | null
-    new_data?: StringNullableFilter<"log_crud"> | string | null
-    user_id?: BigIntNullableFilter<"log_crud"> | bigint | number | null
-    created_at?: DateTimeFilter<"log_crud"> | Date | string
-  }
-
   export type asset_imagesUpsertWithWhereUniqueWithoutAssetInput = {
     where: asset_imagesWhereUniqueInput
     update: XOR<asset_imagesUpdateWithoutAssetInput, asset_imagesUncheckedUpdateWithoutAssetInput>
@@ -22156,7 +19181,6 @@ export namespace Prisma {
     supplier_rec?: suppliersCreateNestedOneWithoutAssetsInput
     main_image?: asset_imagesCreateNestedOneWithoutMain_forInput
     transactions?: asset_transactionsCreateNestedManyWithoutAssetInput
-    log_cruds?: log_crudCreateNestedManyWithoutAssetsInput
     asset_images?: asset_imagesCreateNestedManyWithoutAssetInput
   }
 
@@ -22176,7 +19200,6 @@ export namespace Prisma {
     image_id?: bigint | number | null
     condition?: $Enums.AssetCondition
     transactions?: asset_transactionsUncheckedCreateNestedManyWithoutAssetInput
-    log_cruds?: log_crudUncheckedCreateNestedManyWithoutAssetsInput
     asset_images?: asset_imagesUncheckedCreateNestedManyWithoutAssetInput
   }
 
@@ -22223,7 +19246,6 @@ export namespace Prisma {
     supplier_rec?: suppliersCreateNestedOneWithoutAssetsInput
     main_image?: asset_imagesCreateNestedOneWithoutMain_forInput
     transactions?: asset_transactionsCreateNestedManyWithoutAssetInput
-    log_cruds?: log_crudCreateNestedManyWithoutAssetsInput
   }
 
   export type assetsUncheckedCreateWithoutAsset_imagesInput = {
@@ -22243,7 +19265,6 @@ export namespace Prisma {
     image_id?: bigint | number | null
     condition?: $Enums.AssetCondition
     transactions?: asset_transactionsUncheckedCreateNestedManyWithoutAssetInput
-    log_cruds?: log_crudUncheckedCreateNestedManyWithoutAssetsInput
   }
 
   export type assetsCreateOrConnectWithoutAsset_imagesInput = {
@@ -22267,7 +19288,6 @@ export namespace Prisma {
     employee?: employeesCreateNestedOneWithoutAssetsInput
     supplier_rec?: suppliersCreateNestedOneWithoutAssetsInput
     transactions?: asset_transactionsCreateNestedManyWithoutAssetInput
-    log_cruds?: log_crudCreateNestedManyWithoutAssetsInput
     asset_images?: asset_imagesCreateNestedManyWithoutAssetInput
   }
 
@@ -22287,7 +19307,6 @@ export namespace Prisma {
     supplier_id?: bigint | number | null
     condition?: $Enums.AssetCondition
     transactions?: asset_transactionsUncheckedCreateNestedManyWithoutAssetInput
-    log_cruds?: log_crudUncheckedCreateNestedManyWithoutAssetsInput
     asset_images?: asset_imagesUncheckedCreateNestedManyWithoutAssetInput
   }
 
@@ -22324,7 +19343,6 @@ export namespace Prisma {
     supplier_rec?: suppliersUpdateOneWithoutAssetsNestedInput
     main_image?: asset_imagesUpdateOneWithoutMain_forNestedInput
     transactions?: asset_transactionsUpdateManyWithoutAssetNestedInput
-    log_cruds?: log_crudUpdateManyWithoutAssetsNestedInput
   }
 
   export type assetsUncheckedUpdateWithoutAsset_imagesInput = {
@@ -22344,7 +19362,6 @@ export namespace Prisma {
     image_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     condition?: EnumAssetConditionFieldUpdateOperationsInput | $Enums.AssetCondition
     transactions?: asset_transactionsUncheckedUpdateManyWithoutAssetNestedInput
-    log_cruds?: log_crudUncheckedUpdateManyWithoutAssetsNestedInput
   }
 
   export type assetsUpsertWithoutMain_imageInput = {
@@ -22374,7 +19391,6 @@ export namespace Prisma {
     employee?: employeesUpdateOneWithoutAssetsNestedInput
     supplier_rec?: suppliersUpdateOneWithoutAssetsNestedInput
     transactions?: asset_transactionsUpdateManyWithoutAssetNestedInput
-    log_cruds?: log_crudUpdateManyWithoutAssetsNestedInput
     asset_images?: asset_imagesUpdateManyWithoutAssetNestedInput
   }
 
@@ -22394,7 +19410,6 @@ export namespace Prisma {
     supplier_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     condition?: EnumAssetConditionFieldUpdateOperationsInput | $Enums.AssetCondition
     transactions?: asset_transactionsUncheckedUpdateManyWithoutAssetNestedInput
-    log_cruds?: log_crudUncheckedUpdateManyWithoutAssetsNestedInput
     asset_images?: asset_imagesUncheckedUpdateManyWithoutAssetNestedInput
   }
 
@@ -22414,7 +19429,6 @@ export namespace Prisma {
     supplier_rec?: suppliersCreateNestedOneWithoutAssetsInput
     main_image?: asset_imagesCreateNestedOneWithoutMain_forInput
     transactions?: asset_transactionsCreateNestedManyWithoutAssetInput
-    log_cruds?: log_crudCreateNestedManyWithoutAssetsInput
     asset_images?: asset_imagesCreateNestedManyWithoutAssetInput
   }
 
@@ -22434,7 +19448,6 @@ export namespace Prisma {
     image_id?: bigint | number | null
     condition?: $Enums.AssetCondition
     transactions?: asset_transactionsUncheckedCreateNestedManyWithoutAssetInput
-    log_cruds?: log_crudUncheckedCreateNestedManyWithoutAssetsInput
     asset_images?: asset_imagesUncheckedCreateNestedManyWithoutAssetInput
   }
 
@@ -22480,7 +19493,6 @@ export namespace Prisma {
     supplier_rec?: suppliersCreateNestedOneWithoutAssetsInput
     main_image?: asset_imagesCreateNestedOneWithoutMain_forInput
     transactions?: asset_transactionsCreateNestedManyWithoutAssetInput
-    log_cruds?: log_crudCreateNestedManyWithoutAssetsInput
     asset_images?: asset_imagesCreateNestedManyWithoutAssetInput
   }
 
@@ -22500,7 +19512,6 @@ export namespace Prisma {
     image_id?: bigint | number | null
     condition?: $Enums.AssetCondition
     transactions?: asset_transactionsUncheckedCreateNestedManyWithoutAssetInput
-    log_cruds?: log_crudUncheckedCreateNestedManyWithoutAssetsInput
     asset_images?: asset_imagesUncheckedCreateNestedManyWithoutAssetInput
   }
 
@@ -22720,7 +19731,6 @@ export namespace Prisma {
     supplier_rec?: suppliersCreateNestedOneWithoutAssetsInput
     main_image?: asset_imagesCreateNestedOneWithoutMain_forInput
     transactions?: asset_transactionsCreateNestedManyWithoutAssetInput
-    log_cruds?: log_crudCreateNestedManyWithoutAssetsInput
     asset_images?: asset_imagesCreateNestedManyWithoutAssetInput
   }
 
@@ -22740,7 +19750,6 @@ export namespace Prisma {
     image_id?: bigint | number | null
     condition?: $Enums.AssetCondition
     transactions?: asset_transactionsUncheckedCreateNestedManyWithoutAssetInput
-    log_cruds?: log_crudUncheckedCreateNestedManyWithoutAssetsInput
     asset_images?: asset_imagesUncheckedCreateNestedManyWithoutAssetInput
   }
 
@@ -22864,7 +19873,6 @@ export namespace Prisma {
     supplier_rec?: suppliersCreateNestedOneWithoutAssetsInput
     main_image?: asset_imagesCreateNestedOneWithoutMain_forInput
     transactions?: asset_transactionsCreateNestedManyWithoutAssetInput
-    log_cruds?: log_crudCreateNestedManyWithoutAssetsInput
     asset_images?: asset_imagesCreateNestedManyWithoutAssetInput
   }
 
@@ -22884,7 +19892,6 @@ export namespace Prisma {
     image_id?: bigint | number | null
     condition?: $Enums.AssetCondition
     transactions?: asset_transactionsUncheckedCreateNestedManyWithoutAssetInput
-    log_cruds?: log_crudUncheckedCreateNestedManyWithoutAssetsInput
     asset_images?: asset_imagesUncheckedCreateNestedManyWithoutAssetInput
   }
 
@@ -22941,127 +19948,6 @@ export namespace Prisma {
     data: XOR<assetsUpdateManyMutationInput, assetsUncheckedUpdateManyWithoutLocationInput>
   }
 
-  export type usersCreateWithoutLog_crudsInput = {
-    id?: bigint | number
-    name: string
-    email: string
-    email_verified_at?: Date | string | null
-    password: string
-    remember_token?: string | null
-    created_at?: Date | string | null
-    updated_at?: Date | string | null
-  }
-
-  export type usersUncheckedCreateWithoutLog_crudsInput = {
-    id?: bigint | number
-    name: string
-    email: string
-    email_verified_at?: Date | string | null
-    password: string
-    remember_token?: string | null
-    created_at?: Date | string | null
-    updated_at?: Date | string | null
-  }
-
-  export type usersCreateOrConnectWithoutLog_crudsInput = {
-    where: usersWhereUniqueInput
-    create: XOR<usersCreateWithoutLog_crudsInput, usersUncheckedCreateWithoutLog_crudsInput>
-  }
-
-  export type assetsCreateWithoutLog_crudsInput = {
-    id?: bigint | number
-    serial_number: string
-    sap_id?: string | null
-    purchase_date?: Date | string | null
-    created_at?: Date | string | null
-    updated_at?: Date | string | null
-    condition?: $Enums.AssetCondition
-    asset_type?: asset_typesCreateNestedOneWithoutAssetsInput
-    category?: categoriesCreateNestedOneWithoutAssetsInput
-    brand?: brandsCreateNestedOneWithoutAssetsInput
-    area?: areasCreateNestedOneWithoutAssetsInput
-    location?: locationsCreateNestedOneWithoutAssetsInput
-    employee?: employeesCreateNestedOneWithoutAssetsInput
-    supplier_rec?: suppliersCreateNestedOneWithoutAssetsInput
-    main_image?: asset_imagesCreateNestedOneWithoutMain_forInput
-    transactions?: asset_transactionsCreateNestedManyWithoutAssetInput
-    asset_images?: asset_imagesCreateNestedManyWithoutAssetInput
-  }
-
-  export type assetsUncheckedCreateWithoutLog_crudsInput = {
-    id?: bigint | number
-    type_id?: bigint | number | null
-    serial_number: string
-    sap_id?: string | null
-    purchase_date?: Date | string | null
-    created_at?: Date | string | null
-    updated_at?: Date | string | null
-    category_id?: bigint | number | null
-    brand_id?: bigint | number | null
-    area_id?: bigint | number | null
-    location_id?: bigint | number | null
-    employee_id?: bigint | number | null
-    supplier_id?: bigint | number | null
-    image_id?: bigint | number | null
-    condition?: $Enums.AssetCondition
-    transactions?: asset_transactionsUncheckedCreateNestedManyWithoutAssetInput
-    asset_images?: asset_imagesUncheckedCreateNestedManyWithoutAssetInput
-  }
-
-  export type assetsCreateOrConnectWithoutLog_crudsInput = {
-    where: assetsWhereUniqueInput
-    create: XOR<assetsCreateWithoutLog_crudsInput, assetsUncheckedCreateWithoutLog_crudsInput>
-  }
-
-  export type usersUpsertWithoutLog_crudsInput = {
-    update: XOR<usersUpdateWithoutLog_crudsInput, usersUncheckedUpdateWithoutLog_crudsInput>
-    create: XOR<usersCreateWithoutLog_crudsInput, usersUncheckedCreateWithoutLog_crudsInput>
-    where?: usersWhereInput
-  }
-
-  export type usersUpdateToOneWithWhereWithoutLog_crudsInput = {
-    where?: usersWhereInput
-    data: XOR<usersUpdateWithoutLog_crudsInput, usersUncheckedUpdateWithoutLog_crudsInput>
-  }
-
-  export type usersUpdateWithoutLog_crudsInput = {
-    id?: BigIntFieldUpdateOperationsInput | bigint | number
-    name?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    email_verified_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    password?: StringFieldUpdateOperationsInput | string
-    remember_token?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type usersUncheckedUpdateWithoutLog_crudsInput = {
-    id?: BigIntFieldUpdateOperationsInput | bigint | number
-    name?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    email_verified_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    password?: StringFieldUpdateOperationsInput | string
-    remember_token?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type assetsUpsertWithWhereUniqueWithoutLog_crudsInput = {
-    where: assetsWhereUniqueInput
-    update: XOR<assetsUpdateWithoutLog_crudsInput, assetsUncheckedUpdateWithoutLog_crudsInput>
-    create: XOR<assetsCreateWithoutLog_crudsInput, assetsUncheckedCreateWithoutLog_crudsInput>
-  }
-
-  export type assetsUpdateWithWhereUniqueWithoutLog_crudsInput = {
-    where: assetsWhereUniqueInput
-    data: XOR<assetsUpdateWithoutLog_crudsInput, assetsUncheckedUpdateWithoutLog_crudsInput>
-  }
-
-  export type assetsUpdateManyWithWhereWithoutLog_crudsInput = {
-    where: assetsScalarWhereInput
-    data: XOR<assetsUpdateManyMutationInput, assetsUncheckedUpdateManyWithoutLog_crudsInput>
-  }
-
   export type assetsCreateWithoutSupplier_recInput = {
     id?: bigint | number
     serial_number: string
@@ -23078,7 +19964,6 @@ export namespace Prisma {
     employee?: employeesCreateNestedOneWithoutAssetsInput
     main_image?: asset_imagesCreateNestedOneWithoutMain_forInput
     transactions?: asset_transactionsCreateNestedManyWithoutAssetInput
-    log_cruds?: log_crudCreateNestedManyWithoutAssetsInput
     asset_images?: asset_imagesCreateNestedManyWithoutAssetInput
   }
 
@@ -23098,7 +19983,6 @@ export namespace Prisma {
     image_id?: bigint | number | null
     condition?: $Enums.AssetCondition
     transactions?: asset_transactionsUncheckedCreateNestedManyWithoutAssetInput
-    log_cruds?: log_crudUncheckedCreateNestedManyWithoutAssetsInput
     asset_images?: asset_imagesUncheckedCreateNestedManyWithoutAssetInput
   }
 
@@ -23126,54 +20010,6 @@ export namespace Prisma {
   export type assetsUpdateManyWithWhereWithoutSupplier_recInput = {
     where: assetsScalarWhereInput
     data: XOR<assetsUpdateManyMutationInput, assetsUncheckedUpdateManyWithoutSupplier_recInput>
-  }
-
-  export type log_crudCreateWithoutUserInput = {
-    id?: bigint | number
-    table_name: string
-    sap_id?: string | null
-    operation: string
-    old_data?: string | null
-    new_data?: string | null
-    created_at?: Date | string
-    assets?: assetsCreateNestedManyWithoutLog_crudsInput
-  }
-
-  export type log_crudUncheckedCreateWithoutUserInput = {
-    id?: bigint | number
-    table_name: string
-    sap_id?: string | null
-    operation: string
-    old_data?: string | null
-    new_data?: string | null
-    created_at?: Date | string
-    assets?: assetsUncheckedCreateNestedManyWithoutLog_crudsInput
-  }
-
-  export type log_crudCreateOrConnectWithoutUserInput = {
-    where: log_crudWhereUniqueInput
-    create: XOR<log_crudCreateWithoutUserInput, log_crudUncheckedCreateWithoutUserInput>
-  }
-
-  export type log_crudCreateManyUserInputEnvelope = {
-    data: log_crudCreateManyUserInput | log_crudCreateManyUserInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type log_crudUpsertWithWhereUniqueWithoutUserInput = {
-    where: log_crudWhereUniqueInput
-    update: XOR<log_crudUpdateWithoutUserInput, log_crudUncheckedUpdateWithoutUserInput>
-    create: XOR<log_crudCreateWithoutUserInput, log_crudUncheckedCreateWithoutUserInput>
-  }
-
-  export type log_crudUpdateWithWhereUniqueWithoutUserInput = {
-    where: log_crudWhereUniqueInput
-    data: XOR<log_crudUpdateWithoutUserInput, log_crudUncheckedUpdateWithoutUserInput>
-  }
-
-  export type log_crudUpdateManyWithWhereWithoutUserInput = {
-    where: log_crudScalarWhereInput
-    data: XOR<log_crudUpdateManyMutationInput, log_crudUncheckedUpdateManyWithoutUserInput>
   }
 
   export type locationsCreateManyAreaInput = {
@@ -23239,7 +20075,6 @@ export namespace Prisma {
     supplier_rec?: suppliersUpdateOneWithoutAssetsNestedInput
     main_image?: asset_imagesUpdateOneWithoutMain_forNestedInput
     transactions?: asset_transactionsUpdateManyWithoutAssetNestedInput
-    log_cruds?: log_crudUpdateManyWithoutAssetsNestedInput
     asset_images?: asset_imagesUpdateManyWithoutAssetNestedInput
   }
 
@@ -23259,7 +20094,6 @@ export namespace Prisma {
     image_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     condition?: EnumAssetConditionFieldUpdateOperationsInput | $Enums.AssetCondition
     transactions?: asset_transactionsUncheckedUpdateManyWithoutAssetNestedInput
-    log_cruds?: log_crudUncheckedUpdateManyWithoutAssetsNestedInput
     asset_images?: asset_imagesUncheckedUpdateManyWithoutAssetNestedInput
   }
 
@@ -23359,39 +20193,6 @@ export namespace Prisma {
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
-  export type log_crudUpdateWithoutAssetsInput = {
-    id?: BigIntFieldUpdateOperationsInput | bigint | number
-    table_name?: StringFieldUpdateOperationsInput | string
-    sap_id?: NullableStringFieldUpdateOperationsInput | string | null
-    operation?: StringFieldUpdateOperationsInput | string
-    old_data?: NullableStringFieldUpdateOperationsInput | string | null
-    new_data?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: usersUpdateOneWithoutLog_crudsNestedInput
-  }
-
-  export type log_crudUncheckedUpdateWithoutAssetsInput = {
-    id?: BigIntFieldUpdateOperationsInput | bigint | number
-    table_name?: StringFieldUpdateOperationsInput | string
-    sap_id?: NullableStringFieldUpdateOperationsInput | string | null
-    operation?: StringFieldUpdateOperationsInput | string
-    old_data?: NullableStringFieldUpdateOperationsInput | string | null
-    new_data?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type log_crudUncheckedUpdateManyWithoutAssetsInput = {
-    id?: BigIntFieldUpdateOperationsInput | bigint | number
-    table_name?: StringFieldUpdateOperationsInput | string
-    sap_id?: NullableStringFieldUpdateOperationsInput | string | null
-    operation?: StringFieldUpdateOperationsInput | string
-    old_data?: NullableStringFieldUpdateOperationsInput | string | null
-    new_data?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type asset_imagesUpdateWithoutAssetInput = {
     id?: BigIntFieldUpdateOperationsInput | bigint | number
     name?: StringFieldUpdateOperationsInput | string
@@ -23448,7 +20249,6 @@ export namespace Prisma {
     supplier_rec?: suppliersUpdateOneWithoutAssetsNestedInput
     main_image?: asset_imagesUpdateOneWithoutMain_forNestedInput
     transactions?: asset_transactionsUpdateManyWithoutAssetNestedInput
-    log_cruds?: log_crudUpdateManyWithoutAssetsNestedInput
     asset_images?: asset_imagesUpdateManyWithoutAssetNestedInput
   }
 
@@ -23468,7 +20268,6 @@ export namespace Prisma {
     image_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     condition?: EnumAssetConditionFieldUpdateOperationsInput | $Enums.AssetCondition
     transactions?: asset_transactionsUncheckedUpdateManyWithoutAssetNestedInput
-    log_cruds?: log_crudUncheckedUpdateManyWithoutAssetsNestedInput
     asset_images?: asset_imagesUncheckedUpdateManyWithoutAssetNestedInput
   }
 
@@ -23522,7 +20321,6 @@ export namespace Prisma {
     supplier_rec?: suppliersUpdateOneWithoutAssetsNestedInput
     main_image?: asset_imagesUpdateOneWithoutMain_forNestedInput
     transactions?: asset_transactionsUpdateManyWithoutAssetNestedInput
-    log_cruds?: log_crudUpdateManyWithoutAssetsNestedInput
     asset_images?: asset_imagesUpdateManyWithoutAssetNestedInput
   }
 
@@ -23542,7 +20340,6 @@ export namespace Prisma {
     image_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     condition?: EnumAssetConditionFieldUpdateOperationsInput | $Enums.AssetCondition
     transactions?: asset_transactionsUncheckedUpdateManyWithoutAssetNestedInput
-    log_cruds?: log_crudUncheckedUpdateManyWithoutAssetsNestedInput
     asset_images?: asset_imagesUncheckedUpdateManyWithoutAssetNestedInput
   }
 
@@ -23596,7 +20393,6 @@ export namespace Prisma {
     supplier_rec?: suppliersUpdateOneWithoutAssetsNestedInput
     main_image?: asset_imagesUpdateOneWithoutMain_forNestedInput
     transactions?: asset_transactionsUpdateManyWithoutAssetNestedInput
-    log_cruds?: log_crudUpdateManyWithoutAssetsNestedInput
     asset_images?: asset_imagesUpdateManyWithoutAssetNestedInput
   }
 
@@ -23616,7 +20412,6 @@ export namespace Prisma {
     image_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     condition?: EnumAssetConditionFieldUpdateOperationsInput | $Enums.AssetCondition
     transactions?: asset_transactionsUncheckedUpdateManyWithoutAssetNestedInput
-    log_cruds?: log_crudUncheckedUpdateManyWithoutAssetsNestedInput
     asset_images?: asset_imagesUncheckedUpdateManyWithoutAssetNestedInput
   }
 
@@ -23856,7 +20651,6 @@ export namespace Prisma {
     supplier_rec?: suppliersUpdateOneWithoutAssetsNestedInput
     main_image?: asset_imagesUpdateOneWithoutMain_forNestedInput
     transactions?: asset_transactionsUpdateManyWithoutAssetNestedInput
-    log_cruds?: log_crudUpdateManyWithoutAssetsNestedInput
     asset_images?: asset_imagesUpdateManyWithoutAssetNestedInput
   }
 
@@ -23876,7 +20670,6 @@ export namespace Prisma {
     image_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     condition?: EnumAssetConditionFieldUpdateOperationsInput | $Enums.AssetCondition
     transactions?: asset_transactionsUncheckedUpdateManyWithoutAssetNestedInput
-    log_cruds?: log_crudUncheckedUpdateManyWithoutAssetsNestedInput
     asset_images?: asset_imagesUncheckedUpdateManyWithoutAssetNestedInput
   }
 
@@ -23930,7 +20723,6 @@ export namespace Prisma {
     supplier_rec?: suppliersUpdateOneWithoutAssetsNestedInput
     main_image?: asset_imagesUpdateOneWithoutMain_forNestedInput
     transactions?: asset_transactionsUpdateManyWithoutAssetNestedInput
-    log_cruds?: log_crudUpdateManyWithoutAssetsNestedInput
     asset_images?: asset_imagesUpdateManyWithoutAssetNestedInput
   }
 
@@ -23950,7 +20742,6 @@ export namespace Prisma {
     image_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     condition?: EnumAssetConditionFieldUpdateOperationsInput | $Enums.AssetCondition
     transactions?: asset_transactionsUncheckedUpdateManyWithoutAssetNestedInput
-    log_cruds?: log_crudUncheckedUpdateManyWithoutAssetsNestedInput
     asset_images?: asset_imagesUncheckedUpdateManyWithoutAssetNestedInput
   }
 
@@ -23965,64 +20756,6 @@ export namespace Prisma {
     category_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     brand_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     area_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    employee_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    supplier_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    image_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    condition?: EnumAssetConditionFieldUpdateOperationsInput | $Enums.AssetCondition
-  }
-
-  export type assetsUpdateWithoutLog_crudsInput = {
-    id?: BigIntFieldUpdateOperationsInput | bigint | number
-    serial_number?: StringFieldUpdateOperationsInput | string
-    sap_id?: NullableStringFieldUpdateOperationsInput | string | null
-    purchase_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    condition?: EnumAssetConditionFieldUpdateOperationsInput | $Enums.AssetCondition
-    asset_type?: asset_typesUpdateOneWithoutAssetsNestedInput
-    category?: categoriesUpdateOneWithoutAssetsNestedInput
-    brand?: brandsUpdateOneWithoutAssetsNestedInput
-    area?: areasUpdateOneWithoutAssetsNestedInput
-    location?: locationsUpdateOneWithoutAssetsNestedInput
-    employee?: employeesUpdateOneWithoutAssetsNestedInput
-    supplier_rec?: suppliersUpdateOneWithoutAssetsNestedInput
-    main_image?: asset_imagesUpdateOneWithoutMain_forNestedInput
-    transactions?: asset_transactionsUpdateManyWithoutAssetNestedInput
-    asset_images?: asset_imagesUpdateManyWithoutAssetNestedInput
-  }
-
-  export type assetsUncheckedUpdateWithoutLog_crudsInput = {
-    id?: BigIntFieldUpdateOperationsInput | bigint | number
-    type_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    serial_number?: StringFieldUpdateOperationsInput | string
-    sap_id?: NullableStringFieldUpdateOperationsInput | string | null
-    purchase_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    category_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    brand_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    area_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    location_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    employee_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    supplier_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    image_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    condition?: EnumAssetConditionFieldUpdateOperationsInput | $Enums.AssetCondition
-    transactions?: asset_transactionsUncheckedUpdateManyWithoutAssetNestedInput
-    asset_images?: asset_imagesUncheckedUpdateManyWithoutAssetNestedInput
-  }
-
-  export type assetsUncheckedUpdateManyWithoutLog_crudsInput = {
-    id?: BigIntFieldUpdateOperationsInput | bigint | number
-    type_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    serial_number?: StringFieldUpdateOperationsInput | string
-    sap_id?: NullableStringFieldUpdateOperationsInput | string | null
-    purchase_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    category_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    brand_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    area_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
-    location_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     employee_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     supplier_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     image_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
@@ -24062,7 +20795,6 @@ export namespace Prisma {
     employee?: employeesUpdateOneWithoutAssetsNestedInput
     main_image?: asset_imagesUpdateOneWithoutMain_forNestedInput
     transactions?: asset_transactionsUpdateManyWithoutAssetNestedInput
-    log_cruds?: log_crudUpdateManyWithoutAssetsNestedInput
     asset_images?: asset_imagesUpdateManyWithoutAssetNestedInput
   }
 
@@ -24082,7 +20814,6 @@ export namespace Prisma {
     image_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     condition?: EnumAssetConditionFieldUpdateOperationsInput | $Enums.AssetCondition
     transactions?: asset_transactionsUncheckedUpdateManyWithoutAssetNestedInput
-    log_cruds?: log_crudUncheckedUpdateManyWithoutAssetsNestedInput
     asset_images?: asset_imagesUncheckedUpdateManyWithoutAssetNestedInput
   }
 
@@ -24101,48 +20832,6 @@ export namespace Prisma {
     employee_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     image_id?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     condition?: EnumAssetConditionFieldUpdateOperationsInput | $Enums.AssetCondition
-  }
-
-  export type log_crudCreateManyUserInput = {
-    id?: bigint | number
-    table_name: string
-    sap_id?: string | null
-    operation: string
-    old_data?: string | null
-    new_data?: string | null
-    created_at?: Date | string
-  }
-
-  export type log_crudUpdateWithoutUserInput = {
-    id?: BigIntFieldUpdateOperationsInput | bigint | number
-    table_name?: StringFieldUpdateOperationsInput | string
-    sap_id?: NullableStringFieldUpdateOperationsInput | string | null
-    operation?: StringFieldUpdateOperationsInput | string
-    old_data?: NullableStringFieldUpdateOperationsInput | string | null
-    new_data?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    assets?: assetsUpdateManyWithoutLog_crudsNestedInput
-  }
-
-  export type log_crudUncheckedUpdateWithoutUserInput = {
-    id?: BigIntFieldUpdateOperationsInput | bigint | number
-    table_name?: StringFieldUpdateOperationsInput | string
-    sap_id?: NullableStringFieldUpdateOperationsInput | string | null
-    operation?: StringFieldUpdateOperationsInput | string
-    old_data?: NullableStringFieldUpdateOperationsInput | string | null
-    new_data?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    assets?: assetsUncheckedUpdateManyWithoutLog_crudsNestedInput
-  }
-
-  export type log_crudUncheckedUpdateManyWithoutUserInput = {
-    id?: BigIntFieldUpdateOperationsInput | bigint | number
-    table_name?: StringFieldUpdateOperationsInput | string
-    sap_id?: NullableStringFieldUpdateOperationsInput | string | null
-    operation?: StringFieldUpdateOperationsInput | string
-    old_data?: NullableStringFieldUpdateOperationsInput | string | null
-    new_data?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 
@@ -24183,17 +20872,9 @@ export namespace Prisma {
      */
     export type LocationsCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = LocationsCountOutputTypeDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use Log_crudCountOutputTypeDefaultArgs instead
-     */
-    export type Log_crudCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = Log_crudCountOutputTypeDefaultArgs<ExtArgs>
-    /**
      * @deprecated Use SuppliersCountOutputTypeDefaultArgs instead
      */
     export type SuppliersCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = SuppliersCountOutputTypeDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use UsersCountOutputTypeDefaultArgs instead
-     */
-    export type UsersCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = UsersCountOutputTypeDefaultArgs<ExtArgs>
     /**
      * @deprecated Use areasDefaultArgs instead
      */
@@ -24206,10 +20887,6 @@ export namespace Prisma {
      * @deprecated Use assetsDefaultArgs instead
      */
     export type assetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = assetsDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use activity_logDefaultArgs instead
-     */
-    export type activity_logArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = activity_logDefaultArgs<ExtArgs>
     /**
      * @deprecated Use asset_typesDefaultArgs instead
      */
@@ -24238,10 +20915,6 @@ export namespace Prisma {
      * @deprecated Use locationsDefaultArgs instead
      */
     export type locationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = locationsDefaultArgs<ExtArgs>
-    /**
-     * @deprecated Use log_crudDefaultArgs instead
-     */
-    export type log_crudArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = log_crudDefaultArgs<ExtArgs>
     /**
      * @deprecated Use suppliersDefaultArgs instead
      */

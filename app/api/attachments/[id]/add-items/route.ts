@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { createInventoryLog } from "@/lib/activity-logger";
 
 export async function POST(
   req: Request,
@@ -85,9 +86,6 @@ export async function POST(
       }
     }
 
-import { createInventoryLog } from "@/lib/activity-logger";
-
-// ... end of POST ...
     // Update attachment qty denormalized column
     if (updatedCount > 0) {
       await db.attachment.update({

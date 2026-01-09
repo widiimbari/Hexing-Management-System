@@ -5,7 +5,18 @@
       "Bash(timeout 10 npm run dev)",
       "Bash(npx prisma generate:*)",
       "Bash(ls:*)",
-      "Bash(du:*)"
+      "Bash(du:*)",
+      "Bash(git clean:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(npm run build:*)",
+      "Bash(git diff:*)",
+      "Bash(grep:*)",
+      "Bash(powershell -Command \"$env:NEXT_PRIVATE_LOCAL_WEBPACK=''1''; npm run build\")",
+      "Bash(cmd /c \"set NEXT_PRIVATE_LOCAL_WEBPACK=1 && npm run build\")",
+      "Bash(tee:*)",
+      "Bash(powershell:*)",
+      "Bash(npx prisma db push:*)"
     ]
   }
 }

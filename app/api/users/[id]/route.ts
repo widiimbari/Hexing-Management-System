@@ -3,6 +3,7 @@ import { dbManagement } from "@/lib/db";
 import { hashPassword } from "@/lib/password";
 import { logError, getErrorContext, getSafeErrorMessage } from "@/lib/error-logger";
 import { getCurrentUser } from "@/lib/auth";
+import { UserLog } from "@/lib/system-logger";
 
 // Helper to get ID from params
 // Next.js 15+ (and recent 14) params might be promises or direct objects depending on config.
@@ -57,10 +58,23 @@ export async function PUT(req: Request, { params }: Props) {
       dataToUpdate.password = await hashPassword(password);
     }
 
+    // Get old values for logging
+    const oldUser = await dbManagement.users.findUnique({
+      where: { id: userId },
+      select: { username: true, role: true, name: true }
+    });
+
     const updatedUser = await dbManagement.users.update({
       where: { id: userId },
       data: dataToUpdate,
     });
+
+    // Log user update
+    try {
+      await UserLog.update(updatedUser.id, `Updated user ${updatedUser.username}`, oldUser || undefined, { username, role, name });
+    } catch (logError) {
+      console.error("[User API] Failed to log user update:", logError);
+    }
 
     return NextResponse.json({
       id: updatedUser.id,
@@ -117,9 +131,24 @@ export async function DELETE(req: Request, { params }: Props) {
       );
     }
 
+    // Get user details before delete for logging
+    const userToDelete = await dbManagement.users.findUnique({
+      where: { id: userId },
+      select: { username: true, role: true, name: true }
+    });
+
     await dbManagement.users.delete({
       where: { id: userId },
     });
+
+    // Log user deletion
+    try {
+      if (userToDelete) {
+        await UserLog.delete(userId, `Deleted user ${userToDelete.username}`, userToDelete);
+      }
+    } catch (logError) {
+      console.error("[User API] Failed to log user deletion:", logError);
+    }
 
     return NextResponse.json({ message: "User deleted successfully" });
   } catch (error) {

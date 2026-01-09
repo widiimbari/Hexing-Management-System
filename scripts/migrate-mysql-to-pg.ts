@@ -248,45 +248,6 @@ async function migrateAssetDatabase() {
     }
     console.log(`✓ Migrated ${transactions.length} asset transactions\n`);
 
-    // Migrate Activity Logs
-    console.log('📦 Migrating activity_log...');
-    const [activityLogs]: any = await connection.query('SELECT * FROM activity_log');
-    for (const log of activityLogs) {
-      await pgAssetClient.activity_log.create({
-        data: {
-          id: log.id,
-          action: log.action,
-          entity_type: log.entity_type,
-          entity_id: log.entity_id,
-          details: log.details,
-          user_id: log.user_id,
-          user_name: log.user_name,
-          ip_address: log.ip_address,
-          created_at: log.created_at,
-        }
-      }).catch(() => {});
-    }
-    console.log(`✓ Migrated ${activityLogs.length} activity logs\n`);
-
-    // Migrate Log CRUD
-    console.log('📦 Migrating log_crud...');
-    const [logCruds]: any = await connection.query('SELECT * FROM log_crud');
-    for (const logCrud of logCruds) {
-      await pgAssetClient.log_crud.create({
-        data: {
-          id: logCrud.id,
-          table_name: logCrud.table_name,
-          sap_id: logCrud.sap_id,
-          operation: logCrud.operation,
-          old_data: logCrud.old_data,
-          new_data: logCrud.new_data,
-          user_id: logCrud.user_id,
-          created_at: logCrud.created_at,
-        }
-      }).catch(() => {});
-    }
-    console.log(`✓ Migrated ${logCruds.length} log cruds\n`);
-
     console.log('✅ Asset Database Migration Completed!\n');
   } catch (error) {
     console.error('❌ Error migrating asset database:', error);

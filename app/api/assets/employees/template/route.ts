@@ -75,7 +75,7 @@ export async function GET() {
     }
 
     // Add Data Validation for Gender
-    worksheet.getColumn(3).dataValidation = {
+    (worksheet.getColumn(3) as any).dataValidation = {
       type: 'list',
       allowBlank: true,
       formulae: ['"L,P"'],
@@ -94,7 +94,7 @@ export async function GET() {
       });
       
       const deptCount = departments.length;
-      worksheet.getColumn(4).dataValidation = {
+      (worksheet.getColumn(4) as any).dataValidation = {
         type: 'list',
         allowBlank: true,
         formulae: [`Departments!$A$1:$A$${deptCount}`],

@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
-import { EB_Garamond } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/AppShell";
-
-const garamond = EB_Garamond({
-  subsets: ["latin"],
-  variable: "--font-garamond",
-});
 
 export const metadata: Metadata = {
   title: "Hexing Management System",
@@ -23,9 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${garamond.variable} antialiased`}
-      >
+      <body className="antialiased">
         <AppShell>
           {children}
         </AppShell>

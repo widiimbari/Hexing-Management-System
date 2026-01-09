@@ -41,7 +41,7 @@ const formSchema = z.object({
 interface ProfileDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  user: { username: string; role: string; name?: string; image_url?: string } | null;
+  user: { username: string; role: string; name?: string; image_url?: string | null } | null;
 }
 
 export function ProfileDialog({ isOpen, onClose, user }: ProfileDialogProps) {

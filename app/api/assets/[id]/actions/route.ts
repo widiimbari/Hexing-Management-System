@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { dbAsset } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { AssetLog } from "@/lib/system-logger";
 import { AssetCondition } from "@/generated/asset-client-v9";
 import fs from 'fs';
 import path from 'path';
@@ -148,21 +149,28 @@ export async function POST(
           });
         }
 
-        // 4. Log activity
-        await tx.activity_log.create({
-          data: {
-            action: actionType,
-            entity_type: 'Asset',
-            entity_id: String(assetId),
-            details: `${actionType}: ${remarks || 'No remarks'}`,
-            user_id: changedById ? String(changedById) : null,
-            username: changedByName,
-            created_at: new Date(),
-          }
-        });
-
         return { updated, log };
       });
+
+      // 4. Log system activity (Outside of asset db transaction)
+      // Convert BigInts to strings for logging
+      const logDetails = {
+        actionType,
+        remarks,
+        previous_condition: currentAsset.condition,
+        new_condition: transactionData.new_condition,
+        previous_location: currentAsset.location?.name,
+        new_location: transactionData.new_location,
+        employee_id: assetUpdateData.employee_id ? String(assetUpdateData.employee_id) : null
+      };
+
+      await AssetLog.update(
+        'Asset', 
+        String(assetId), 
+        `${actionType} performed on Asset ${currentAsset.serial_number}`,
+        serializeBigInt(currentAsset),
+        serializeBigInt(result.updated)
+      );
 
       return NextResponse.json({
         message: "Action processed successfully",

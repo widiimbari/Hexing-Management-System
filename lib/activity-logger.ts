@@ -1,8 +1,41 @@
-import { dbAsset, db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { AssetLog, type LogAction as SystemLogAction } from "@/lib/system-logger";
 
 export type LogAction = 'CREATE' | 'UPDATE' | 'DELETE' | 'IMPORT' | 'EXPORT' | 'TRANSFER';
 
+// Map entity names to AssetEntity type
+type AssetEntityType = 'Asset' | 'Employee' | 'Category' | 'Brand' | 'Area' | 'Location' | 'Supplier' | 'Department' | 'AssetType' | 'Transaction';
+
+function mapEntityType(entity: string): AssetEntityType {
+  const mapping: Record<string, AssetEntityType> = {
+    'asset': 'Asset',
+    'assets': 'Asset',
+    'employee': 'Employee',
+    'employees': 'Employee',
+    'category': 'Category',
+    'categories': 'Category',
+    'brand': 'Brand',
+    'brands': 'Brand',
+    'area': 'Area',
+    'areas': 'Area',
+    'location': 'Location',
+    'locations': 'Location',
+    'supplier': 'Supplier',
+    'suppliers': 'Supplier',
+    'department': 'Department',
+    'departments': 'Department',
+    'asset_type': 'AssetType',
+    'asset_types': 'AssetType',
+    'transaction': 'Transaction',
+    'transactions': 'Transaction',
+  };
+  return mapping[entity.toLowerCase()] || 'Asset';
+}
+
+/**
+ * @deprecated Use systemLog from system-logger.ts instead
+ * This function is kept for backwards compatibility
+ */
 export async function createInventoryLog(
   action: LogAction,
   entity: string,
@@ -11,50 +44,52 @@ export async function createInventoryLog(
   user?: { username: string } | null
 ) {
   try {
-    const currentUser = user || await getCurrentUser();
-    const username = currentUser?.username || "System";
-
-    await db.audit_logs.create({
-      data: {
-        action,
-        entity,
-        entity_id: entityId,
-        details,
-        user: username,
-      }
-    });
+    // Log to new system_logs
+    const mappedEntity = mapEntityType(entity);
+    if (action === 'CREATE') {
+      await AssetLog.create(mappedEntity, entityId, details);
+    } else if (action === 'UPDATE') {
+      await AssetLog.update(mappedEntity, entityId, details);
+    } else if (action === 'DELETE') {
+      await AssetLog.delete(mappedEntity, entityId, details);
+    } else if (action === 'EXPORT') {
+      await AssetLog.export(details);
+    } else if (action === 'IMPORT') {
+      await AssetLog.import(details);
+    }
   } catch (error) {
     console.error("Failed to create inventory log:", error);
   }
 }
 
+/**
+ * @deprecated Use systemLog from system-logger.ts instead
+ * This function is kept for backwards compatibility
+ */
 export async function logActivity(
   action: LogAction,
   entityType: string,
   entityId: string,
   details: string | object,
-  user?: { id: string; username: string } | null
+  user?: { id: string | undefined; username: string } | null
 ) {
   try {
-    const currentUser = user || await getCurrentUser();
-    
-    // Fallback if no user is found (e.g. system action or unauthenticated, though should be guarded)
-    const userId = currentUser?.id ? String(currentUser.id) : "system";
-    const userName = currentUser?.username || "System";
+    const detailsStr = typeof details === 'string' ? details : JSON.stringify(details);
 
-    await dbAsset.activity_log.create({
-      data: {
-        action,
-        entity_type: entityType,
-        entity_id: String(entityId),
-        details: typeof details === 'string' ? details : JSON.stringify(details),
-        user_id: userId,
-        user_name: userName,
-        // ip_address can be added if we pass request context, skipping for now to keep simple
-      }
-    });
+    // Log to new system_logs
+    const mappedEntity = mapEntityType(entityType);
+    if (action === 'CREATE') {
+      await AssetLog.create(mappedEntity, entityId, detailsStr);
+    } else if (action === 'UPDATE') {
+      await AssetLog.update(mappedEntity, entityId, detailsStr);
+    } else if (action === 'DELETE') {
+      await AssetLog.delete(mappedEntity, entityId, detailsStr);
+    } else if (action === 'EXPORT') {
+      await AssetLog.export(detailsStr);
+    } else if (action === 'IMPORT') {
+      await AssetLog.import(detailsStr);
+    }
   } catch (error) {
     console.error("Failed to create activity log:", error);
-    // Don't throw error to avoid blocking the main action
   }
 }

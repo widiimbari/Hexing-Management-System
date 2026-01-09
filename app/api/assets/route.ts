@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { dbAsset } from "@/lib/db";
 import { logActivity } from "@/lib/activity-logger";
+import { AssetLog } from "@/lib/system-logger";
 import { getCurrentUser } from "@/lib/auth";
 import { AssetCondition } from "@/generated/asset-client-v9";
 
@@ -241,19 +242,6 @@ export async function POST(req: Request) {
           }
         });
 
-        // 6. Log activity
-        await tx.activity_log.create({
-          data: {
-            action: 'CREATE',
-            entity_type: 'Asset',
-            entity_id: String(newAsset.id),
-            details: `Created asset ${newAsset.serial_number}`,
-            user_id: userId ? String(userId) : null,
-            username: userName,
-            created_at: new Date(),
-          }
-        });
-
         // Return asset with full relations
         return await tx.assets.findUnique({
           where: { id: newAsset.id },
@@ -273,6 +261,16 @@ export async function POST(req: Request) {
           },
         });
       });
+
+      // 6. Log system activity (Outside transaction)
+      if (asset) {
+        await AssetLog.create(
+          'Asset', 
+          String(asset.id), 
+          `Created asset ${asset.serial_number}`,
+          serializeBigInt(asset)
+        );
+      }
 
       return NextResponse.json({
         data: serializeBigInt(asset),

@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { JWT_KEY, JWT_EXPIRY, JWT_COOKIE_MAX_AGE, JWT_ALGORITHM } from "@/lib/jwt";
 import { verifyPassword, isMD5Hash, verifyMD5Password, hashPassword } from "@/lib/password";
 import { logError, getErrorContext, getSafeErrorMessage } from "@/lib/error-logger";
+import { UserLog } from "@/lib/system-logger";
 
 export async function POST(req: Request) {
   try {
@@ -108,6 +109,13 @@ export async function POST(req: Request) {
       path: "/",
       maxAge: JWT_COOKIE_MAX_AGE,
     });
+
+    // Log successful login
+    try {
+      await UserLog.login(user.id, user.username);
+    } catch (logError) {
+      console.error("[Login API] Failed to log login event:", logError);
+    }
 
     return NextResponse.json({ message: "Login successful" });
   } catch (error) {

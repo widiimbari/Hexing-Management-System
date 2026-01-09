@@ -9,12 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Lock, User, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
 import { ForgotPasswordDialog } from "./components/forgot-password-dialog";
-import { Barlow } from "next/font/google";
-
-const barlow = Barlow({
-  subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-});
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -37,7 +31,9 @@ export default function LoginPage() {
       });
 
       if (res.ok) {
-        router.push("/dashboard");
+        // Use window.location.href for a hard redirect to ensure cookies are processed 
+        // and middleware state is correctly updated in production
+        window.location.href = "/dashboard";
       } else {
         const data = await res.json();
         setError(data.message || "Login failed");
@@ -50,7 +46,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className={`w-full h-screen flex relative overflow-hidden ${barlow.className} selection:bg-[#008AD8] selection:text-white`}>
+    <div className="w-full h-screen flex relative overflow-hidden selection:bg-[#008AD8] selection:text-white">
       
       {/* --- Background Layer with Dark Overlay --- */}
       <div className="absolute inset-0 z-0">

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { dbAsset } from "@/lib/db";
+import { AssetLog } from "@/lib/system-logger";
 
 // Helper to serialize BigInt
 function serializeBigInt(data: any): any {
@@ -97,6 +98,20 @@ export async function POST(req: Request) {
         },
       },
     });
+
+    // Log the activity
+    console.log("[Employee API] Calling AssetLog.create for employee:", employee.id.toString());
+    try {
+      await AssetLog.create(
+        'Employee',
+        employee.id.toString(),
+        `Created employee: ${employee.nama} (${employee.nik})`,
+        { nik: employee.nik, nama: employee.nama, gender: employee.gender, department_id: body.department_id }
+      );
+      console.log("[Employee API] AssetLog.create completed");
+    } catch (logError) {
+      console.error("[Employee API] AssetLog.create failed:", logError);
+    }
 
     return NextResponse.json({
       data: serializeBigInt(employee),

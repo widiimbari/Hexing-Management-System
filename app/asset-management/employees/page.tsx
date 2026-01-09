@@ -220,7 +220,7 @@ export default function EmployeesPage() {
     { accessorKey: "nik", header: "NIK" },
     { accessorKey: "nama", header: "Name" },
     {
-      id: "gender",
+      accessorKey: "gender",
       header: "Gender",
       cell: ({ value }) => value === "L" ? "Male" : value === "P" ? "Female" : "-"
     },

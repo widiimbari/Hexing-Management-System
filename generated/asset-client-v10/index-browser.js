@@ -151,18 +151,6 @@ exports.Prisma.AssetsScalarFieldEnum = {
   condition: 'condition'
 };
 
-exports.Prisma.Activity_logScalarFieldEnum = {
-  id: 'id',
-  action: 'action',
-  entity_type: 'entity_type',
-  entity_id: 'entity_id',
-  details: 'details',
-  user_id: 'user_id',
-  user_name: 'user_name',
-  ip_address: 'ip_address',
-  created_at: 'created_at'
-};
-
 exports.Prisma.Asset_typesScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -217,17 +205,6 @@ exports.Prisma.LocationsScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.Log_crudScalarFieldEnum = {
-  id: 'id',
-  table_name: 'table_name',
-  sap_id: 'sap_id',
-  operation: 'operation',
-  old_data: 'old_data',
-  new_data: 'new_data',
-  user_id: 'user_id',
-  created_at: 'created_at'
-};
-
 exports.Prisma.SuppliersScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -278,7 +255,6 @@ exports.Prisma.ModelName = {
   areas: 'areas',
   asset_transactions: 'asset_transactions',
   assets: 'assets',
-  activity_log: 'activity_log',
   asset_types: 'asset_types',
   asset_images: 'asset_images',
   brands: 'brands',
@@ -286,7 +262,6 @@ exports.Prisma.ModelName = {
   departments: 'departments',
   employees: 'employees',
   locations: 'locations',
-  log_crud: 'log_crud',
   suppliers: 'suppliers',
   users: 'users'
 };

@@ -116,9 +116,30 @@ exports.Prisma.UsersScalarFieldEnum = {
   image_url: 'image_url'
 };
 
+exports.Prisma.System_logsScalarFieldEnum = {
+  id: 'id',
+  module: 'module',
+  action: 'action',
+  entity_type: 'entity_type',
+  entity_id: 'entity_id',
+  description: 'description',
+  old_values: 'old_values',
+  new_values: 'new_values',
+  user_id: 'user_id',
+  user_name: 'user_name',
+  ip_address: 'ip_address',
+  user_agent: 'user_agent',
+  created_at: 'created_at'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -131,9 +152,16 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+
 
 exports.Prisma.ModelName = {
-  users: 'users'
+  users: 'users',
+  system_logs: 'system_logs'
 };
 
 /**
