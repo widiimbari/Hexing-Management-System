@@ -3,6 +3,7 @@ import { dbAsset } from "@/lib/db";
 import ExcelJS from 'exceljs';
 import path from "path";
 import fs from "fs";
+import { systemLog } from "@/lib/system-logger";
 
 export async function GET(req: Request) {
   try {
@@ -180,6 +181,18 @@ export async function GET(req: Request) {
     const buffer = await workbook.xlsx.writeBuffer();
     const dateStr = new Date().toISOString().split("T")[0].replace(/-/g, "");
     const filename = `LAPORAN_TRANSAKSI_ASET_${dateStr}.xlsx`;
+
+    // Log export activity
+    try {
+      await systemLog({
+        module: 'ASSET',
+        action: 'EXPORT',
+        entityType: 'Transaction',
+        description: `Exported ${transactions.length} transactions to ${filename}`
+      });
+    } catch (logError) {
+      console.error("[Transaction Export] Failed to log export:", logError);
+    }
 
     return new NextResponse(buffer, {
       headers: {

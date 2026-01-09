@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { dbAsset } from "@/lib/db";
 import ExcelJS from "exceljs";
+import { AssetLog } from "@/lib/system-logger";
 
 export async function POST(req: Request) {
   try {
@@ -104,6 +105,16 @@ export async function POST(req: Request) {
       } catch (e: any) {
         errors.push(`Row ${row.number} (${serial_number}): ${e.message}`);
       }
+    }
+
+    // Log import activity
+    try {
+      await AssetLog.import(
+        `Imported ${createdCount} assets from file. ${errors.length} errors.`,
+        { createdCount, errorCount: errors.length }
+      );
+    } catch (logError) {
+      console.error("[Asset Import] Failed to log import:", logError);
     }
 
     return NextResponse.json({

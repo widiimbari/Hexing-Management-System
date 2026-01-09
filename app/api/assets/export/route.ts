@@ -3,6 +3,7 @@ import { dbAsset } from "@/lib/db";
 import ExcelJS from "exceljs";
 import path from "path";
 import fs from "fs";
+import { AssetLog } from "@/lib/system-logger";
 
 export async function GET() {
   try {
@@ -146,6 +147,13 @@ export async function GET() {
     const buffer = await workbook.xlsx.writeBuffer();
     const dateStr = new Date().toISOString().split("T")[0].replace(/-/g, "");
     const filename = `LAPORAN_ASET_${dateStr}.xlsx`;
+
+    // Log export activity
+    try {
+      await AssetLog.export(`Exported ${assets.length} assets to ${filename}`);
+    } catch (logError) {
+      console.error("[Asset Export] Failed to log export:", logError);
+    }
 
     return new NextResponse(buffer, {
       status: 200,

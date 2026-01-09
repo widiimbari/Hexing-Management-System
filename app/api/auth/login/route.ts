@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { dbManagement } from "@/lib/db";
 import { SignJWT } from "jose";
-import { cookies } from "next/headers";
 import { JWT_KEY, JWT_EXPIRY, JWT_COOKIE_MAX_AGE, JWT_ALGORITHM } from "@/lib/jwt";
 import { verifyPassword, isMD5Hash, verifyMD5Password, hashPassword } from "@/lib/password";
 import { logError, getErrorContext, getSafeErrorMessage } from "@/lib/error-logger";
@@ -101,15 +100,6 @@ export async function POST(req: Request) {
       .setExpirationTime(JWT_EXPIRY)
       .sign(JWT_KEY);
 
-    // Set Cookie
-    (await cookies()).set("session_token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
-      maxAge: JWT_COOKIE_MAX_AGE,
-    });
-
     // Log successful login
     try {
       await UserLog.login(user.id, user.username);
@@ -117,7 +107,32 @@ export async function POST(req: Request) {
       console.error("[Login API] Failed to log login event:", logError);
     }
 
-    return NextResponse.json({ message: "Login successful" });
+    // Create response and set cookie on the response object
+    const response = NextResponse.json({ message: "Login successful" });
+
+    // Determine if we should use secure cookies
+    // In production, only use secure if using HTTPS (not on local/private network)
+    const host = req.headers.get("host") || "";
+    const hostWithoutPort = host.split(":")[0];
+    const isLocalNetwork =
+      hostWithoutPort === "localhost" ||
+      hostWithoutPort.startsWith("127.") ||
+      hostWithoutPort.startsWith("192.168.") ||
+      hostWithoutPort.startsWith("10.") ||
+      /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostWithoutPort);
+    const useSecure = process.env.NODE_ENV === "production" && !isLocalNetwork;
+
+    response.cookies.set("session_token", token, {
+      httpOnly: true,
+      secure: useSecure,
+      sameSite: "lax", // Changed from "strict" to allow redirects
+      path: "/",
+      maxAge: JWT_COOKIE_MAX_AGE,
+    });
+
+    console.log(`[Login API] Cookie set - secure: ${useSecure}, host: ${host}`);
+
+    return response;
   } catch (error) {
     // Log the error with context
     logError(

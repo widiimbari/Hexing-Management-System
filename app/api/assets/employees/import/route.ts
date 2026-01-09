@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { dbAsset } from "@/lib/db";
 import ExcelJS from "exceljs";
+import { systemLog } from "@/lib/system-logger";
 
 export async function POST(req: Request) {
   try {
@@ -78,6 +79,19 @@ export async function POST(req: Request) {
       } catch (e: any) {
         errors.push(`Row ${row.number} (${nama}): ${e.message}`);
       }
+    }
+
+    // Log import activity
+    try {
+      await systemLog({
+        module: 'ASSET',
+        action: 'IMPORT',
+        entityType: 'Employee',
+        description: `Imported ${createdCount} employees from file. ${errors.length} errors.`,
+        newValues: { createdCount, errorCount: errors.length }
+      });
+    } catch (logError) {
+      console.error("[Employee Import] Failed to log import:", logError);
     }
 
     return NextResponse.json({

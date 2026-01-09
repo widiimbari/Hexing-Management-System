@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 import ExcelJS from "exceljs";
 import path from "path";
 import fs from "fs";
+import { InventoryLog } from "@/lib/system-logger";
 
 // --- Helper Types ---
 type ExportColumn = { header: string; key: string; width: number };
@@ -366,6 +367,13 @@ export async function GET(req: Request) {
     // 5. WRITE BUFFER & RETURN RESPONSE
     const buffer = await workbook.xlsx.writeBuffer();
     const filename = `${title.replace(/\s/g, "_")}_${new Date().toISOString().split("T")[0]}.xlsx`;
+
+    // Log export activity
+    try {
+      await InventoryLog.export('Product', `Exported ${exportData.length} items to ${filename}`);
+    } catch (logError) {
+      console.error("[Inventory Export] Failed to log export:", logError);
+    }
 
     return new NextResponse(buffer, {
       status: 200,
