@@ -85,7 +85,7 @@ export function DataTable<TData>({
               ) : data.length > 0 ? (
                 data.map((row, rowIndex) => (
                   <TableRow 
-                    key={rowIndex} 
+                    key={(row as any).id || rowIndex} 
                     className="hover:bg-secondary/30 transition-colors odd:bg-white even:bg-secondary/5"
                   >
                     {columns.map((col, colIndex) => {

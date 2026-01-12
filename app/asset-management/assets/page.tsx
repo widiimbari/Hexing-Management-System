@@ -39,9 +39,9 @@ import { useRole } from "@/hooks/use-role";
 // Types for Assets
 interface Asset {
   id: string;
-  type_id: string;
   serial_number: string;
   sap_id: string;
+  model?: string;
   purchase_date: string;
   created_at: string;
   updated_at: string;
@@ -49,10 +49,10 @@ interface Asset {
   brand_id: string;
   area_id: string;
   location_id: string;
+  price?: string | number;
   employee_id: string;
   supplier_id: string;
   condition?: string;
-  asset_type?: { name: string };
   category?: { name: string };
   brand?: { name: string };
   area?: { name: string };
@@ -74,7 +74,7 @@ export default function AssetsPage() {
   const [loading, setLoading] = useState(true);
   const [rowCount, setRowCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
-  const debouncedSearch = useDebounce(searchTerm, 500);
+  const debouncedSearch = useDebounce(searchTerm, 800);
   
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -162,7 +162,7 @@ export default function AssetsPage() {
 
   const handleDeleteAsset = (asset: Asset) => {
     setAssetToDelete(asset);
-    setDeleteAlertOpen(true);
+    setTimeout(() => setDeleteAlertOpen(true), 0);
   };
 
   const onConfirmDelete = async () => {
@@ -334,10 +334,45 @@ export default function AssetsPage() {
     },
     { accessorKey: "serial_number", header: "Serial Number" },
     { 
-      id: "type",
-      header: "Type",
-      cell: ({ row }) => row.asset_type?.name || "-"
+      id: "category",
+      header: "Category",
+      cell: ({ row }) => row.category?.name || "-"
     },
+    { 
+      id: "brand",
+      header: "Brand",
+      cell: ({ row }) => row.brand?.name || "-"
+    },
+    // { 
+    //   id: "area",
+    //   header: "Area",
+    //   cell: ({ row }) => row.area?.name || "-"
+    // },
+    { 
+      id: "location",
+      header: "Location",
+      cell: ({ row }) => row.location?.name || "-"
+    },
+    // {
+    //   id: "price",
+    //   header: "Price",
+    //   cell: ({ row }) => {
+    //     if (!row.price) return "-";
+    //     const numValue = typeof row.price === "string" ? parseFloat(row.price) : row.price;
+    //     if (isNaN(numValue)) return "-";
+    //     return new Intl.NumberFormat("id-ID", {
+    //       style: "currency",
+    //       currency: "IDR",
+    //       minimumFractionDigits: 0,
+    //       maximumFractionDigits: 0,
+    //     }).format(numValue);
+    //   }
+    // },
+        {
+          id: "employee",
+          header: "Assigned To",
+          cell: ({ row }) => row.employee ? row.employee.nama : "-"
+        },
     {
       id: "condition",
       accessorKey: "condition",
@@ -363,31 +398,6 @@ export default function AssetsPage() {
         );
       }
     },
-    { 
-      id: "category",
-      header: "Category",
-      cell: ({ row }) => row.category?.name || "-"
-    },
-    { 
-      id: "brand",
-      header: "Brand",
-      cell: ({ row }) => row.brand?.name || "-"
-    },
-    { 
-      id: "area",
-      header: "Area",
-      cell: ({ row }) => row.area?.name || "-"
-    },
-    { 
-      id: "location",
-      header: "Location",
-      cell: ({ row }) => row.location?.name || "-"
-    },
-        {
-          id: "employee",
-          header: "Assigned To",
-          cell: ({ row }) => row.employee ? row.employee.nama : "-"
-        },
         {
           id: "created_at",
           accessorKey: "created_at",
