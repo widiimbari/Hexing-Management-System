@@ -68,26 +68,40 @@ export async function PATCH(
             const val = parseFloat(formData.get('unit_price_real') as string);
             if (!isNaN(val)) updateData.unit_price_real = val;
         }
-        if (formData.has('settlement_date')) updateData.settlement_date = new Date(formData.get('settlement_date') as string);
-        if (formData.has('status')) updateData.status = formData.get('status') as string;
+        if (formData.has('settlement_date')) {
+            const dateStr = formData.get('settlement_date') as string;
+            if (dateStr) {
+                const date = new Date(dateStr);
+                if (!isNaN(date.getTime())) updateData.settlement_date = date;
+            }
+        }
+        if (formData.has('status')) {
+            const status = formData.get('status') as string;
+            if (status === 'COMPLETED' || status === 'PENDING') {
+                updateData.status = status;
+            }
+        }
 
         // Handle File Upload
         if (file && file.size > 0) {
-            const { mkdir } = await import('fs/promises');
-            const { dirname } = await import('path');
-            
-            const bytes = await file.arrayBuffer();
-            const buffer = Buffer.from(bytes);
-            
-            // Generate unique filename
-            const filename = `receipt-${Date.now()}-${file.name.replace(/\s/g, '_')}`;
-            const path = join(process.cwd(), 'public/uploads', filename);
-            
-            // Ensure dir exists
-            await mkdir(dirname(path), { recursive: true });
-
-            await writeFile(path, buffer);
-            updateData.receipt_image = `/uploads/${filename}`;
+            try {
+                const { mkdir } = await import('fs/promises');
+                const { dirname } = await import('path');
+                
+                const bytes = await file.arrayBuffer();
+                const buffer = Buffer.from(bytes);
+                
+                const filename = `receipt-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`; // Safer filename
+                const path = join(process.cwd(), 'public/uploads', filename);
+                
+                await mkdir(dirname(path), { recursive: true });
+                await writeFile(path, buffer);
+                updateData.receipt_image = `/uploads/${filename}`;
+            } catch (err) {
+                console.error("File upload error:", err);
+                // Continue without image if failed, or throw? Better to throw so user knows
+                throw new Error("File upload failed"); 
+            }
         }
     } else {
         updateData = await request.json();
@@ -95,8 +109,8 @@ export async function PATCH(
 
     // Auto Calculate logic if settlement fields are present
     if (updateData.qty_actual !== undefined && updateData.unit_price_real !== undefined) {
-        const qty = updateData.qty_actual;
-        const price = updateData.unit_price_real;
+        const qty = Number(updateData.qty_actual);
+        const price = Number(updateData.unit_price_real);
         const subtotal = qty * price;
         const shipping = subtotal * 0.03;
         const total = subtotal + shipping;
@@ -106,19 +120,18 @@ export async function PATCH(
         updateData.grand_total = total;
     }
 
+    console.log("Updating ID:", id.toString());
+    console.log("Update Data:", JSON.stringify(updateData, (key, value) => typeof value === 'bigint' ? value.toString() : value));
+
     const updatedItem = await dbAsset.consumables.update({
       where: { id },
       data: updateData,
     });
     
-    // Handle BigInt serialization
-    const serialized = JSON.parse(JSON.stringify(updatedItem, (key, value) =>
-        typeof value === 'bigint' ? value.toString() : value
-    ));
-
+    // ...
     return NextResponse.json(serialized);
   } catch (error: any) {
-    console.error("Error updating consumable:", error);
-    return NextResponse.json({ message: error.message }, { status: 500 });
+    console.error("Error updating consumable (PATCH):", error); // Improved error logging
+    return NextResponse.json({ message: error.message || "Internal Server Error" }, { status: 500 });
   }
 }
