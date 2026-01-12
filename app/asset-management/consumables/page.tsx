@@ -5,19 +5,21 @@ import { DataTable, DataTableColumn } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { PlusCircle, Search, FileText, CheckCircle, Clock, Download, Upload, ExternalLink, ImageIcon, ShoppingCart, Archive } from "lucide-react";
+import { PlusCircle, Search, FileText, CheckCircle, Clock, Download, Upload, Eye, Archive, ShoppingCart, Printer } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useDebounce } from "@/hooks/use-debounce";
 import { format } from "date-fns";
 import { RequestDialog } from "./components/request-dialog";
 import { SettlementDialog } from "./components/settlement-dialog";
 import { ConsumableImportDialog } from "./components/import-dialog";
+import { DocumentSheet } from "./components/document-sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 export default function ConsumablesPage() {
-  const [data, setData] = useState<any[]>([]);
+  const [items, setItems] = useState<any[]>([]);
+  const [documents, setDocuments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearch = useDebounce(searchTerm, 500);
@@ -25,17 +27,28 @@ export default function ConsumablesPage() {
   const [requestOpen, setRequestOpen] = useState(false);
   const [settleOpen, setSettleOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
+  const [selectedDocNumber, setSelectedDocNumber] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/assets/consumables?search=${debouncedSearch}`);
-      const result = await res.json();
-      setData(result.data || []);
+      const [itemsRes, docsRes] = await Promise.all([
+        fetch(`/api/assets/consumables?search=${debouncedSearch}`),
+        fetch(`/api/assets/consumables/documents`)
+      ]);
+
+      const itemsResult = await itemsRes.json();
+      const docsResult = await docsRes.json();
+
+      setItems(itemsResult.data || []);
+      setDocuments(docsResult.data || []);
     } catch (err) {
       console.error(err);
-      setData([]);
+      setItems([]);
+      setDocuments([]);
     } finally {
       setLoading(false);
     }
@@ -50,40 +63,31 @@ export default function ConsumablesPage() {
     setSettleOpen(true);
   };
 
-  const pendingData = data.filter(d => d.status === "PENDING");
-  const completedData = data.filter(d => d.status === "COMPLETED");
+  const handleViewDocument = (docNumber: string) => {
+    setSelectedDocNumber(docNumber);
+    setSheetOpen(true);
+  };
 
-  const handleExportRequestForm = () => {
-    if (pendingData.length === 0) {
-        alert("No pending requests to export.");
-        return;
-    }
+  const handlePrintDocument = (doc: any) => {
+    const docItems = items.filter(i => i.document_number === doc.document_number);
+    if (docItems.length === 0) return;
 
-    const doc = new jsPDF();
-    
+    const pdf = new jsPDF();
     const img = new Image();
     img.src = "/HEXING LOGO.png";
-    img.onload = () => {
-        doc.addImage(img, "PNG", 14, 10, 30, 10);
-        generatePDF(doc);
-    };
-    img.onerror = () => {
-        generatePDF(doc);
-    };
 
-    const generatePDF = (doc: jsPDF) => {
-        // Title
-        doc.setFontSize(14);
-        doc.setFont("helvetica", "bold");
-        doc.text("FORMULIR PERMOHONAN PENYEDIAAN BARANG / JASA", 105, 20, { align: "center" });
+    const generate = () => {
+        pdf.setFontSize(14);
+        pdf.setFont("helvetica", "bold");
+        pdf.text("FORMULIR PERMOHONAN PENYEDIAAN BARANG / JASA", 105, 20, { align: "center" });
         
-        doc.setFontSize(10);
-        doc.setFont("helvetica", "normal");
-        doc.text(`Tanggal: ${format(new Date(), "dd MMMM yyyy")}`, 14, 35);
-        doc.text(`Department: IT / Umum`, 14, 40); 
+        pdf.setFontSize(10);
+        pdf.setFont("helvetica", "normal");
+        pdf.text(`Doc No: ${doc.document_number}`, 14, 30);
+        pdf.text(`Tanggal: ${format(new Date(doc.request_date), "dd MMMM yyyy")}`, 14, 35);
+        pdf.text(`Department: IT / Umum`, 14, 40); 
 
-        // Table Data
-        const tableBody = pendingData.map((item, index) => {
+        const tableBody = docItems.map((item: any, index: number) => {
             const qty = item.qty_estimated;
             const price = parseFloat(item.price_estimated);
             const subtotal = qty * price;
@@ -103,54 +107,53 @@ export default function ConsumablesPage() {
             ];
         });
 
-        // Calculate Totals
-        const totalSubtotal = pendingData.reduce((acc, item) => acc + (item.qty_estimated * parseFloat(item.price_estimated)), 0);
+        const totalSubtotal = docItems.reduce((acc: number, item: any) => acc + (item.qty_estimated * parseFloat(item.price_estimated)), 0);
         const totalShipping = totalSubtotal * 0.03;
         const totalGrand = totalSubtotal + totalShipping;
 
-        autoTable(doc, {
+        autoTable(pdf, {
             startY: 45,
             head: [["No", "Nama Barang", "Merk/Tipe", "Qty", "Satuan", "Harga Satuan (Est)", "Subtotal", "Fee 3%", "Total"]],
             body: tableBody,
-            foot: [[
+            foot: [[ 
                 { content: "TOTAL ESTIMASI", colSpan: 6, styles: { halign: 'right', fontStyle: 'bold' } },
                 { content: new Intl.NumberFormat("id-ID").format(totalSubtotal), styles: { fontStyle: 'bold' } },
                 { content: new Intl.NumberFormat("id-ID").format(totalShipping), styles: { fontStyle: 'bold' } },
                 { content: new Intl.NumberFormat("id-ID").format(totalGrand), styles: { fontStyle: 'bold' } },
             ]],
             theme: 'grid',
-            headStyles: { fillColor: [22, 163, 74] }, // Green-600
+            headStyles: { fillColor: [22, 163, 74] },
             styles: { fontSize: 8 },
         });
 
-        // Signatures
-        const finalY = (doc as any).lastAutoTable.finalY + 20;
-        
-        doc.setFontSize(10);
-        doc.text("Prepared By,", 30, finalY);
-        doc.text("Checked By,", 90, finalY);
-        doc.text("Approved By,", 150, finalY);
+        const finalY = (pdf as any).lastAutoTable.finalY + 20;
+        pdf.setFontSize(10);
+        pdf.text("Prepared By,", 30, finalY);
+        pdf.text("Checked By,", 90, finalY);
+        pdf.text("Approved By,", 150, finalY);
+        pdf.line(20, finalY + 25, 60, finalY + 25);
+        pdf.line(80, finalY + 25, 120, finalY + 25);
+        pdf.line(140, finalY + 25, 180, finalY + 25);
+        pdf.text("( .................... )", 27, finalY + 30);
+        pdf.text("( .................... )", 87, finalY + 30);
+        pdf.text("( .................... )", 147, finalY + 30);
 
-        doc.line(20, finalY + 25, 60, finalY + 25);
-        doc.line(80, finalY + 25, 120, finalY + 25);
-        doc.line(140, finalY + 25, 180, finalY + 25);
-
-        doc.text("( .................... )", 27, finalY + 30);
-        doc.text("( .................... )", 87, finalY + 30);
-        doc.text("( .................... )", 147, finalY + 30);
-
-        doc.save(`Request_Form_${format(new Date(), "yyyyMMdd")}.pdf`);
+        pdf.save(`Request_${doc.document_number.replace(/[\]/g, '-')}.pdf`);
     };
+
+    img.onload = () => {
+        pdf.addImage(img, "PNG", 14, 10, 30, 10);
+        generate();
+    };
+    img.onerror = () => generate();
   };
 
-  const handleExport = async () => {
+  const handleExportReport = async () => {
     try {
-      // Dynamic import to avoid SSR issues with some libs if any
       const ExcelJS = (await import("exceljs")).default;
       const workbook = new ExcelJS.Workbook();
       const sheet = workbook.addWorksheet("Monthly Report");
 
-      // Add Title
       sheet.mergeCells('A1:K1');
       sheet.getCell('A1').value = "MONTHLY PURCHASE REPORT (NON-SAP)";
       sheet.getCell('A1').font = { size: 16, bold: true };
@@ -160,51 +163,28 @@ export default function ConsumablesPage() {
       sheet.getCell('A2').value = `Periode: ${format(new Date(), "MMMM yyyy")}`;
       sheet.getCell('A2').alignment = { horizontal: 'center' };
 
-      // Set columns (Row 4)
       const headerRow = sheet.getRow(4);
-      headerRow.values = [
-        "No", "Tgl Beli", "Item Name", "Brand/Type", "Qty", "Unit", 
-        "Harga Satuan (Real)", "Subtotal Barang", "Shipping & Handling (3%)", "GRAND TOTAL (IDR)", "Bukti"
-      ];
-
-      // Style header
+      headerRow.values = ["No", "Tgl Beli", "Item Name", "Brand/Type", "Qty", "Unit", "Harga Satuan (Real)", "Subtotal Barang", "Shipping & Handling (3%)", "GRAND TOTAL (IDR)", "Bukti"];
+      
       headerRow.eachCell((cell) => {
-        cell.fill = {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: 'FFFF00' } // Yellow
-        };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFF00' } };
         cell.font = { bold: true };
-        cell.border = {
-            top: { style: 'thin' },
-            left: { style: 'thin' },
-            bottom: { style: 'thin' },
-            right: { style: 'thin' }
-        };
+        cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
         cell.alignment = { horizontal: 'center' };
       });
 
-      // Columns Width
       sheet.columns = [
-        { key: 'no', width: 5 },
-        { key: 'date', width: 12 },
-        { key: 'item', width: 30 },
-        { key: 'brand', width: 20 },
-        { key: 'qty', width: 8 },
-        { key: 'unit', width: 8 },
-        { key: 'price', width: 18 },
-        { key: 'subtotal', width: 18 },
-        { key: 'shipping', width: 18 },
-        { key: 'total', width: 18 },
-        { key: 'proof', width: 15 },
+        { key: 'no', width: 5 }, { key: 'date', width: 12 }, { key: 'item', width: 30 }, { key: 'brand', width: 20 },
+        { key: 'qty', width: 8 }, { key: 'unit', width: 8 }, { key: 'price', width: 18 }, { key: 'subtotal', width: 18 },
+        { key: 'shipping', width: 18 }, { key: 'total', width: 18 }, { key: 'proof', width: 15 },
       ];
 
-      // Add Data starting Row 5
+      const completedItems = items.filter(d => d.status === "COMPLETED");
       let totalMonthly = 0;
       let totalShipping = 0;
       let totalGrand = 0;
 
-      data.filter(d => d.status === "COMPLETED").forEach((d, index) => {
+      completedItems.forEach((d, index) => {
         const subtotal = parseFloat(d.subtotal_item || 0);
         const shipping = parseFloat(d.shipping_fee || 0);
         const grand = parseFloat(d.grand_total || 0);
@@ -227,30 +207,19 @@ export default function ConsumablesPage() {
           d.receipt_image ? { text: "Link", hyperlink: window.location.origin + d.receipt_image } : "-"
         ]);
 
-        // Green background for calculation columns
         ['H', 'I', 'J'].forEach(col => {
-            row.getCell(col).fill = {
-                type: 'pattern',
-                pattern: 'solid',
-                fgColor: { argb: '90EE90' } // Light Green
-            };
+            row.getCell(col).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '90EE90' } };
         });
       });
 
-      // Total Row
-      const totalRow = sheet.addRow([
-        "TOTAL BULANAN", "", "", "", "", "", "", 
-        totalMonthly, totalShipping, totalGrand, ""
-      ]);
+      const totalRow = sheet.addRow(["TOTAL BULANAN", "", "", "", "", "", "", totalMonthly, totalShipping, totalGrand, ""]);
       totalRow.font = { bold: true };
       
-      // Formatting numbers
       sheet.getColumn('price').numFmt = '#,##0';
       sheet.getColumn('subtotal').numFmt = '#,##0';
       sheet.getColumn('shipping').numFmt = '#,##0';
       sheet.getColumn('total').numFmt = '#,##0';
 
-      // Write Buffer
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
       const url = window.URL.createObjectURL(blob);
@@ -265,54 +234,63 @@ export default function ConsumablesPage() {
     }
   };
 
-  const requestColumns: DataTableColumn<any>[] = [
-    { 
-        id: "request_date",
-        header: "Req Date",
-        cell: ({ row }) => format(new Date(row.request_date), "dd/MM/yyyy")
-    },
-    { 
-        id: "item",
-        header: "Item Name (Plan)",
+  const documentColumns: DataTableColumn<any>[] = [
+    {
+        id: "doc_no",
+        header: "Document No",
         cell: ({ row }) => (
-            <div className="flex flex-col">
-                <span className="font-medium">{row.item_name}</span>
-                {row.purchase_link && (
-                    <a href={row.purchase_link} target="_blank" className="text-[10px] text-blue-500 flex items-center gap-1 hover:underline">
-                        <ExternalLink className="w-2 h-2" /> Link Pembelian
-                    </a>
-                )}
+            <div className="flex items-center gap-2 font-medium text-slate-700">
+                <FileText className="h-4 w-4 text-blue-600" />
+                {row.document_number}
             </div>
         )
     },
-    { accessorKey: "brand_type", header: "Brand/Type" },
-    { 
-        id: "qty",
-        header: "Est. Qty",
-        cell: ({ row }) => row.qty_estimated
-    },
-    { 
-        id: "price",
-        header: "Est. Price",
-        cell: ({ row }) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(parseFloat(row.price_estimated))
+    {
+        id: "date",
+        header: "Req Date",
+        cell: ({ row }) => format(new Date(row.request_date), "dd MMMM yyyy")
     },
     {
-      id: "actions",
-      header: "Action",
-      cell: ({ row }) => (
-        <div className="flex gap-2">
-            {row.item_image && (
-                <Button size="icon" variant="ghost" className="h-8 w-8" asChild>
-                    <a href={row.item_image} target="_blank">
-                        <ImageIcon className="h-4 w-4" />
-                    </a>
+        id: "stats",
+        header: "Item Progress",
+        width: "200px",
+        cell: ({ row }) => {
+            const percent = Math.round((row.completed_items / row.total_items) * 100) || 0;
+            return (
+                <div className="w-full">
+                    <div className="flex justify-between text-xs mb-1 text-muted-foreground">
+                        <span>{row.completed_items} of {row.total_items} Items Bought</span>
+                        <span>{percent}%</span>
+                    </div>
+                    <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <div className={`h-full transition-all ${percent === 100 ? 'bg-emerald-500' : 'bg-blue-500'}`} style={{ width: `${percent}%` }} />
+                    </div>
+                </div>
+            );
+        }
+    },
+    {
+        id: "status",
+        header: "Status",
+        cell: ({ row }) => {
+            if (row.pending_items === 0 && row.total_items > 0) return <Badge className="bg-emerald-600 hover:bg-emerald-700">Completed</Badge>;
+            if (row.completed_items > 0) return <Badge className="bg-blue-600 hover:bg-blue-700">Partial</Badge>;
+            return <Badge variant="outline" className="text-amber-600 border-amber-600">Pending</Badge>;
+        }
+    },
+    {
+        id: "actions",
+        header: "Action",
+        cell: ({ row }) => (
+            <div className="flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => handleViewDocument(row.document_number)}>
+                    <Eye className="mr-2 h-4 w-4" /> View & Settle
                 </Button>
-            )}
-            <Button size="sm" onClick={() => handleSettle(row)} className="bg-blue-600 hover:bg-blue-700">
-                Purchase / Settle
-            </Button>
-        </div>
-      )
+                <Button size="sm" variant="outline" onClick={() => handlePrintDocument(row)}>
+                    <Printer className="mr-2 h-4 w-4" /> Print PDF
+                </Button>
+            </div>
+        )
     }
   ];
 
@@ -324,17 +302,17 @@ export default function ConsumablesPage() {
     },
     { accessorKey: "item_name", header: "Item Name" },
     { accessorKey: "brand_type", header: "Brand/Type" },
-    { 
+    {
         id: "qty",
         header: "Real Qty",
         cell: ({ row }) => row.qty_actual
     },
-    { 
+    {
         id: "unit_price",
         header: "Real Price",
         cell: ({ row }) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(parseFloat(row.unit_price_real))
     },
-    { 
+    {
         id: "total",
         header: "Grand Total",
         cell: ({ row }) => row.grand_total ? new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(parseFloat(row.grand_total)) : "-"
@@ -349,6 +327,8 @@ export default function ConsumablesPage() {
       ) : <span className="text-muted-foreground">-</span>
     }
   ];
+
+  const completedData = items.filter(d => d.status === "COMPLETED");
 
   return (
     <div className="container mx-auto py-10">
@@ -365,18 +345,15 @@ export default function ConsumablesPage() {
         <div className="flex justify-between items-center mb-4">
             <TabsList>
                 <TabsTrigger value="requests" className="flex gap-2">
-                    <ShoppingCart className="h-4 w-4" /> Purchase Requests ({pendingData.length})
+                    <ShoppingCart className="h-4 w-4" /> Purchase Requests
                 </TabsTrigger>
                 <TabsTrigger value="inventory" className="flex gap-2">
-                    <Archive className="h-4 w-4" /> Consumables Inventory ({completedData.length})
+                    <Archive className="h-4 w-4" /> Consumables Inventory
                 </TabsTrigger>
             </TabsList>
 
             <div className="flex gap-2">
-                <Button variant="outline" onClick={handleExportRequestForm}>
-                    <FileText className="mr-2 h-4 w-4" /> Export Request Form
-                </Button>
-                <Button variant="outline" onClick={handleExport}>
+                <Button variant="outline" onClick={handleExportReport}>
                     <Download className="mr-2 h-4 w-4" /> Export Report
                 </Button>
                 <Button variant="outline" onClick={() => setImportOpen(true)}>
@@ -393,12 +370,12 @@ export default function ConsumablesPage() {
                 <CardContent className="p-0">
                 <div className="p-4 border-b bg-amber-50/50 flex items-center gap-2 text-amber-700">
                      <Clock className="h-4 w-4" />
-                     <span className="text-sm font-medium">Pending Requests - Waiting for Purchase/Settlement</span>
+                     <span className="text-sm font-medium">Request Documents Overview</span>
                      
                      <div className="relative max-w-xs w-full ml-auto">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
-                            placeholder="Search requests..."
+                            placeholder="Search documents..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="pl-9 bg-white"
@@ -406,8 +383,8 @@ export default function ConsumablesPage() {
                     </div>
                 </div>
                 <DataTable
-                    columns={requestColumns}
-                    data={pendingData}
+                    columns={documentColumns}
+                    data={documents}
                     loading={loading}
                 />
                 </CardContent>
@@ -458,6 +435,17 @@ export default function ConsumablesPage() {
         open={importOpen}
         onOpenChange={setImportOpen}
         onImportSuccess={fetchData}
+      />
+
+      <DocumentSheet 
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+        documentNumber={selectedDocNumber}
+        data={items}
+        onSettle={(item) => {
+            setSheetOpen(false);
+            handleSettle(item);
+        }}
       />
     </div>
   );
