@@ -5,9 +5,10 @@ import { join } from 'path';
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await props.params;
     const id = BigInt(params.id);
     const item = await dbAsset.consumables.findUnique({
       where: { id },
@@ -30,9 +31,10 @@ export async function GET(
 
 export async function DELETE(
     request: Request,
-    { params }: { params: { id: string } }
+    props: { params: Promise<{ id: string }> }
 ) {
     try {
+        const params = await props.params;
         const id = BigInt(params.id);
         await dbAsset.consumables.delete({
             where: { id },
@@ -45,9 +47,10 @@ export async function DELETE(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await props.params;
     const id = BigInt(params.id);
     
     // Check if it's a multipart form (for file upload)
@@ -128,7 +131,10 @@ export async function PATCH(
       data: updateData,
     });
     
-    // ...
+    const serialized = JSON.parse(JSON.stringify(updatedItem, (key, value) =>
+        typeof value === 'bigint' ? value.toString() : value
+    ));
+    
     return NextResponse.json(serialized);
   } catch (error: any) {
     console.error("Error updating consumable (PATCH):", error); // Improved error logging
