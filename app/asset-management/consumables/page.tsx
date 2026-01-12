@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { DataTable, DataTableColumn } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -513,9 +513,8 @@ export default function ConsumablesPage() {
                         documents.map(doc => {
                           const percent = Math.round((doc.completed_items / doc.total_items) * 100) || 0;
                           return (
-                            <>
+                            <React.Fragment key={doc.document_number}>
                               <TableRow 
-                                key={doc.document_number} 
                                 className="cursor-pointer hover:bg-slate-50 transition-colors"
                                 onClick={() => toggleRow(doc.document_number)}
                               >
@@ -620,7 +619,7 @@ export default function ConsumablesPage() {
                                   </TableCell>
                                 </TableRow>
                               )}
-                            </>
+                            </React.Fragment>
                           );
                         })
                       )}
