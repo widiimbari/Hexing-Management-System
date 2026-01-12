@@ -35,8 +35,7 @@ export async function POST(request: Request) {
       const qty = parseInt(row.getCell(4).value?.toString() || '0'); // Column D: Qty
       const price = parseFloat(row.getCell(5).value?.toString() || '0'); // Column E: Price
       const link = row.getCell(6).value?.toString() || ''; // Column F: Link
-      const dept = row.getCell(7).value?.toString() || ''; // Column G: Department
-      const remark = row.getCell(8).value?.toString() || ''; // Column H: Remarks
+      const remark = row.getCell(7).value?.toString() || ''; // Column G: Remarks
 
       if (itemName) {
         consumablesToCreate.push({
@@ -45,7 +44,6 @@ export async function POST(request: Request) {
           qty_estimated: qty,
           price_estimated: price,
           purchase_link: link,
-          department: dept,
           remarks: remark,
           document_number: docNumber, // Assign Document Number
           status: 'PENDING',

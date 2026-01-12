@@ -20,7 +20,6 @@ export function RequestDialog({ open, onOpenChange, onSave }: RequestDialogProps
     qty_estimated: "1",
     price_estimated: "",
     purchase_link: "",
-    department: "",
     remarks: "",
     item_image: null as File | null,
   });
@@ -35,7 +34,6 @@ export function RequestDialog({ open, onOpenChange, onSave }: RequestDialogProps
       payload.append("qty_estimated", formData.qty_estimated);
       payload.append("price_estimated", formData.price_estimated);
       payload.append("purchase_link", formData.purchase_link);
-      payload.append("department", formData.department);
       payload.append("remarks", formData.remarks);
       if (formData.item_image) {
         payload.append("item_image", formData.item_image);
@@ -56,7 +54,6 @@ export function RequestDialog({ open, onOpenChange, onSave }: RequestDialogProps
         qty_estimated: "1", 
         price_estimated: "", 
         purchase_link: "",
-        department: "",
         remarks: "",
         item_image: null 
       });
@@ -114,23 +111,13 @@ export function RequestDialog({ open, onOpenChange, onSave }: RequestDialogProps
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-                <Label>Department</Label>
-                <Input 
-                value={formData.department}
-                onChange={e => setFormData({...formData, department: e.target.value})}
-                placeholder="e.g. IT, Production"
-                />
-            </div>
-            <div className="space-y-2">
-                <Label>Remarks (Purpose)</Label>
-                <Input 
-                value={formData.remarks}
-                onChange={e => setFormData({...formData, remarks: e.target.value})}
-                placeholder="e.g. For Backup"
-                />
-            </div>
+          <div className="space-y-2">
+            <Label>Remarks (Purpose)</Label>
+            <Input 
+            value={formData.remarks}
+            onChange={e => setFormData({...formData, remarks: e.target.value})}
+            placeholder="e.g. For Backup"
+            />
           </div>
           <div className="space-y-2">
             <Label>Purchase Link (Optional)</Label>

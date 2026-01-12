@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/asset-client-v13"
+  output   = "../generated/asset-client-v14"
 }
 
 datasource db {
@@ -204,7 +204,6 @@ model consumables {
   item_image      String?          @db.VarChar(255)
   purchase_link   String?          @db.Text
   document_number String?          @db.VarChar(50)
-  department      String?          @db.VarChar(100)
   remarks         String?          @db.Text
   status          ConsumableStatus @default(PENDING)
   created_at      DateTime?        @default(now()) @db.Timestamp(0)

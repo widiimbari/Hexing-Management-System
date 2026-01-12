@@ -38,7 +38,6 @@ export function DocumentSheet({ open, onOpenChange, documentNumber, data, onSett
         )
     },
     { accessorKey: "brand_type", header: "Brand" },
-    { accessorKey: "department", header: "Dept" },
     { accessorKey: "remarks", header: "Remarks" },
     { 
         id: "qty",

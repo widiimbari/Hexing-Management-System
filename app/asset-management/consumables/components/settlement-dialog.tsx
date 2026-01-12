@@ -60,13 +60,16 @@ export function SettlementDialog({ open, onOpenChange, request, onSave }: Settle
         body: payload,
       });
 
-      if (!res.ok) throw new Error("Failed to settle request");
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to settle request");
+      }
       
       onSave();
       onOpenChange(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      alert("Error settling request");
+      alert(error.message || "Error settling request");
     } finally {
       setLoading(false);
     }

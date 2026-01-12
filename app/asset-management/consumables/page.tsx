@@ -72,8 +72,6 @@ export default function ConsumablesPage() {
     const docItems = items.filter(i => i.document_number === doc.document_number);
     if (docItems.length === 0) return;
 
-    const department = docItems[0].department || "IT / Umum";
-
     const pdf = new jsPDF({ orientation: "landscape", format: "a4" });
     const img = new Image();
     img.src = "/HEXING LOGO.png";
@@ -89,7 +87,6 @@ export default function ConsumablesPage() {
         pdf.setFont("helvetica", "normal");
         pdf.text(`Doc No: ${doc.document_number}`, 14, 40);
         pdf.text(`Tanggal: ${format(new Date(doc.request_date), "dd MMMM yyyy")}`, 14, 45);
-        pdf.text(`Department: ${department}`, 14, 50); 
 
         const tableBody = docItems.map((item: any, index: number) => {
             const qty = item.qty_estimated;
@@ -166,8 +163,6 @@ export default function ConsumablesPage() {
     const docItems = items.filter(i => i.document_number === doc.document_number);
     if (docItems.length === 0) return;
 
-    const department = docItems[0].department || "IT / Umum";
-
     try {
       const ExcelJS = (await import("exceljs")).default;
       const workbook = new ExcelJS.Workbook();
@@ -209,11 +204,6 @@ export default function ConsumablesPage() {
       sheet.getCell('A5').font = { bold: true };
       sheet.mergeCells('B5:E5');
       sheet.getCell('B5').value = format(new Date(doc.request_date), "dd MMMM yyyy");
-
-      sheet.getCell('A6').value = "Department:";
-      sheet.getCell('A6').font = { bold: true };
-      sheet.mergeCells('B6:E6');
-      sheet.getCell('B6').value = department;
 
       // Header
       const headerRowIdx = 8;
