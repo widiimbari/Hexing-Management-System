@@ -208,7 +208,7 @@ export default function ConsumablesPage() {
       // Header
       const headerRowIdx = 8;
       const headerRow = sheet.getRow(headerRowIdx);
-      headerRow.values = ["No", "Nama Barang", "Merk/Tipe", "Qty", "Satuan", "Harga Satuan (Est)", "Subtotal", "Fee 3%", "Total", "Keterangan"];
+      headerRow.values = ["No", "Nama Barang", "Merk/Tipe", "Qty", "Satuan", "Harga Satuan (Est)", "Subtotal", "Fee 3%", "Total", "Keterangan", "Link Pembelian"];
       headerRow.font = { bold: true };
       headerRow.height = 25;
       headerRow.eachCell(cell => {
@@ -242,7 +242,8 @@ export default function ConsumablesPage() {
             subtotal,
             shipping,
             total,
-            item.remarks || "-"
+            item.remarks || "-",
+            item.purchase_link ? { text: "Link", hyperlink: item.purchase_link } : "-"
         ]);
         row.eachCell(cell => {
             cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
@@ -253,19 +254,13 @@ export default function ConsumablesPage() {
         row.getCell(5).alignment = { horizontal: 'center' }; // Unit
       });
 
-      // Totals
-      const totalRow = sheet.addRow(["TOTAL ESTIMASI", "", "", "", "", "", totalSubtotal, totalShipping, totalGrand, ""]);
+      const totalRow = sheet.addRow(["TOTAL ESTIMASI", "", "", "", "", "", totalSubtotal, totalShipping, totalGrand, "", ""]);
       const totalRowIdx = totalRow.number;
       
       // Merge "TOTAL ESTIMASI" spanning A to F
       sheet.mergeCells(`A${totalRowIdx}:F${totalRowIdx}`);
       sheet.getCell(`A${totalRowIdx}`).alignment = { horizontal: 'right', vertical: 'middle' };
       
-      // Merge Grand Total if needed, or keeping them separate is better for analysis. 
-      // User said "grand total pun harus di merge". Assuming they meant the label or the cell structure.
-      // Usually "Total" sits under "Total" column. "Fee" under "Fee".
-      // I will keep numbers in their columns but ensure the label spans correctly.
-
       totalRow.font = { bold: true };
       totalRow.eachCell(cell => {
           cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
@@ -276,9 +271,9 @@ export default function ConsumablesPage() {
       const signRowIdx = docItems.length + 13;
       sheet.getCell(`B${signRowIdx}`).value = "Prepared By,";
       sheet.getCell(`E${signRowIdx}`).value = "Checked By,";
-      sheet.getCell(`H${signRowIdx}`).value = "Approved By,";
+      sheet.getCell(`I${signRowIdx}`).value = "Approved By,"; // Adjusted column for spacing
       
-      [`B${signRowIdx}`, `E${signRowIdx}`, `H${signRowIdx}`].forEach(cellAddr => {
+      [`B${signRowIdx}`, `E${signRowIdx}`, `I${signRowIdx}`].forEach(cellAddr => {
           sheet.getCell(cellAddr).alignment = { horizontal: 'center' };
           sheet.getCell(cellAddr).font = { bold: true };
       });
@@ -286,15 +281,15 @@ export default function ConsumablesPage() {
       const nameRowIdx = docItems.length + 18;
       sheet.getCell(`B${nameRowIdx}`).value = "(....................)";
       sheet.getCell(`E${nameRowIdx}`).value = "(....................)";
-      sheet.getCell(`H${nameRowIdx}`).value = "(....................)";
+      sheet.getCell(`I${nameRowIdx}`).value = "(....................)";
       
-      [`B${nameRowIdx}`, `E${nameRowIdx}`, `H${nameRowIdx}`].forEach(cellAddr => {
+      [`B${nameRowIdx}`, `E${nameRowIdx}`, `I${nameRowIdx}`].forEach(cellAddr => {
           sheet.getCell(cellAddr).alignment = { horizontal: 'center' };
       });
 
       sheet.columns = [
           { width: 5 }, { width: 35 }, { width: 20 }, { width: 8 }, { width: 8 }, 
-          { width: 18 }, { width: 18 }, { width: 15 }, { width: 18 }, { width: 25 }
+          { width: 18 }, { width: 18 }, { width: 15 }, { width: 18 }, { width: 25 }, { width: 15 }
       ];
       ['F', 'G', 'H', 'I'].forEach(col => sheet.getColumn(col).numFmt = '#,##0');
 
@@ -350,7 +345,7 @@ export default function ConsumablesPage() {
             parseFloat(d.subtotal_item || 0),
             parseFloat(d.shipping_fee || 0),
             parseFloat(d.grand_total || 0),
-            d.receipt_image ? { text: "Link", hyperlink: window.location.origin + d.receipt_image } : "-"
+            d.receipt_image ? { text: "Link", hyperlink: d.receipt_image } : "-"
          ]);
          // ...
       });
@@ -439,7 +434,20 @@ export default function ConsumablesPage() {
         header: "Purchase Date",
         cell: ({ row }) => row.settlement_date ? format(new Date(row.settlement_date), "dd/MM/yyyy") : "-"
     },
-    { accessorKey: "item_name", header: "Item Name" },
+    { 
+        id: "item",
+        header: "Item Name",
+        cell: ({ row }) => (
+            <div className="flex flex-col">
+                <span className="font-medium">{row.item_name}</span>
+                {row.purchase_link && (
+                    <a href={row.purchase_link} target="_blank" className="text-[10px] text-blue-500 flex items-center gap-1 hover:underline">
+                        <ExternalLink className="w-2 h-2" /> Link Pembelian
+                    </a>
+                )}
+            </div>
+        )
+    },
     { accessorKey: "brand_type", header: "Brand/Type" },
     {
         id: "qty",
