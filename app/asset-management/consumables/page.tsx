@@ -5,13 +5,14 @@ import { DataTable, DataTableColumn } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { PlusCircle, Search, FileText, CheckCircle, Clock, Download, Upload, ExternalLink, ImageIcon } from "lucide-react";
+import { PlusCircle, Search, FileText, CheckCircle, Clock, Download, Upload, ExternalLink, ImageIcon, ShoppingCart, Archive } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useDebounce } from "@/hooks/use-debounce";
 import { format } from "date-fns";
 import { RequestDialog } from "./components/request-dialog";
 import { SettlementDialog } from "./components/settlement-dialog";
 import { ConsumableImportDialog } from "./components/import-dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function ConsumablesPage() {
   const [data, setData] = useState<any[]>([]);
@@ -168,17 +169,10 @@ export default function ConsumablesPage() {
     }
   };
 
-  const columns: DataTableColumn<any>[] = [
-    {
-      id: "status",
-      header: "Status",
-      cell: ({ row }) => (
-        <Badge variant={row.status === "COMPLETED" ? "default" : "outline"} className={row.status === "COMPLETED" ? "bg-emerald-600 hover:bg-emerald-700 text-white border-transparent" : "text-orange-500 border-orange-500"}>
-          {row.status === "COMPLETED" ? <CheckCircle className="w-3 h-3 mr-1" /> : <Clock className="w-3 h-3 mr-1" />}
-          {row.status}
-        </Badge>
-      )
-    },
+  const pendingData = data.filter(d => d.status === "PENDING");
+  const completedData = data.filter(d => d.status === "COMPLETED");
+
+  const requestColumns: DataTableColumn<any>[] = [
     { 
         id: "request_date",
         header: "Req Date",
@@ -186,7 +180,7 @@ export default function ConsumablesPage() {
     },
     { 
         id: "item",
-        header: "Item Name",
+        header: "Item Name (Plan)",
         cell: ({ row }) => (
             <div className="flex flex-col">
                 <span className="font-medium">{row.item_name}</span>
@@ -201,13 +195,13 @@ export default function ConsumablesPage() {
     { accessorKey: "brand_type", header: "Brand/Type" },
     { 
         id: "qty",
-        header: "Qty",
-        cell: ({ row }) => row.status === "COMPLETED" ? row.qty_actual : `${row.qty_estimated} (Est)`
+        header: "Est. Qty",
+        cell: ({ row }) => row.qty_estimated
     },
     { 
-        id: "total",
-        header: "Grand Total",
-        cell: ({ row }) => row.grand_total ? new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(parseFloat(row.grand_total)) : "-"
+        id: "price",
+        header: "Est. Price",
+        cell: ({ row }) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(parseFloat(row.price_estimated))
     },
     {
       id: "actions",
@@ -221,15 +215,45 @@ export default function ConsumablesPage() {
                     </a>
                 </Button>
             )}
-            {row.status === "PENDING" ? (
-                <Button size="sm" onClick={() => handleSettle(row)}>
-                    Settle
-                </Button>
-            ) : (
-                <Badge variant="secondary" className="bg-slate-100">Settled</Badge>
-            )}
+            <Button size="sm" onClick={() => handleSettle(row)} className="bg-blue-600 hover:bg-blue-700">
+                Purchase / Settle
+            </Button>
         </div>
       )
+    }
+  ];
+
+  const inventoryColumns: DataTableColumn<any>[] = [
+    {
+        id: "settle_date",
+        header: "Purchase Date",
+        cell: ({ row }) => row.settlement_date ? format(new Date(row.settlement_date), "dd/MM/yyyy") : "-"
+    },
+    { accessorKey: "item_name", header: "Item Name" },
+    { accessorKey: "brand_type", header: "Brand/Type" },
+    { 
+        id: "qty",
+        header: "Real Qty",
+        cell: ({ row }) => row.qty_actual
+    },
+    { 
+        id: "unit_price",
+        header: "Real Price",
+        cell: ({ row }) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(parseFloat(row.unit_price_real))
+    },
+    { 
+        id: "total",
+        header: "Grand Total",
+        cell: ({ row }) => row.grand_total ? new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(parseFloat(row.grand_total)) : "-"
+    },
+    {
+      id: "proof",
+      header: "Proof",
+      cell: ({ row }) => row.receipt_image ? (
+          <Button size="sm" variant="outline" asChild>
+            <a href={row.receipt_image} target="_blank">View Receipt</a>
+          </Button>
+      ) : <span className="text-muted-foreground">-</span>
     }
   ];
 
@@ -242,39 +266,84 @@ export default function ConsumablesPage() {
           </h1>
           <p className="text-muted-foreground">Manage purchase requests and monthly reporting.</p>
         </div>
-        <div className="flex gap-2">
-            <Button variant="outline" onClick={handleExport}>
-                <Download className="mr-2 h-4 w-4" /> Export Report
-            </Button>
-            <Button variant="outline" onClick={() => setImportOpen(true)}>
-                <Upload className="mr-2 h-4 w-4" /> Import Excel
-            </Button>
-            <Button onClick={() => setRequestOpen(true)}>
-                <PlusCircle className="mr-2 h-4 w-4" /> New Request
-            </Button>
-        </div>
       </div>
 
-      <Card className="shadow-md border-none overflow-hidden">
-        <CardContent className="p-0">
-          <div className="p-4 border-b bg-slate-50/50">
-            <div className="relative max-w-xs w-full">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search items..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 bg-white"
-              />
+      <Tabs defaultValue="requests" className="w-full">
+        <div className="flex justify-between items-center mb-4">
+            <TabsList>
+                <TabsTrigger value="requests" className="flex gap-2">
+                    <ShoppingCart className="h-4 w-4" /> Purchase Requests ({pendingData.length})
+                </TabsTrigger>
+                <TabsTrigger value="inventory" className="flex gap-2">
+                    <Archive className="h-4 w-4" /> Consumables Inventory ({completedData.length})
+                </TabsTrigger>
+            </TabsList>
+
+            <div className="flex gap-2">
+                <Button variant="outline" onClick={handleExport}>
+                    <Download className="mr-2 h-4 w-4" /> Export Report
+                </Button>
+                <Button variant="outline" onClick={() => setImportOpen(true)}>
+                    <Upload className="mr-2 h-4 w-4" /> Import Excel
+                </Button>
+                <Button onClick={() => setRequestOpen(true)}>
+                    <PlusCircle className="mr-2 h-4 w-4" /> New Request
+                </Button>
             </div>
-          </div>
-          <DataTable
-            columns={columns}
-            data={data}
-            loading={loading}
-          />
-        </CardContent>
-      </Card>
+        </div>
+
+        <TabsContent value="requests">
+            <Card className="shadow-md border-none overflow-hidden">
+                <CardContent className="p-0">
+                <div className="p-4 border-b bg-amber-50/50 flex items-center gap-2 text-amber-700">
+                     <Clock className="h-4 w-4" />
+                     <span className="text-sm font-medium">Pending Requests - Waiting for Purchase/Settlement</span>
+                     
+                     <div className="relative max-w-xs w-full ml-auto">
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Search requests..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-9 bg-white"
+                        />
+                    </div>
+                </div>
+                <DataTable
+                    columns={requestColumns}
+                    data={pendingData}
+                    loading={loading}
+                />
+                </CardContent>
+            </Card>
+        </TabsContent>
+
+        <TabsContent value="inventory">
+            <Card className="shadow-md border-none overflow-hidden">
+                <CardContent className="p-0">
+                <div className="p-4 border-b bg-slate-50/50 flex items-center gap-2 text-slate-700">
+                     <CheckCircle className="h-4 w-4" />
+                     <span className="text-sm font-medium">Realized Inventory - Completed Transactions</span>
+
+                     <div className="relative max-w-xs w-full ml-auto">
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Search inventory..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-9 bg-white"
+                        />
+                    </div>
+                </div>
+                <DataTable
+                    columns={inventoryColumns}
+                    data={completedData}
+                    loading={loading}
+                />
+                </CardContent>
+            </Card>
+        </TabsContent>
+      </Tabs>
 
       <RequestDialog 
         open={requestOpen} 
@@ -297,4 +366,3 @@ export default function ConsumablesPage() {
     </div>
   );
 }
-
