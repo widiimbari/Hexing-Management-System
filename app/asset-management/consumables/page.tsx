@@ -5,12 +5,13 @@ import { DataTable, DataTableColumn } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { PlusCircle, Search, FileText, CheckCircle, Clock, Download } from "lucide-react";
+import { PlusCircle, Search, FileText, CheckCircle, Clock, Download, Upload, ExternalLink, ImageIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useDebounce } from "@/hooks/use-debounce";
 import { format } from "date-fns";
 import { RequestDialog } from "./components/request-dialog";
 import { SettlementDialog } from "./components/settlement-dialog";
+import { ConsumableImportDialog } from "./components/import-dialog";
 
 export default function ConsumablesPage() {
   const [data, setData] = useState<any[]>([]);
@@ -20,6 +21,7 @@ export default function ConsumablesPage() {
   
   const [requestOpen, setRequestOpen] = useState(false);
   const [settleOpen, setSettleOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
 
   const fetchData = useCallback(async () => {
@@ -182,7 +184,20 @@ export default function ConsumablesPage() {
         header: "Req Date",
         cell: ({ row }) => format(new Date(row.request_date), "dd/MM/yyyy")
     },
-    { accessorKey: "item_name", header: "Item Name" },
+    { 
+        id: "item",
+        header: "Item Name",
+        cell: ({ row }) => (
+            <div className="flex flex-col">
+                <span className="font-medium">{row.item_name}</span>
+                {row.purchase_link && (
+                    <a href={row.purchase_link} target="_blank" className="text-[10px] text-blue-500 flex items-center gap-1 hover:underline">
+                        <ExternalLink className="w-2 h-2" /> Link Pembelian
+                    </a>
+                )}
+            </div>
+        )
+    },
     { accessorKey: "brand_type", header: "Brand/Type" },
     { 
         id: "qty",
@@ -198,13 +213,22 @@ export default function ConsumablesPage() {
       id: "actions",
       header: "Action",
       cell: ({ row }) => (
-        row.status === "PENDING" ? (
-            <Button size="sm" onClick={() => handleSettle(row)}>
-                Complete / Settle
-            </Button>
-        ) : (
-            <span className="text-muted-foreground text-sm">Completed</span>
-        )
+        <div className="flex gap-2">
+            {row.item_image && (
+                <Button size="icon" variant="ghost" className="h-8 w-8" asChild>
+                    <a href={row.item_image} target="_blank">
+                        <ImageIcon className="h-4 w-4" />
+                    </a>
+                </Button>
+            )}
+            {row.status === "PENDING" ? (
+                <Button size="sm" onClick={() => handleSettle(row)}>
+                    Settle
+                </Button>
+            ) : (
+                <Badge variant="secondary" className="bg-slate-100">Settled</Badge>
+            )}
+        </div>
       )
     }
   ];
@@ -214,13 +238,16 @@ export default function ConsumablesPage() {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-2">
-            <FileText className="h-8 w-8 text-primary" /> Non-SAP Assets (Consumables)
+            <FileText className="h-8 w-8 text-primary" /> Non-SAP Assets
           </h1>
           <p className="text-muted-foreground">Manage purchase requests and monthly reporting.</p>
         </div>
         <div className="flex gap-2">
             <Button variant="outline" onClick={handleExport}>
                 <Download className="mr-2 h-4 w-4" /> Export Report
+            </Button>
+            <Button variant="outline" onClick={() => setImportOpen(true)}>
+                <Upload className="mr-2 h-4 w-4" /> Import Excel
             </Button>
             <Button onClick={() => setRequestOpen(true)}>
                 <PlusCircle className="mr-2 h-4 w-4" /> New Request
@@ -261,6 +288,13 @@ export default function ConsumablesPage() {
         request={selectedRequest}
         onSave={fetchData} 
       />
+
+      <ConsumableImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        onImportSuccess={fetchData}
+      />
     </div>
   );
 }
+
