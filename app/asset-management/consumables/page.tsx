@@ -5,7 +5,7 @@ import { DataTable, DataTableColumn } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { PlusCircle, Search, FileText, CheckCircle, Clock, Download, Upload, Eye, Archive, ShoppingCart, Printer } from "lucide-react";
+import { PlusCircle, Search, FileText, CheckCircle, Clock, Download, Upload, Eye, Archive, ShoppingCart, Printer, FileSpreadsheet } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useDebounce } from "@/hooks/use-debounce";
 import { format } from "date-fns";
@@ -148,6 +148,103 @@ export default function ConsumablesPage() {
     img.onerror = () => generate();
   };
 
+  const handlePrintDocumentExcel = async (doc: any) => {
+    const docItems = items.filter(i => i.document_number === doc.document_number);
+    if (docItems.length === 0) return;
+
+    try {
+      const ExcelJS = (await import("exceljs")).default;
+      const workbook = new ExcelJS.Workbook();
+      const sheet = workbook.addWorksheet("Request Form");
+
+      sheet.mergeCells('A1:I1');
+      sheet.getCell('A1').value = "FORMULIR PERMOHONAN PENYEDIAAN BARANG / JASA";
+      sheet.getCell('A1').font = { size: 14, bold: true };
+      sheet.getCell('A1').alignment = { horizontal: 'center' };
+
+      sheet.getCell('A3').value = "Doc No:";
+      sheet.getCell('B3').value = doc.document_number;
+      sheet.getCell('A4').value = "Tanggal:";
+      sheet.getCell('B4').value = format(new Date(doc.request_date), "dd MMMM yyyy");
+      sheet.getCell('A5').value = "Department:";
+      sheet.getCell('B5').value = "IT / Umum";
+
+      const headerRow = sheet.getRow(7);
+      headerRow.values = ["No", "Nama Barang", "Merk/Tipe", "Qty", "Satuan", "Harga Satuan (Est)", "Subtotal", "Fee 3%", "Total"];
+      headerRow.font = { bold: true };
+      headerRow.eachCell(cell => {
+        cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'E5E7EB' } };
+        cell.alignment = { horizontal: 'center' };
+      });
+
+      let totalSubtotal = 0;
+      let totalShipping = 0;
+      let totalGrand = 0;
+
+      docItems.forEach((item, index) => {
+        const qty = item.qty_estimated;
+        const price = parseFloat(item.price_estimated);
+        const subtotal = qty * price;
+        const shipping = subtotal * 0.03;
+        const total = subtotal + shipping;
+
+        totalSubtotal += subtotal;
+        totalShipping += shipping;
+        totalGrand += total;
+
+        const row = sheet.addRow([
+            index + 1,
+            item.item_name,
+            item.brand_type,
+            qty,
+            "Unit",
+            price,
+            subtotal,
+            shipping,
+            total
+        ]);
+        row.eachCell(cell => cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } });
+      });
+
+      const totalRow = sheet.addRow(["TOTAL ESTIMASI", "", "", "", "", "", totalSubtotal, totalShipping, totalGrand]);
+      totalRow.font = { bold: true };
+      totalRow.eachCell(cell => {
+          cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'DCFCE7' } };
+      });
+
+      const signRowIdx = docItems.length + 12;
+      sheet.getCell(`A${signRowIdx}`).value = "Prepared By,";
+      sheet.getCell(`D${signRowIdx}`).value = "Checked By,";
+      sheet.getCell(`G${signRowIdx}`).value = "Approved By,";
+      
+      const nameRowIdx = docItems.length + 17;
+      sheet.getCell(`A${nameRowIdx}`).value = "(....................)";
+      sheet.getCell(`D${nameRowIdx}`).value = "(....................)";
+      sheet.getCell(`G${nameRowIdx}`).value = "(....................)";
+
+      sheet.columns = [
+          { width: 5 }, { width: 30 }, { width: 20 }, { width: 8 }, { width: 8 }, 
+          { width: 18 }, { width: 18 }, { width: 15 }, { width: 18 }
+      ];
+      ['F', 'G', 'H', 'I'].forEach(col => sheet.getColumn(col).numFmt = '#,##0');
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Request_${doc.document_number.replace(/[\]/g, '-')}.xlsx`;
+      a.click();
+      a.remove();
+
+    } catch (err) {
+        console.error(err);
+        alert("Failed to export Excel");
+    }
+  };
+
   const handleExportReport = async () => {
     try {
       const ExcelJS = (await import("exceljs")).default;
@@ -284,10 +381,13 @@ export default function ConsumablesPage() {
         cell: ({ row }) => (
             <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={() => handleViewDocument(row.document_number)}>
-                    <Eye className="mr-2 h-4 w-4" /> View & Settle
+                    <Eye className="mr-2 h-4 w-4" /> View
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => handlePrintDocument(row)}>
-                    <Printer className="mr-2 h-4 w-4" /> Print PDF
+                    <Printer className="mr-2 h-4 w-4" /> PDF
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => handlePrintDocumentExcel(row)}>
+                    <FileSpreadsheet className="mr-2 h-4 w-4" /> Excel
                 </Button>
             </div>
         )
