@@ -13,6 +13,8 @@ import { RequestDialog } from "./components/request-dialog";
 import { SettlementDialog } from "./components/settlement-dialog";
 import { ConsumableImportDialog } from "./components/import-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export default function ConsumablesPage() {
   const [data, setData] = useState<any[]>([]);
@@ -45,6 +47,99 @@ export default function ConsumablesPage() {
   const handleSettle = (item: any) => {
     setSelectedRequest(item);
     setSettleOpen(true);
+  };
+
+  const pendingData = data.filter(d => d.status === "PENDING");
+  const completedData = data.filter(d => d.status === "COMPLETED");
+
+  const handleExportRequestForm = () => {
+    if (pendingData.length === 0) {
+        alert("No pending requests to export.");
+        return;
+    }
+
+    const doc = new jsPDF();
+    
+    const img = new Image();
+    img.src = "/HEXING LOGO.png";
+    img.onload = () => {
+        doc.addImage(img, "PNG", 14, 10, 30, 10);
+        generatePDF(doc);
+    };
+    img.onerror = () => {
+        generatePDF(doc);
+    };
+
+    const generatePDF = (doc: jsPDF) => {
+        // Title
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text("FORMULIR PERMOHONAN PENYEDIAAN BARANG / JASA", 105, 20, { align: "center" });
+        
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.text(`Tanggal: ${format(new Date(), "dd MMMM yyyy")}`, 14, 35);
+        doc.text(`Department: IT / Umum`, 14, 40); 
+
+        // Table Data
+        const tableBody = pendingData.map((item, index) => {
+            const qty = item.qty_estimated;
+            const price = parseFloat(item.price_estimated);
+            const subtotal = qty * price;
+            const shipping = subtotal * 0.03; 
+            const total = subtotal + shipping;
+
+            return [
+                index + 1,
+                item.item_name,
+                item.brand_type || "-",
+                qty,
+                "Unit",
+                new Intl.NumberFormat("id-ID").format(price),
+                new Intl.NumberFormat("id-ID").format(subtotal),
+                new Intl.NumberFormat("id-ID").format(shipping),
+                new Intl.NumberFormat("id-ID").format(total)
+            ];
+        });
+
+        // Calculate Totals
+        const totalSubtotal = pendingData.reduce((acc, item) => acc + (item.qty_estimated * parseFloat(item.price_estimated)), 0);
+        const totalShipping = totalSubtotal * 0.03;
+        const totalGrand = totalSubtotal + totalShipping;
+
+        autoTable(doc, {
+            startY: 45,
+            head: [["No", "Nama Barang", "Merk/Tipe", "Qty", "Satuan", "Harga Satuan (Est)", "Subtotal", "Fee 3%", "Total"]],
+            body: tableBody,
+            foot: [[
+                { content: "TOTAL ESTIMASI", colSpan: 6, styles: { halign: 'right', fontStyle: 'bold' } },
+                { content: new Intl.NumberFormat("id-ID").format(totalSubtotal), styles: { fontStyle: 'bold' } },
+                { content: new Intl.NumberFormat("id-ID").format(totalShipping), styles: { fontStyle: 'bold' } },
+                { content: new Intl.NumberFormat("id-ID").format(totalGrand), styles: { fontStyle: 'bold' } },
+            ]],
+            theme: 'grid',
+            headStyles: { fillColor: [22, 163, 74] }, // Green-600
+            styles: { fontSize: 8 },
+        });
+
+        // Signatures
+        const finalY = (doc as any).lastAutoTable.finalY + 20;
+        
+        doc.setFontSize(10);
+        doc.text("Prepared By,", 30, finalY);
+        doc.text("Checked By,", 90, finalY);
+        doc.text("Approved By,", 150, finalY);
+
+        doc.line(20, finalY + 25, 60, finalY + 25);
+        doc.line(80, finalY + 25, 120, finalY + 25);
+        doc.line(140, finalY + 25, 180, finalY + 25);
+
+        doc.text("( .................... )", 27, finalY + 30);
+        doc.text("( .................... )", 87, finalY + 30);
+        doc.text("( .................... )", 147, finalY + 30);
+
+        doc.save(`Request_Form_${format(new Date(), "yyyyMMdd")}.pdf`);
+    };
   };
 
   const handleExport = async () => {
@@ -169,9 +264,6 @@ export default function ConsumablesPage() {
     }
   };
 
-  const pendingData = data.filter(d => d.status === "PENDING");
-  const completedData = data.filter(d => d.status === "COMPLETED");
-
   const requestColumns: DataTableColumn<any>[] = [
     { 
         id: "request_date",
@@ -280,6 +372,9 @@ export default function ConsumablesPage() {
             </TabsList>
 
             <div className="flex gap-2">
+                <Button variant="outline" onClick={handleExportRequestForm}>
+                    <FileText className="mr-2 h-4 w-4" /> Export Request Form
+                </Button>
                 <Button variant="outline" onClick={handleExport}>
                     <Download className="mr-2 h-4 w-4" /> Export Report
                 </Button>
