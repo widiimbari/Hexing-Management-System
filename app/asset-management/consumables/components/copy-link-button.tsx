@@ -9,7 +9,10 @@ export function CopyLinkButton({ url }: { url: string | null | undefined }) {
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent row click
-    if (!url) return;
+    if (!url || url === "[object Object]") {
+        alert("Invalid Link Data. Please re-import the Excel file.");
+        return;
+    }
     
     try {
         // Check if Clipboard API is supported

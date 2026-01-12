@@ -34,7 +34,43 @@ export async function POST(request: Request) {
       const brandType = row.getCell(3).value?.toString(); // Column C: Brand/Type
       const qty = parseInt(row.getCell(4).value?.toString() || '0'); // Column D: Qty
       const price = parseFloat(row.getCell(5).value?.toString() || '0'); // Column E: Price
-      const link = row.getCell(6).value?.toString() || ''; // Column F: Link
+      
+      // Handle Link (can be text, hyperlink object, or formula)
+      const linkCell = row.getCell(6).value;
+      let link = '';
+      
+      try {
+          if (linkCell) {
+              if (typeof linkCell === 'object') {
+                  // Hyperlink object
+                  if ('hyperlink' in linkCell) {
+                      link = (linkCell as any).hyperlink;
+                  } 
+                  // Text object
+                  else if ('text' in linkCell) {
+                      link = (linkCell as any).text;
+                  }
+                  // Formula result
+                  else if ('result' in linkCell) {
+                      link = (linkCell as any).result?.toString() || '';
+                  }
+                  // Shared string or other object
+                  else {
+                      link = JSON.stringify(linkCell); // Fallback to see what it is, usually plain text in rich text
+                      if (link.startsWith('"') && link.endsWith('"')) link = link.slice(1, -1);
+                  }
+              } else {
+                  link = String(linkCell);
+              }
+          }
+      } catch (e) {
+          link = '';
+      }
+
+      // Cleanup
+      if (link === '[object Object]') link = '';
+      if (link.includes('{"')) link = ''; // If it looks like JSON, ignore it (safer than saving garbage)
+
       const remark = row.getCell(7).value?.toString() || ''; // Column G: Remarks
 
       if (itemName) {

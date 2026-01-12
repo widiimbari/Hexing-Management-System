@@ -5,11 +5,10 @@ import { DataTable, DataTableColumn } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { 
-  PlusCircle, Search, FileText, CheckCircle, Clock, Download, Upload, 
-  Archive, ShoppingCart, Printer, FileSpreadsheet, ChevronDown, ChevronRight, ImageIcon 
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import {
+  PlusCircle, Search, FileText, CheckCircle, Clock, Download, Upload,
+  Archive, ShoppingCart, Printer, FileSpreadsheet, ChevronDown, ChevronRight, ImageIcon, Trash
+} from "lucide-react";import { Badge } from "@/components/ui/badge";
 import { useDebounce } from "@/hooks/use-debounce";
 import { format } from "date-fns";
 import { RequestDialog } from "./components/request-dialog";
@@ -515,18 +514,21 @@ export default function ConsumablesPage() {
                           return (
                             <React.Fragment key={doc.document_number}>
                               <TableRow 
+                                key={doc.document_number} 
                                 className="cursor-pointer hover:bg-slate-50 transition-colors"
                                 onClick={() => toggleRow(doc.document_number)}
                               >
-                                <TableCell>
+                                <TableCell className="align-middle text-center w-[50px]">
                                     {expandedDocNumber === doc.document_number ? <ChevronDown className="h-4 w-4 text-slate-500" /> : <ChevronRight className="h-4 w-4 text-slate-500" />}
                                 </TableCell>
-                                <TableCell className="font-medium text-blue-600 flex items-center gap-2">
-                                    <FileText className="h-4 w-4" />
-                                    {doc.document_number}
+                                <TableCell className="font-medium text-blue-600 align-middle">
+                                    <div className="flex items-center gap-2">
+                                        <FileText className="h-4 w-4" />
+                                        {doc.document_number}
+                                    </div>
                                 </TableCell>
-                                <TableCell>{format(new Date(doc.request_date), "dd MMMM yyyy")}</TableCell>
-                                <TableCell>
+                                <TableCell className="align-middle">{format(new Date(doc.request_date), "dd MMMM yyyy")}</TableCell>
+                                <TableCell className="align-middle">
                                     <div className="w-full">
                                         <div className="flex justify-between text-xs mb-1 text-muted-foreground">
                                             <span>{doc.completed_items}/{doc.total_items}</span>
@@ -546,7 +548,7 @@ export default function ConsumablesPage() {
                                         <Badge variant="outline" className="text-amber-600 border-amber-600">Pending</Badge>
                                     )}
                                 </TableCell>
-                                <TableCell onClick={e => e.stopPropagation()}>
+                                <TableCell onClick={e => e.stopPropagation()} className="align-middle">
                                     <div className="flex gap-2">
                                         <Button size="sm" variant="outline" onClick={() => handlePrintDocument(doc)}>
                                             <Printer className="mr-2 h-4 w-4" /> PDF
