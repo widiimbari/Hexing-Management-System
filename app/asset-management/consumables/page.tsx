@@ -17,6 +17,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
+const ensureAbsoluteUrl = (url: string) => {
+    if (!url) return "";
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return `https://${url}`;
+};
+
 export default function ConsumablesPage() {
   const [items, setItems] = useState<any[]>([]);
   const [documents, setDocuments] = useState<any[]>([]);
@@ -441,7 +447,7 @@ export default function ConsumablesPage() {
             <div className="flex flex-col">
                 <span className="font-medium">{row.item_name}</span>
                 {row.purchase_link && (
-                    <a href={row.purchase_link} target="_blank" className="text-[10px] text-blue-500 flex items-center gap-1 hover:underline">
+                    <a href={ensureAbsoluteUrl(row.purchase_link)} target="_blank" className="text-[10px] text-blue-500 flex items-center gap-1 hover:underline">
                         <ExternalLink className="w-2 h-2" /> Link Pembelian
                     </a>
                 )}

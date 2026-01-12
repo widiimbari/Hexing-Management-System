@@ -15,6 +15,12 @@ interface DocumentSheetProps {
   onSettle: (item: any) => void;
 }
 
+const ensureAbsoluteUrl = (url: string) => {
+    if (!url) return "";
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return `https://${url}`;
+};
+
 export function DocumentSheet({ open, onOpenChange, documentNumber, data, onSettle }: DocumentSheetProps) {
   if (!documentNumber) return null;
 
@@ -30,7 +36,7 @@ export function DocumentSheet({ open, onOpenChange, documentNumber, data, onSett
             <div className="flex flex-col">
                 <span className="font-medium">{row.item_name}</span>
                 {row.purchase_link && (
-                    <a href={row.purchase_link} target="_blank" className="text-[10px] text-blue-500 flex items-center gap-1 hover:underline">
+                    <a href={ensureAbsoluteUrl(row.purchase_link)} target="_blank" className="text-[10px] text-blue-500 flex items-center gap-1 hover:underline">
                         <ExternalLink className="w-2 h-2" /> Link
                     </a>
                 )}
