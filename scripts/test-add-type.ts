@@ -2,7 +2,7 @@
  * Test script to debug add type issue
  */
 
-import { PrismaClient as AssetClient } from '../generated/asset-client-v10';
+import { PrismaClient as AssetClient } from '../generated/asset-client-v14';
 
 const dbAsset = new AssetClient();
 

@@ -3,7 +3,7 @@
  * This resets all auto-increment sequences to start from max(id) + 1
  */
 
-import { PrismaClient as AssetClient } from '../generated/asset-client-v10';
+import { PrismaClient as AssetClient } from '../generated/asset-client-v14';
 import { PrismaClient as ManagementClient } from '../generated/management-client-v2';
 
 const dbAsset = new AssetClient();

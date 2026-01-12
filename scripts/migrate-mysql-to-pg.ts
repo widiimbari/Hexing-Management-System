@@ -4,7 +4,7 @@
  */
 
 import mysql from 'mysql2/promise';
-import { PrismaClient as AssetClientPG } from '../generated/asset-client-v10';
+import { PrismaClient as AssetClientPG } from '../generated/asset-client-v14';
 import { PrismaClient as ManagementClientPG } from '../generated/management-client-v2';
 
 // PostgreSQL Prisma clients

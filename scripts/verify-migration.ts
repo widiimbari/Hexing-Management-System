@@ -3,7 +3,7 @@
  * Checks data integrity and connection
  */
 
-import { PrismaClient as AssetClientPG } from '../generated/asset-client-v10';
+import { PrismaClient as AssetClientPG } from '../generated/asset-client-v14';
 import { PrismaClient as ManagementClientPG } from '../generated/management-client-v2';
 import { PrismaClient as InventoryClientMySQL } from '../generated/inventory-client-v2';
 
