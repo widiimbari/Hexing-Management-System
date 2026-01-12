@@ -152,7 +152,7 @@ export default function ConsumablesPage() {
         pdf.text("( .................... )", colWidth * 1.5, finalY + 30, { align: "center" });
         pdf.text("( .................... )", colWidth * 2.5, finalY + 30, { align: "center" });
 
-        pdf.save(`Request_${doc.document_number.replace(/[\]/g, '-')}.pdf`);
+        pdf.save(`Request_${doc.document_number.replace(/[\/\\]/g, '-')}.pdf`);
     };
 
     img.onload = () => {
@@ -265,7 +265,7 @@ export default function ConsumablesPage() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `Request_${doc.document_number.replace(/[\]/g, '-')}.xlsx`;
+      a.download = `Request_${doc.document_number.replace(/[\/\\]/g, '-')}.xlsx`;
       a.click();
       a.remove();
 
