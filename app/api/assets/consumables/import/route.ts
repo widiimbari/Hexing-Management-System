@@ -26,70 +26,64 @@ export async function POST(request: Request) {
 
     const consumablesToCreate: any[] = [];
     
-    // Skip header row (row 1)
+    // Header check (Optional but good)
+    // Row 1 is usually headers
+    
     worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber === 1) return;
+      if (rowNumber === 1) return; // Skip header
 
-      const itemName = row.getCell(2).value?.toString(); // Column B: Item Name
-      const brandType = row.getCell(3).value?.toString(); // Column C: Brand/Type
-      const qty = parseInt(row.getCell(4).value?.toString() || '0'); // Column D: Qty
-      const price = parseFloat(row.getCell(5).value?.toString() || '0'); // Column E: Price
+      // Column mapping:
+      // 1: No
+      // 2: Item Name
+      // 3: Brand/Type
+      // 4: Qty
+      // 5: Price
+      // 6: Link
+      // 7: Remarks
+
+      const itemName = row.getCell(2).value?.toString()?.trim();
+      if (!itemName) return; // Skip empty rows
+
+      const brandType = row.getCell(3).value?.toString()?.trim() || '';
       
-      // Handle Link (can be text, hyperlink object, or formula)
-      const linkCell = row.getCell(6).value;
+      const qtyRaw = row.getCell(4).value;
+      const qty = parseInt(qtyRaw?.toString() || '1') || 1;
+      
+      const priceRaw = row.getCell(5).value;
+      const price = parseFloat(priceRaw?.toString() || '0') || 0;
+      
+      const remark = row.getCell(6).value?.toString()?.trim() || '';
+
+      // Link Handling (Now at the end - Column 7)
+      const linkCell = row.getCell(7).value;
       let link = '';
-      
-      try {
-          if (linkCell) {
-              if (typeof linkCell === 'object') {
-                  // Hyperlink object
-                  if ('hyperlink' in linkCell) {
-                      link = (linkCell as any).hyperlink;
-                  } 
-                  // Text object
-                  else if ('text' in linkCell) {
-                      link = (linkCell as any).text;
-                  }
-                  // Formula result
-                  else if ('result' in linkCell) {
-                      link = (linkCell as any).result?.toString() || '';
-                  }
-                  // Shared string or other object
-                  else {
-                      link = JSON.stringify(linkCell); // Fallback to see what it is, usually plain text in rich text
-                      if (link.startsWith('"') && link.endsWith('"')) link = link.slice(1, -1);
-                  }
-              } else {
-                  link = String(linkCell);
-              }
+      if (linkCell) {
+          if (typeof linkCell === 'object') {
+              if ('hyperlink' in linkCell) link = (linkCell as any).hyperlink;
+              else if ('text' in linkCell) link = (linkCell as any).text;
+              else if ('result' in linkCell) link = (linkCell as any).result?.toString() || '';
+              else link = JSON.stringify(linkCell);
+          } else {
+              link = String(linkCell);
           }
-      } catch (e) {
-          link = '';
       }
+      if (link === '[object Object]' || link.includes('{"')) link = '';
 
-      // Cleanup
-      if (link === '[object Object]') link = '';
-      if (link.includes('{"')) link = ''; // If it looks like JSON, ignore it (safer than saving garbage)
-
-      const remark = row.getCell(7).value?.toString() || ''; // Column G: Remarks
-
-      if (itemName) {
-        consumablesToCreate.push({
-          item_name: itemName,
-          brand_type: brandType,
-          qty_estimated: qty,
-          price_estimated: price,
-          purchase_link: link,
-          remarks: remark,
-          document_number: docNumber, // Assign Document Number
-          status: 'PENDING',
-          request_date: new Date(),
-        });
-      }
+      consumablesToCreate.push({
+        item_name: itemName,
+        brand_type: brandType,
+        qty_estimated: qty,
+        price_estimated: price,
+        purchase_link: link,
+        remarks: remark,
+        document_number: docNumber,
+        status: 'PENDING',
+        request_date: new Date(),
+      });
     });
 
     if (consumablesToCreate.length === 0) {
-      return NextResponse.json({ message: 'No valid data found in Excel' }, { status: 400 });
+      return NextResponse.json({ message: 'No valid data found in Excel. Ensure "Item Name" is provided.' }, { status: 400 });
     }
 
     // Bulk create
@@ -98,8 +92,9 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ 
-      message: `Successfully imported ${consumablesToCreate.length} items`,
-      count: consumablesToCreate.length 
+      message: `Successfully imported ${consumablesToCreate.length} items under Document ${docNumber}`,
+      count: consumablesToCreate.length,
+      document_number: docNumber
     });
 
   } catch (error: any) {
