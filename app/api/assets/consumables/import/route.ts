@@ -20,41 +20,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'Invalid excel file' }, { status: 400 });
     }
 
-    // Generate Document Number for this batch
     const now = new Date();
     const docNumber = `REQ/${now.getFullYear()}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${Date.now().toString().slice(-6)}`;
 
     const consumablesToCreate: any[] = [];
     
-    // Header check (Optional but good)
-    // Row 1 is usually headers
-    
     worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber === 1) return; // Skip header
-
-      // Column mapping:
-      // 1: No
-      // 2: Item Name
-      // 3: Brand/Type
-      // 4: Qty
-      // 5: Price
-      // 6: Link
-      // 7: Remarks
+      if (rowNumber === 1) return;
 
       const itemName = row.getCell(2).value?.toString()?.trim();
-      if (!itemName) return; // Skip empty rows
+      if (!itemName) return;
 
       const brandType = row.getCell(3).value?.toString()?.trim() || '';
-      
-      const qtyRaw = row.getCell(4).value;
-      const qty = parseInt(qtyRaw?.toString() || '1') || 1;
-      
-      const priceRaw = row.getCell(5).value;
-      const price = parseFloat(priceRaw?.toString() || '0') || 0;
-      
+      const qty = parseInt(row.getCell(4).value?.toString() || '1') || 1;
+      const price = parseFloat(row.getCell(5).value?.toString() || '0') || 0;
       const remark = row.getCell(6).value?.toString()?.trim() || '';
 
-      // Link Handling (Now at the end - Column 7)
       const linkCell = row.getCell(7).value;
       let link = '';
       if (linkCell) {
@@ -67,6 +48,7 @@ export async function POST(request: Request) {
               link = String(linkCell);
           }
       }
+      
       if (link === '[object Object]' || link.includes('{"')) link = '';
 
       consumablesToCreate.push({
@@ -83,16 +65,15 @@ export async function POST(request: Request) {
     });
 
     if (consumablesToCreate.length === 0) {
-      return NextResponse.json({ message: 'No valid data found in Excel. Ensure "Item Name" is provided.' }, { status: 400 });
+      return NextResponse.json({ message: 'No valid data found' }, { status: 400 });
     }
 
-    // Bulk create
     await dbAsset.consumables.createMany({
       data: consumablesToCreate,
     });
 
     return NextResponse.json({ 
-      message: `Successfully imported ${consumablesToCreate.length} items under Document ${docNumber}`,
+      message: `Successfully imported ${consumablesToCreate.length} items`,
       count: consumablesToCreate.length,
       document_number: docNumber
     });
