@@ -32,9 +32,10 @@ export default function ConsumablesPage() {
     try {
       const res = await fetch(`/api/assets/consumables?search=${debouncedSearch}`);
       const result = await res.json();
-      setData(result.data);
+      setData(result.data || []);
     } catch (err) {
       console.error(err);
+      setData([]);
     } finally {
       setLoading(false);
     }
