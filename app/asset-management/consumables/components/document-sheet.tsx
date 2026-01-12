@@ -32,16 +32,7 @@ export function DocumentSheet({ open, onOpenChange, documentNumber, data, onSett
     { 
         id: "item",
         header: "Item Name",
-        cell: ({ row }) => (
-            <div className="flex flex-col">
-                <span className="font-medium">{row.item_name}</span>
-                {row.purchase_link && (
-                    <a href={ensureAbsoluteUrl(row.purchase_link)} target="_blank" className="text-[10px] text-blue-500 flex items-center gap-1 hover:underline">
-                        <ExternalLink className="w-2 h-2" /> Link
-                    </a>
-                )}
-            </div>
-        )
+        cell: ({ row }) => <span className="font-medium">{row.item_name}</span>
     },
     { accessorKey: "brand_type", header: "Brand" },
     { accessorKey: "remarks", header: "Remarks" },
