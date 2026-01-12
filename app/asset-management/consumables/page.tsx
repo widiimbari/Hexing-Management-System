@@ -5,23 +5,21 @@ import { DataTable, DataTableColumn } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { PlusCircle, Search, FileText, CheckCircle, Clock, Download, Upload, Eye, Archive, ShoppingCart, Printer, FileSpreadsheet } from "lucide-react";
+import { 
+  PlusCircle, Search, FileText, CheckCircle, Clock, Download, Upload, 
+  Archive, ShoppingCart, Printer, FileSpreadsheet, ChevronDown, ChevronRight, ImageIcon 
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useDebounce } from "@/hooks/use-debounce";
 import { format } from "date-fns";
 import { RequestDialog } from "./components/request-dialog";
 import { SettlementDialog } from "./components/settlement-dialog";
 import { ConsumableImportDialog } from "./components/import-dialog";
-import { DocumentSheet } from "./components/document-sheet";
+import { CopyLinkButton } from "./components/copy-link-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-
-const ensureAbsoluteUrl = (url: string) => {
-    if (!url) return "";
-    if (url.startsWith('http://') || url.startsWith('https://')) return url;
-    return `https://${url}`;
-};
 
 export default function ConsumablesPage() {
   const [items, setItems] = useState<any[]>([]);
@@ -33,10 +31,9 @@ export default function ConsumablesPage() {
   const [requestOpen, setRequestOpen] = useState(false);
   const [settleOpen, setSettleOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
-  const [sheetOpen, setSheetOpen] = useState(false);
   
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
-  const [selectedDocNumber, setSelectedDocNumber] = useState<string | null>(null);
+  const [expandedDocNumber, setExpandedDocNumber] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -69,9 +66,12 @@ export default function ConsumablesPage() {
     setSettleOpen(true);
   };
 
-  const handleViewDocument = (docNumber: string) => {
-    setSelectedDocNumber(docNumber);
-    setSheetOpen(true);
+  const toggleRow = (docNumber: string) => {
+    if (expandedDocNumber === docNumber) {
+      setExpandedDocNumber(null);
+    } else {
+      setExpandedDocNumber(docNumber);
+    }
   };
 
   const handlePrintDocument = (doc: any) => {
@@ -127,7 +127,7 @@ export default function ConsumablesPage() {
                 { content: "TOTAL ESTIMASI", colSpan: 6, styles: { halign: 'right', fontStyle: 'bold' } },
                 { content: new Intl.NumberFormat("id-ID").format(totalSubtotal), styles: { fontStyle: 'bold' } },
                 { content: new Intl.NumberFormat("id-ID").format(totalShipping), styles: { fontStyle: 'bold' } },
-                { content: new Intl.NumberFormat("id-ID").format(totalGrand), colSpan: 2, styles: { fontStyle: 'bold' } }, // Span 2 to cover remarks
+                { content: new Intl.NumberFormat("id-ID").format(totalGrand), colSpan: 2, styles: { fontStyle: 'bold' } },
             ]],
             theme: 'grid',
             headStyles: { fillColor: [220, 220, 220], textColor: [0,0,0] },
@@ -174,7 +174,6 @@ export default function ConsumablesPage() {
       const workbook = new ExcelJS.Workbook();
       const sheet = workbook.addWorksheet("Request Form");
 
-      // Fetch and Add Logo
       try {
         const logoRes = await fetch('/HEXING LOGO.png');
         if (logoRes.ok) {
@@ -183,7 +182,6 @@ export default function ConsumablesPage() {
                 buffer: logoBlob,
                 extension: 'png',
             });
-            // Position logo at top-left
             sheet.addImage(logoId, {
                 tl: { col: 0.2, row: 0.2 },
                 ext: { width: 100, height: 35 }
@@ -193,13 +191,11 @@ export default function ConsumablesPage() {
         console.warn("Could not add logo to excel", e);
       }
 
-      // Title
       sheet.mergeCells('C1:I2'); 
       sheet.getCell('C1').value = "FORMULIR PERMOHONAN PENYEDIAAN BARANG / JASA";
       sheet.getCell('C1').font = { size: 14, bold: true };
       sheet.getCell('C1').alignment = { horizontal: 'center', vertical: 'middle' };
 
-      // Info Section
       sheet.getCell('A4').value = "Doc No:";
       sheet.getCell('A4').font = { bold: true };
       sheet.mergeCells('B4:E4');
@@ -211,10 +207,9 @@ export default function ConsumablesPage() {
       sheet.mergeCells('B5:E5');
       sheet.getCell('B5').value = format(new Date(doc.request_date), "dd MMMM yyyy");
 
-      // Header
       const headerRowIdx = 8;
       const headerRow = sheet.getRow(headerRowIdx);
-      headerRow.values = ["No", "Nama Barang", "Merk/Tipe", "Qty", "Satuan", "Harga Satuan (Est)", "Subtotal", "Fee 3%", "Total", "Keterangan", "Link Pembelian"];
+      headerRow.values = ["No", "Nama Barang", "Merk/Tipe", "Qty", "Satuan", "Harga Satuan (Est)", "Subtotal", "Fee 3%", "Total", "Keterangan"];
       headerRow.font = { bold: true };
       headerRow.height = 25;
       headerRow.eachCell(cell => {
@@ -248,22 +243,20 @@ export default function ConsumablesPage() {
             subtotal,
             shipping,
             total,
-            item.remarks || "-",
-            item.purchase_link ? { text: "Link", hyperlink: item.purchase_link } : "-"
+            item.remarks || "-"
         ]);
         row.eachCell(cell => {
             cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
             cell.alignment = { vertical: 'middle' };
         });
-        row.getCell(1).alignment = { horizontal: 'center' }; // No
-        row.getCell(4).alignment = { horizontal: 'center' }; // Qty
-        row.getCell(5).alignment = { horizontal: 'center' }; // Unit
+        row.getCell(1).alignment = { horizontal: 'center' };
+        row.getCell(4).alignment = { horizontal: 'center' };
+        row.getCell(5).alignment = { horizontal: 'center' };
       });
 
-      const totalRow = sheet.addRow(["TOTAL ESTIMASI", "", "", "", "", "", totalSubtotal, totalShipping, totalGrand, "", ""]);
+      const totalRow = sheet.addRow(["TOTAL ESTIMASI", "", "", "", "", "", totalSubtotal, totalShipping, totalGrand, ""]);
       const totalRowIdx = totalRow.number;
       
-      // Merge "TOTAL ESTIMASI" spanning A to F
       sheet.mergeCells(`A${totalRowIdx}:F${totalRowIdx}`);
       sheet.getCell(`A${totalRowIdx}`).alignment = { horizontal: 'right', vertical: 'middle' };
       
@@ -273,13 +266,12 @@ export default function ConsumablesPage() {
           cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'DCFCE7' } };
       });
 
-      // Signatures
       const signRowIdx = docItems.length + 13;
       sheet.getCell(`B${signRowIdx}`).value = "Prepared By,";
       sheet.getCell(`E${signRowIdx}`).value = "Checked By,";
-      sheet.getCell(`I${signRowIdx}`).value = "Approved By,"; // Adjusted column for spacing
+      sheet.getCell(`H${signRowIdx}`).value = "Approved By,";
       
-      [`B${signRowIdx}`, `E${signRowIdx}`, `I${signRowIdx}`].forEach(cellAddr => {
+      [`B${signRowIdx}`, `E${signRowIdx}`, `H${signRowIdx}`].forEach(cellAddr => {
           sheet.getCell(cellAddr).alignment = { horizontal: 'center' };
           sheet.getCell(cellAddr).font = { bold: true };
       });
@@ -287,15 +279,15 @@ export default function ConsumablesPage() {
       const nameRowIdx = docItems.length + 18;
       sheet.getCell(`B${nameRowIdx}`).value = "(....................)";
       sheet.getCell(`E${nameRowIdx}`).value = "(....................)";
-      sheet.getCell(`I${nameRowIdx}`).value = "(....................)";
+      sheet.getCell(`H${nameRowIdx}`).value = "(....................)";
       
-      [`B${nameRowIdx}`, `E${nameRowIdx}`, `I${nameRowIdx}`].forEach(cellAddr => {
+      [`B${nameRowIdx}`, `E${nameRowIdx}`, `H${nameRowIdx}`].forEach(cellAddr => {
           sheet.getCell(cellAddr).alignment = { horizontal: 'center' };
       });
 
       sheet.columns = [
           { width: 5 }, { width: 35 }, { width: 20 }, { width: 8 }, { width: 8 }, 
-          { width: 18 }, { width: 18 }, { width: 15 }, { width: 18 }, { width: 25 }, { width: 15 }
+          { width: 18 }, { width: 18 }, { width: 15 }, { width: 18 }, { width: 25 }
       ];
       ['F', 'G', 'H', 'I'].forEach(col => sheet.getColumn(col).numFmt = '#,##0');
 
@@ -315,49 +307,78 @@ export default function ConsumablesPage() {
   };
 
   const handleExportReport = async () => {
-    // ... (Keep existing report logic, minimal changes)
-    // Just ensuring imports are correct
     try {
       const ExcelJS = (await import("exceljs")).default;
       const workbook = new ExcelJS.Workbook();
       const sheet = workbook.addWorksheet("Monthly Report");
-      // ... (Rest of logic is fine)
+
       sheet.mergeCells('A1:K1');
       sheet.getCell('A1').value = "MONTHLY PURCHASE REPORT (NON-SAP)";
-      // ...
+      sheet.getCell('A1').font = { size: 16, bold: true };
+      sheet.getCell('A1').alignment = { horizontal: 'center' };
+
       sheet.mergeCells('A2:K2');
-      // ...
+      sheet.getCell('A2').value = `Periode: ${format(new Date(), "MMMM yyyy")}`;
+      sheet.getCell('A2').alignment = { horizontal: 'center' };
+
       const headerRow = sheet.getRow(4);
       headerRow.values = ["No", "Tgl Beli", "Item Name", "Brand/Type", "Qty", "Unit", "Harga Satuan (Real)", "Subtotal Barang", "Shipping & Handling (3%)", "GRAND TOTAL (IDR)", "Bukti"];
-      // ...
+      
+      headerRow.eachCell((cell) => {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFF00' } };
+        cell.font = { bold: true };
+        cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+        cell.alignment = { horizontal: 'center' };
+      });
+
       sheet.columns = [
         { key: 'no', width: 5 }, { key: 'date', width: 12 }, { key: 'item', width: 30 }, { key: 'brand', width: 20 },
         { key: 'qty', width: 8 }, { key: 'unit', width: 8 }, { key: 'price', width: 18 }, { key: 'subtotal', width: 18 },
         { key: 'shipping', width: 18 }, { key: 'total', width: 18 }, { key: 'proof', width: 15 },
       ];
-      // ...
+
       const completedItems = items.filter(d => d.status === "COMPLETED");
-      // ...
+      let totalMonthly = 0;
+      let totalShipping = 0;
+      let totalGrand = 0;
+
       completedItems.forEach((d, index) => {
-         // ...
-         const row = sheet.addRow([
-            index + 1,
-            d.settlement_date ? format(new Date(d.settlement_date), "dd-MMM") : "-",
-            d.item_name,
-            d.brand_type,
-            d.qty_actual,
-            "Unit",
-            parseFloat(d.unit_price_real || 0),
-            parseFloat(d.subtotal_item || 0),
-            parseFloat(d.shipping_fee || 0),
-            parseFloat(d.grand_total || 0),
-            d.receipt_image ? { text: "Link", hyperlink: d.receipt_image } : "-"
-         ]);
-         // ...
+        const subtotal = parseFloat(d.subtotal_item || 0);
+        const shipping = parseFloat(d.shipping_fee || 0);
+        const grand = parseFloat(d.grand_total || 0);
+        
+        totalMonthly += subtotal;
+        totalShipping += shipping;
+        totalGrand += grand;
+
+        const row = sheet.addRow([
+          index + 1,
+          d.settlement_date ? format(new Date(d.settlement_date), "dd-MMM") : "-",
+          d.item_name,
+          d.brand_type,
+          d.qty_actual,
+          "Unit",
+          parseFloat(d.unit_price_real || 0),
+          parseFloat(d.subtotal_item || 0),
+          parseFloat(d.shipping_fee || 0),
+          parseFloat(d.grand_total || 0),
+          d.receipt_image ? { text: "Link", hyperlink: d.receipt_image } : "-"
+        ]);
+
+        ['H', 'I', 'J'].forEach(col => {
+            row.getCell(col).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '90EE90' } };
+        });
       });
-      // ...
+
+      const totalRow = sheet.addRow(["TOTAL BULANAN", "", "", "", "", "", "", totalMonthly, totalShipping, totalGrand, ""]);
+      totalRow.font = { bold: true };
+      
+      sheet.getColumn('price').numFmt = '#,##0';
+      sheet.getColumn('subtotal').numFmt = '#,##0';
+      sheet.getColumn('shipping').numFmt = '#,##0';
+      sheet.getColumn('total').numFmt = '#,##0';
+
       const buffer = await workbook.xlsx.writeBuffer();
-      // ...
       const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -371,81 +392,23 @@ export default function ConsumablesPage() {
     }
   };
 
-  const documentColumns: DataTableColumn<any>[] = [
-    {
-        id: "doc_no",
-        header: "Document No",
-        cell: ({ row }) => (
-            <div className="flex items-center gap-2 font-medium text-slate-700">
-                <FileText className="h-4 w-4 text-blue-600" />
-                {row.document_number}
-            </div>
-        )
-    },
-    {
-        id: "date",
-        header: "Req Date",
-        cell: ({ row }) => format(new Date(row.request_date), "dd MMMM yyyy")
-    },
-    {
-        id: "stats",
-        header: "Item Progress",
-        width: "200px",
-        cell: ({ row }) => {
-            const percent = Math.round((row.completed_items / row.total_items) * 100) || 0;
-            return (
-                <div className="w-full">
-                    <div className="flex justify-between text-xs mb-1 text-muted-foreground">
-                        <span>{row.completed_items} of {row.total_items} Items Bought</span>
-                        <span>{percent}%</span>
-                    </div>
-                    <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                        <div className={`h-full transition-all ${percent === 100 ? 'bg-emerald-500' : 'bg-blue-500'}`} style={{ width: `${percent}%` }} />
-                    </div>
-                </div>
-            );
-        }
-    },
-    {
-        id: "status",
-        header: "Status",
-        cell: ({ row }) => {
-            if (row.pending_items === 0 && row.total_items > 0) return <Badge className="bg-emerald-600 hover:bg-emerald-700">Completed</Badge>;
-            if (row.completed_items > 0) return <Badge className="bg-blue-600 hover:bg-blue-700">Partial</Badge>;
-            return <Badge variant="outline" className="text-amber-600 border-amber-600">Pending</Badge>;
-        }
-    },
-    {
-        id: "actions",
-        header: "Action",
-        cell: ({ row }) => (
-            <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={() => handleViewDocument(row.document_number)}>
-                    <Eye className="mr-2 h-4 w-4" /> View
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => handlePrintDocument(row)}>
-                    <Printer className="mr-2 h-4 w-4" /> PDF
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => handlePrintDocumentExcel(row)}>
-                    <FileSpreadsheet className="mr-2 h-4 w-4" /> Excel
-                </Button>
-            </div>
-        )
-    }
-  ];
-
   const inventoryColumns: DataTableColumn<any>[] = [
     {
         id: "settle_date",
         header: "Purchase Date",
         cell: ({ row }) => row.settlement_date ? format(new Date(row.settlement_date), "dd/MM/yyyy") : "-"
     },
-    { 
+    {
         id: "item",
         header: "Item Name",
         cell: ({ row }) => <span className="font-medium">{row.item_name}</span>
     },
     { accessorKey: "brand_type", header: "Brand/Type" },
+    {
+        id: "link",
+        header: "Link",
+        cell: ({ row }) => <CopyLinkButton url={row.purchase_link} />
+    },
     {
         id: "qty",
         header: "Real Qty",
@@ -526,11 +489,145 @@ export default function ConsumablesPage() {
                         />
                     </div>
                 </div>
-                <DataTable
-                    columns={documentColumns}
-                    data={documents}
-                    loading={loading}
-                />
+                
+                <div className="relative w-full overflow-auto">
+                  <Table>
+                    <TableHeader className="bg-slate-50">
+                      <TableRow>
+                        <TableHead className="w-[50px]"></TableHead>
+                        <TableHead>Document No</TableHead>
+                        <TableHead>Req Date</TableHead>
+                        <TableHead className="w-[200px]">Item Progress</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Action</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {documents.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                            No requests found.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        documents.map(doc => {
+                          const percent = Math.round((doc.completed_items / doc.total_items) * 100) || 0;
+                          return (
+                            <>
+                              <TableRow 
+                                key={doc.document_number} 
+                                className="cursor-pointer hover:bg-slate-50 transition-colors"
+                                onClick={() => toggleRow(doc.document_number)}
+                              >
+                                <TableCell>
+                                    {expandedDocNumber === doc.document_number ? <ChevronDown className="h-4 w-4 text-slate-500" /> : <ChevronRight className="h-4 w-4 text-slate-500" />}
+                                </TableCell>
+                                <TableCell className="font-medium text-blue-600 flex items-center gap-2">
+                                    <FileText className="h-4 w-4" />
+                                    {doc.document_number}
+                                </TableCell>
+                                <TableCell>{format(new Date(doc.request_date), "dd MMMM yyyy")}</TableCell>
+                                <TableCell>
+                                    <div className="w-full">
+                                        <div className="flex justify-between text-xs mb-1 text-muted-foreground">
+                                            <span>{doc.completed_items}/{doc.total_items}</span>
+                                            <span>{percent}%</span>
+                                        </div>
+                                        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                                            <div className={`h-full transition-all ${percent === 100 ? 'bg-emerald-500' : 'bg-blue-500'}`} style={{ width: `${percent}%` }} />
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    {doc.pending_items === 0 && doc.total_items > 0 ? (
+                                        <Badge className="bg-emerald-600 hover:bg-emerald-700">Completed</Badge>
+                                    ) : doc.completed_items > 0 ? (
+                                        <Badge className="bg-blue-600 hover:bg-blue-700">Partial</Badge>
+                                    ) : (
+                                        <Badge variant="outline" className="text-amber-600 border-amber-600">Pending</Badge>
+                                    )}
+                                </TableCell>
+                                <TableCell onClick={e => e.stopPropagation()}>
+                                    <div className="flex gap-2">
+                                        <Button size="sm" variant="outline" onClick={() => handlePrintDocument(doc)}>
+                                            <Printer className="mr-2 h-4 w-4" /> PDF
+                                        </Button>
+                                        <Button size="sm" variant="outline" onClick={() => handlePrintDocumentExcel(doc)}>
+                                            <FileSpreadsheet className="mr-2 h-4 w-4" /> Excel
+                                        </Button>
+                                    </div>
+                                </TableCell>
+                              </TableRow>
+                              
+                              {expandedDocNumber === doc.document_number && (
+                                <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+                                  <TableCell colSpan={6} className="p-4 border-b-2 border-slate-100">
+                                     <div className="rounded-lg border bg-white shadow-sm overflow-hidden">
+                                        <Table>
+                                           <TableHeader className="bg-slate-100/80">
+                                              <TableRow>
+                                                 <TableHead>Item Name</TableHead>
+                                                 <TableHead>Brand</TableHead>
+                                                 <TableHead>Link</TableHead>
+                                                 <TableHead className="text-center">Qty (Est)</TableHead>
+                                                 <TableHead className="text-right">Price (Est)</TableHead>
+                                                 <TableHead>Remarks</TableHead>
+                                                 <TableHead>Status</TableHead>
+                                                 <TableHead>Action</TableHead>
+                                              </TableRow>
+                                           </TableHeader>
+                                           <TableBody>
+                                              {items.filter(i => i.document_number === doc.document_number).map(item => (
+                                                <TableRow key={item.id}>
+                                                    <TableCell className="font-medium">{item.item_name}</TableCell>
+                                                    <TableCell>{item.brand_type || "-"}</TableCell>
+                                                    <TableCell>
+                                                        <CopyLinkButton url={item.purchase_link} />
+                                                    </TableCell>
+                                                    <TableCell className="text-center">{item.qty_estimated}</TableCell>
+                                                    <TableCell className="text-right">
+                                                        {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(parseFloat(item.price_estimated))}
+                                                    </TableCell>
+                                                    <TableCell className="text-muted-foreground text-xs">{item.remarks || "-"}</TableCell>
+                                                    <TableCell>
+                                                        {item.status === "COMPLETED" ? (
+                                                            <Badge variant="outline" className="text-emerald-600 border-emerald-600 bg-emerald-50">Bought</Badge>
+                                                        ) : (
+                                                            <Badge variant="outline" className="text-amber-600 border-amber-600 bg-amber-50">Pending</Badge>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div className="flex gap-2 items-center">
+                                                            {item.item_image && (
+                                                                <Button size="icon" variant="ghost" className="h-8 w-8" asChild>
+                                                                    <a href={item.item_image} target="_blank">
+                                                                        <ImageIcon className="h-4 w-4" />
+                                                                    </a>
+                                                                </Button>
+                                                            )}
+                                                            {item.status === "PENDING" && (
+                                                                <Button size="sm" onClick={() => handleSettle(item)} className="h-8">
+                                                                    Settle
+                                                                </Button>
+                                                            )}
+                                                        </div>
+                                                    </TableCell>
+                                                </TableRow>
+                                              ))}
+                                           </TableBody>
+                                        </Table>
+                                     </div>
+                                  </TableCell>
+                                </TableRow>
+                              )}
+                            </>
+                          );
+                        })
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+
                 </CardContent>
             </Card>
         </TabsContent>
@@ -579,17 +676,6 @@ export default function ConsumablesPage() {
         open={importOpen}
         onOpenChange={setImportOpen}
         onImportSuccess={fetchData}
-      />
-
-      <DocumentSheet 
-        open={sheetOpen}
-        onOpenChange={setSheetOpen}
-        documentNumber={selectedDocNumber}
-        data={items}
-        onSettle={(item) => {
-            setSheetOpen(false);
-            handleSettle(item);
-        }}
       />
     </div>
   );
