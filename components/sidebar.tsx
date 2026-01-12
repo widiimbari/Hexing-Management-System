@@ -29,9 +29,9 @@ import {
   UsersRound,
   MapPin,
   Truck,
-  Settings2,
   List,
-  Activity
+  Activity,
+  ShoppingCart
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -87,6 +87,7 @@ const initialNavGroups: NavGroup[] = [
     icon: Monitor,
     items: [
       { href: "/asset-management/assets", label: "Assets", icon: List },
+      { href: "/asset-management/consumables", label: "Non-SAP Assets", icon: ShoppingCart },
       { href: "/asset-management/transactions", label: "Transactions", icon: ArrowLeftRight },
       { href: "/asset-management/employees", label: "Employees", icon: UsersRound },
       { href: "/asset-management/departments", label: "Departments", icon: Building2 },
@@ -95,7 +96,6 @@ const initialNavGroups: NavGroup[] = [
       { href: "/asset-management/suppliers", label: "Suppliers", icon: Truck },
       { href: "/asset-management/categories", label: "Categories", icon: Layers },
       { href: "/asset-management/brands", label: "Brands", icon: Tag },
-      { href: "/asset-management/types", label: "Asset Types", icon: Settings2 },
     ]
   },
   {

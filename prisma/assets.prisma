@@ -48,21 +48,21 @@ model asset_transactions {
 
 model assets {
   id             BigInt   @id @default(autoincrement())
-  type_id        BigInt? 
   serial_number  String   @unique @db.VarChar(255)
   sap_id         String?  @db.VarChar(255)
+  model          String?  @db.VarChar(255)
+  price          Decimal?  @db.Decimal(15, 2)
   purchase_date  DateTime? @db.Date
   created_at     DateTime? @db.Timestamp(0)
   updated_at     DateTime? @db.Timestamp(0)
-  category_id    BigInt? 
-  brand_id       BigInt? 
-  area_id        BigInt? 
-  location_id    BigInt? 
-  employee_id    BigInt? 
-  supplier_id    BigInt? 
+  category_id    BigInt?
+  brand_id       BigInt?
+  area_id        BigInt?
+  location_id    BigInt?
+  employee_id    BigInt?
+  supplier_id    BigInt?
   image_id       BigInt?  @unique
-  
-  asset_type     asset_types? @relation(fields: [type_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "assets_type_id_foreign")
+
   category       categories? @relation(fields: [category_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "assets_category_id_foreign")
   brand          brands?     @relation(fields: [brand_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "assets_brand_id_foreign")
   area           areas?      @relation(fields: [area_id], references: [id], onDelete: SetNull, onUpdate: Restrict, map: "assets_area_id_foreign")
@@ -74,7 +74,6 @@ model assets {
   transactions   asset_transactions[]
   asset_images   asset_images[] @relation("AssetImages")
 
-  @@index([type_id])
   @@index([category_id])
   @@index([brand_id])
   @@index([area_id])
@@ -92,14 +91,6 @@ enum AssetCondition {
   DISPOSED
   MAINTENANCE
   LOST
-}
-
-model asset_types {
-  id         BigInt    @id @default(autoincrement())
-  name       String    @unique @db.VarChar(255)
-  created_at DateTime? @db.Timestamp(0)
-  updated_at DateTime? @db.Timestamp(0)
-  assets     assets[]
 }
 
 model asset_images {
@@ -194,4 +185,28 @@ model users {
   updated_at        DateTime? @db.Timestamp(0)
 
   // transactions      asset_transactions[] @relation("TransactionCreator")
+}
+
+model consumables {
+  id              BigInt           @id @default(autoincrement())
+  request_date    DateTime         @default(now()) @db.Date
+  settlement_date DateTime?        @db.Date
+  item_name       String           @db.VarChar(255)
+  brand_type      String?          @db.VarChar(255)
+  qty_estimated   Int              @default(1)
+  price_estimated Decimal          @default(0) @db.Decimal(15, 2)
+  qty_actual      Int?             @default(0)
+  unit_price_real Decimal?         @default(0) @db.Decimal(15, 2)
+  subtotal_item   Decimal?         @default(0) @db.Decimal(15, 2)
+  shipping_fee    Decimal?         @default(0) @db.Decimal(15, 2)
+  grand_total     Decimal?         @default(0) @db.Decimal(15, 2)
+  receipt_image   String?          @db.VarChar(255)
+  status          ConsumableStatus @default(PENDING)
+  created_at      DateTime?        @default(now()) @db.Timestamp(0)
+  updated_at      DateTime?        @updatedAt @db.Timestamp(0)
+}
+
+enum ConsumableStatus {
+  PENDING
+  COMPLETED
 }
