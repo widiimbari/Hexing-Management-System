@@ -19,23 +19,47 @@ export function RequestDialog({ open, onOpenChange, onSave }: RequestDialogProps
     brand_type: "",
     qty_estimated: "1",
     price_estimated: "",
+    purchase_link: "",
+    department: "",
+    remarks: "",
+    item_image: null as File | null,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
+      const payload = new FormData();
+      payload.append("item_name", formData.item_name);
+      payload.append("brand_type", formData.brand_type);
+      payload.append("qty_estimated", formData.qty_estimated);
+      payload.append("price_estimated", formData.price_estimated);
+      payload.append("purchase_link", formData.purchase_link);
+      payload.append("department", formData.department);
+      payload.append("remarks", formData.remarks);
+      if (formData.item_image) {
+        payload.append("item_image", formData.item_image);
+      }
+
       const res = await fetch("/api/assets/consumables", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: payload,
       });
 
       if (!res.ok) throw new Error("Failed to create request");
       
       onSave();
       onOpenChange(false);
-      setFormData({ item_name: "", brand_type: "", qty_estimated: "1", price_estimated: "" });
+      setFormData({ 
+        item_name: "", 
+        brand_type: "", 
+        qty_estimated: "1", 
+        price_estimated: "", 
+        purchase_link: "",
+        department: "",
+        remarks: "",
+        item_image: null 
+      });
     } catch (error) {
       console.error(error);
       alert("Error creating request");
@@ -46,7 +70,7 @@ export function RequestDialog({ open, onOpenChange, onSave }: RequestDialogProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>New Purchase Request</DialogTitle>
         </DialogHeader>
@@ -89,6 +113,44 @@ export function RequestDialog({ open, onOpenChange, onSave }: RequestDialogProps
                 onChange={e => setFormData({...formData, price_estimated: e.target.value})}
               />
             </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+                <Label>Department</Label>
+                <Input 
+                value={formData.department}
+                onChange={e => setFormData({...formData, department: e.target.value})}
+                placeholder="e.g. IT, Production"
+                />
+            </div>
+            <div className="space-y-2">
+                <Label>Remarks (Purpose)</Label>
+                <Input 
+                value={formData.remarks}
+                onChange={e => setFormData({...formData, remarks: e.target.value})}
+                placeholder="e.g. For Backup"
+                />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label>Purchase Link (Optional)</Label>
+            <Input 
+              value={formData.purchase_link}
+              onChange={e => setFormData({...formData, purchase_link: e.target.value})}
+              placeholder="https://tokopedia.com/..."
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Sample Image (Optional)</Label>
+            <Input 
+              type="file"
+              accept="image/*"
+              onChange={e => {
+                if (e.target.files?.[0]) {
+                  setFormData({...formData, item_image: e.target.files[0]});
+                }
+              }}
+            />
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>

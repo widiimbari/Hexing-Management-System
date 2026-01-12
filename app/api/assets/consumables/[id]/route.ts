@@ -60,13 +60,22 @@ export async function PATCH(
         const file = formData.get('receipt_image') as File | null;
         
         // Handle other fields
-        if (formData.has('qty_actual')) updateData.qty_actual = parseInt(formData.get('qty_actual') as string);
-        if (formData.has('unit_price_real')) updateData.unit_price_real = parseFloat(formData.get('unit_price_real') as string);
+        if (formData.has('qty_actual')) {
+            const val = parseInt(formData.get('qty_actual') as string);
+            if (!isNaN(val)) updateData.qty_actual = val;
+        }
+        if (formData.has('unit_price_real')) {
+            const val = parseFloat(formData.get('unit_price_real') as string);
+            if (!isNaN(val)) updateData.unit_price_real = val;
+        }
         if (formData.has('settlement_date')) updateData.settlement_date = new Date(formData.get('settlement_date') as string);
         if (formData.has('status')) updateData.status = formData.get('status') as string;
 
         // Handle File Upload
-        if (file) {
+        if (file && file.size > 0) {
+            const { mkdir } = await import('fs/promises');
+            const { dirname } = await import('path');
+            
             const bytes = await file.arrayBuffer();
             const buffer = Buffer.from(bytes);
             
@@ -74,6 +83,9 @@ export async function PATCH(
             const filename = `receipt-${Date.now()}-${file.name.replace(/\s/g, '_')}`;
             const path = join(process.cwd(), 'public/uploads', filename);
             
+            // Ensure dir exists
+            await mkdir(dirname(path), { recursive: true });
+
             await writeFile(path, buffer);
             updateData.receipt_image = `/uploads/${filename}`;
         }

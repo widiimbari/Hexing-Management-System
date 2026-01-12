@@ -173,28 +173,58 @@ export default function ConsumablesPage() {
       const workbook = new ExcelJS.Workbook();
       const sheet = workbook.addWorksheet("Request Form");
 
-      // Title
-      sheet.mergeCells('A1:J1');
-      sheet.getCell('A1').value = "FORMULIR PERMOHONAN PENYEDIAAN BARANG / JASA";
-      sheet.getCell('A1').font = { size: 14, bold: true };
-      sheet.getCell('A1').alignment = { horizontal: 'center' };
+      // Fetch and Add Logo
+      try {
+        const logoRes = await fetch('/HEXING LOGO.png');
+        if (logoRes.ok) {
+            const logoBlob = await logoRes.arrayBuffer();
+            const logoId = workbook.addImage({
+                buffer: logoBlob,
+                extension: 'png',
+            });
+            // Position logo at top-left
+            sheet.addImage(logoId, {
+                tl: { col: 0.2, row: 0.2 },
+                ext: { width: 100, height: 35 }
+            });
+        }
+      } catch (e) {
+        console.warn("Could not add logo to excel", e);
+      }
 
-      // Info
-      sheet.getCell('A3').value = "Doc No:";
-      sheet.getCell('B3').value = doc.document_number;
-      sheet.getCell('A4').value = "Tanggal:";
-      sheet.getCell('B4').value = format(new Date(doc.request_date), "dd MMMM yyyy");
-      sheet.getCell('A5').value = "Department:";
-      sheet.getCell('B5').value = department;
+      // Title
+      sheet.mergeCells('C1:I2'); 
+      sheet.getCell('C1').value = "FORMULIR PERMOHONAN PENYEDIAAN BARANG / JASA";
+      sheet.getCell('C1').font = { size: 14, bold: true };
+      sheet.getCell('C1').alignment = { horizontal: 'center', vertical: 'middle' };
+
+      // Info Section
+      sheet.getCell('A4').value = "Doc No:";
+      sheet.getCell('A4').font = { bold: true };
+      sheet.mergeCells('B4:E4');
+      sheet.getCell('B4').value = doc.document_number;
+      sheet.getCell('B4').alignment = { horizontal: 'left' };
+
+      sheet.getCell('A5').value = "Tanggal:";
+      sheet.getCell('A5').font = { bold: true };
+      sheet.mergeCells('B5:E5');
+      sheet.getCell('B5').value = format(new Date(doc.request_date), "dd MMMM yyyy");
+
+      sheet.getCell('A6').value = "Department:";
+      sheet.getCell('A6').font = { bold: true };
+      sheet.mergeCells('B6:E6');
+      sheet.getCell('B6').value = department;
 
       // Header
-      const headerRow = sheet.getRow(7);
+      const headerRowIdx = 8;
+      const headerRow = sheet.getRow(headerRowIdx);
       headerRow.values = ["No", "Nama Barang", "Merk/Tipe", "Qty", "Satuan", "Harga Satuan (Est)", "Subtotal", "Fee 3%", "Total", "Keterangan"];
       headerRow.font = { bold: true };
+      headerRow.height = 25;
       headerRow.eachCell(cell => {
         cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'DCDCDC' } };
-        cell.alignment = { horizontal: 'center' };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'E5E7EB' } };
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
       });
 
       let totalSubtotal = 0;
@@ -224,39 +254,57 @@ export default function ConsumablesPage() {
             total,
             item.remarks || "-"
         ]);
-        row.eachCell(cell => cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } });
+        row.eachCell(cell => {
+            cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+            cell.alignment = { vertical: 'middle' };
+        });
+        row.getCell(1).alignment = { horizontal: 'center' }; // No
+        row.getCell(4).alignment = { horizontal: 'center' }; // Qty
+        row.getCell(5).alignment = { horizontal: 'center' }; // Unit
       });
 
+      // Totals
       const totalRow = sheet.addRow(["TOTAL ESTIMASI", "", "", "", "", "", totalSubtotal, totalShipping, totalGrand, ""]);
+      const totalRowIdx = totalRow.number;
+      
+      // Merge "TOTAL ESTIMASI" spanning A to F
+      sheet.mergeCells(`A${totalRowIdx}:F${totalRowIdx}`);
+      sheet.getCell(`A${totalRowIdx}`).alignment = { horizontal: 'right', vertical: 'middle' };
+      
+      // Merge Grand Total if needed, or keeping them separate is better for analysis. 
+      // User said "grand total pun harus di merge". Assuming they meant the label or the cell structure.
+      // Usually "Total" sits under "Total" column. "Fee" under "Fee".
+      // I will keep numbers in their columns but ensure the label spans correctly.
+
       totalRow.font = { bold: true };
       totalRow.eachCell(cell => {
           cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
-          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'DCDCDC' } }; // Match PDF
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'DCFCE7' } };
       });
 
       // Signatures
-      const signRowIdx = docItems.length + 12;
-      sheet.getCell(`A${signRowIdx}`).value = "Prepared By,";
-      sheet.getCell(`D${signRowIdx}`).value = "Checked By,";
-      sheet.getCell(`H${signRowIdx}`).value = "Approved By,"; // Adjusted column for spacing
+      const signRowIdx = docItems.length + 13;
+      sheet.getCell(`B${signRowIdx}`).value = "Prepared By,";
+      sheet.getCell(`E${signRowIdx}`).value = "Checked By,";
+      sheet.getCell(`H${signRowIdx}`).value = "Approved By,";
       
-      const nameRowIdx = docItems.length + 17;
-      sheet.getCell(`A${nameRowIdx}`).value = "(....................)";
-      sheet.getCell(`D${nameRowIdx}`).value = "(....................)";
+      [`B${signRowIdx}`, `E${signRowIdx}`, `H${signRowIdx}`].forEach(cellAddr => {
+          sheet.getCell(cellAddr).alignment = { horizontal: 'center' };
+          sheet.getCell(cellAddr).font = { bold: true };
+      });
+      
+      const nameRowIdx = docItems.length + 18;
+      sheet.getCell(`B${nameRowIdx}`).value = "(....................)";
+      sheet.getCell(`E${nameRowIdx}`).value = "(....................)";
       sheet.getCell(`H${nameRowIdx}`).value = "(....................)";
+      
+      [`B${nameRowIdx}`, `E${nameRowIdx}`, `H${nameRowIdx}`].forEach(cellAddr => {
+          sheet.getCell(cellAddr).alignment = { horizontal: 'center' };
+      });
 
-      // Widths (Total 10 columns)
       sheet.columns = [
-          { width: 5 },  // No
-          { width: 35 }, // Item
-          { width: 20 }, // Brand
-          { width: 8 },  // Qty
-          { width: 8 },  // Unit
-          { width: 18 }, // Price
-          { width: 18 }, // Sub
-          { width: 15 }, // Fee
-          { width: 18 }, // Total
-          { width: 25 }  // Remarks
+          { width: 5 }, { width: 35 }, { width: 20 }, { width: 8 }, { width: 8 }, 
+          { width: 18 }, { width: 18 }, { width: 15 }, { width: 18 }, { width: 25 }
       ];
       ['F', 'G', 'H', 'I'].forEach(col => sheet.getColumn(col).numFmt = '#,##0');
 
