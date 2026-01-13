@@ -47,21 +47,6 @@ async function migrateAssetDatabase() {
     }
     console.log(`✓ Migrated ${areas.length} areas\n`);
 
-    // Migrate Asset Types
-    console.log('📦 Migrating asset_types...');
-    const [assetTypes]: any = await connection.query('SELECT * FROM asset_types');
-    for (const type of assetTypes) {
-      await pgAssetClient.asset_types.create({
-        data: {
-          id: type.id,
-          name: type.name,
-          created_at: type.created_at,
-          updated_at: type.updated_at,
-        }
-      }).catch(() => {});
-    }
-    console.log(`✓ Migrated ${assetTypes.length} asset types\n`);
-
     // Migrate Brands
     console.log('📦 Migrating brands...');
     const [brands]: any = await connection.query('SELECT * FROM brands');
@@ -186,7 +171,6 @@ async function migrateAssetDatabase() {
       await pgAssetClient.assets.create({
         data: {
           id: asset.id,
-          type_id: asset.type_id,
           serial_number: asset.serial_number,
           sap_id: asset.sap_id,
           purchase_date: asset.purchase_date,

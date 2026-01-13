@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { Prisma } from "../../../../generated/inventory-client";
 import { format } from "date-fns";
 
 export async function GET(req: Request) {
