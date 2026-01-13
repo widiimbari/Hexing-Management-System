@@ -22,15 +22,13 @@ export async function POST(req: Request) {
     }
 
     // Cache simple relations
-    const [types, categories, brands, areas, suppliers] = await Promise.all([
-      dbAsset.asset_types.findMany(),
+    const [categories, brands, areas, suppliers] = await Promise.all([
       dbAsset.categories.findMany(),
       dbAsset.brands.findMany(),
       dbAsset.areas.findMany(),
       dbAsset.suppliers.findMany(),
     ]);
 
-    const typeMap = new Map(types.map(t => [t.name.toLowerCase(), t.id]));
     const categoryMap = new Map(categories.map(c => [c.name.toLowerCase(), c.id]));
     const brandMap = new Map(brands.map(b => [b.name.toLowerCase(), b.id]));
     const areaMap = new Map(areas.map(a => [a.name.toLowerCase(), a.id]));
@@ -49,17 +47,15 @@ export async function POST(req: Request) {
       if (!serial_number) continue; // Skip empty serials
 
       const sap_id = row.getCell(2).text?.toString().trim();
-      const typeName = row.getCell(3).text?.toString().trim();
-      const categoryName = row.getCell(4).text?.toString().trim();
-      const brandName = row.getCell(5).text?.toString().trim();
-      const areaName = row.getCell(6).text?.toString().trim();
-      const locationName = row.getCell(7).text?.toString().trim();
-      const employeeNik = row.getCell(8).text?.toString().trim().split(' - ')[0]; // Handle "NIK - Name" format
-      const supplierName = row.getCell(9).text?.toString().trim();
-      const purchaseDateStr = row.getCell(10).text?.toString().trim();
+      const categoryName = row.getCell(3).text?.toString().trim();
+      const brandName = row.getCell(4).text?.toString().trim();
+      const areaName = row.getCell(5).text?.toString().trim();
+      const locationName = row.getCell(6).text?.toString().trim();
+      const employeeNik = row.getCell(7).text?.toString().trim().split(' - ')[0]; // Handle "NIK - Name" format
+      const supplierName = row.getCell(8).text?.toString().trim();
+      const purchaseDateStr = row.getCell(9).text?.toString().trim();
 
       // Resolve IDs
-      const type_id = typeName ? typeMap.get(typeName.toLowerCase()) : undefined;
       const category_id = categoryName ? categoryMap.get(categoryName.toLowerCase()) : undefined;
       const brand_id = brandName ? brandMap.get(brandName.toLowerCase()) : undefined;
       const area_id = areaName ? areaMap.get(areaName.toLowerCase()) : undefined;
@@ -89,7 +85,6 @@ export async function POST(req: Request) {
           data: {
             serial_number,
             sap_id,
-            type_id,
             category_id,
             brand_id,
             area_id,

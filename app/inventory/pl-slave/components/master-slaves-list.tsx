@@ -27,7 +27,7 @@ export function MasterSlavesList({ masterId }: MasterSlavesListProps) {
   const [page, setPage] = useState(1);
   const [metadata, setMetadata] = useState({ total: 0, totalPages: 0 });
   const [search, setSearch] = useState("");
-  const debouncedSearch = useDebounce(search, 500);
+  const debouncedSearch = useDebounce(search, 800);
 
   useEffect(() => {
     async function fetchSlaves() {

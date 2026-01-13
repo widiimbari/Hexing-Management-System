@@ -1,77 +1,18 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
-import { Prisma } from "../../../generated/inventory-client-v2";
-import { createInventoryLog } from "@/lib/activity-logger";
+import { PLSlaveService } from "@/modules/inventory/pl-slave/application/pl-slave-service";
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
-    const search = searchParams.get("search") || "";
-
-    const skip = (page - 1) * limit;
-
-    const whereClause: Prisma.attachment2WhereInput = {
-      active: true,
-      ...(search && {
-        OR: [
-          { nomor: { contains: search } },
-          { type: { contains: search } },
-          { area: { contains: search } },
-        ],
-      }),
-    };
-
-    // 1. Total Count
-    const totalCount = await db.attachment2.count({ where: whereClause });
-
-    // 2. Paginated Data
-    const attachments = await db.attachment2.findMany({
-      where: whereClause,
-      orderBy: { timestamp: "desc" },
-      skip,
-      take: limit,
+    
+    const result = await PLSlaveService.getPLSlaves({
+        page: parseInt(searchParams.get("page") || "1"),
+        limit: parseInt(searchParams.get("limit") || "10"),
+        search: searchParams.get("search") || "",
     });
 
-    if (attachments.length === 0) {
-      return NextResponse.json({
-        data: [],
-        metadata: {
-          total: totalCount,
-          page,
-          limit,
-          totalPages: Math.ceil(totalCount / limit),
-        },
-      });
-    }
-
-    const attachmentIds = attachments.map((a) => a.id);
-
-    // 3. Optimized Count (Only for current page IDs)
-    const counts = await db.product.groupBy({
-      by: ["attachment2_id"],
-      _count: { id: true },
-      where: { attachment2_id: { in: attachmentIds } },
-    });
-
-    const countMap = new Map(counts.map((item) => [item.attachment2_id, item._count.id]));
-
-    const data = attachments.map((att) => ({
-      ...att,
-      total: countMap.get(att.id) || 0,
-    }));
-
-    return NextResponse.json({
-      data,
-      metadata: {
-        total: totalCount,
-        page,
-        limit,
-        totalPages: Math.ceil(totalCount / limit),
-      },
-    });
-  } catch (error) {
+    return NextResponse.json(result);
+  } catch (error: any) {
     console.error("[GET_ATTACHMENTS2]", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
@@ -80,7 +21,6 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    // Manual Input Flow: No masterId or qty needed here anymore
     const { nomor, type, no_do, no_order, tgl_order, area, timestamp } = body;
 
     if (!nomor || !type || !no_do || !no_order || !tgl_order || !area) {
@@ -94,23 +34,17 @@ export async function POST(req: Request) {
       return new NextResponse("Invalid date format", { status: 400 });
     }
 
-    const newAttachment2 = await db.attachment2.create({
-      data: {
+    const newAttachment = await PLSlaveService.createPLSlave({
         nomor,
         type,
         no_do,
         no_order,
         tgl_order: parsedTglOrder,
         area,
-        timestamp: parsedTimestamp,
-        status: false,
-        active: true,
-      },
+        timestamp: parsedTimestamp
     });
 
-    await createInventoryLog("CREATE", "PL Slave", String(newAttachment2.id), `Created PL Slave: ${nomor} (${type})`);
-
-    return NextResponse.json(newAttachment2, { status: 201 });
+    return NextResponse.json(newAttachment, { status: 201 });
   } catch (error: any) {
     console.error("[CREATE_ATTACHMENT2]", error);
     return new NextResponse(error.message || "Internal Server Error", { status: 500 });

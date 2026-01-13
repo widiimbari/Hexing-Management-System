@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { product } from "@prisma/client";
+import { product } from "@/generated/inventory-client-v2";
 import { CellAction } from "./cell-action";
 
 // Extend the type to include our injected fields

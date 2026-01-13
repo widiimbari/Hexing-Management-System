@@ -45,7 +45,7 @@ export default function DepartmentsPage() {
   const [loading, setLoading] = useState(true);
   const [rowCount, setRowCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
-  const debouncedSearch = useDebounce(searchTerm, 500);
+  const debouncedSearch = useDebounce(searchTerm, 800);
   
   const [pagination, setPagination] = useState({
     pageIndex: 0,

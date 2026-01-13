@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { dbAsset } from "@/lib/db";
-import { logActivity } from "@/lib/activity-logger";
+import { BrandService } from "@/modules/master-data/brands/application/brand-service";
 import { getCurrentUser } from "@/lib/auth";
 
 // Helper to serialize BigInt
@@ -12,7 +11,6 @@ function serializeBigInt(data: any): any {
   );
 }
 
-// GET - Fetch all brands with pagination and search
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -20,42 +18,11 @@ export async function GET(req: Request) {
     const limit = parseInt(searchParams.get("limit") || "10");
     const search = searchParams.get("search") || "";
 
-    const skip = limit > 0 ? (page - 1) * limit : undefined;
-    const take = limit > 0 ? limit : undefined;
-
-    const where: any = {};
-
-    if (search) {
-      where.OR = [
-        { name: { contains: search } },
-      ];
-    }
-
-    const [data, total] = await Promise.all([
-      dbAsset.brands.findMany({
-        where,
-        take,
-        skip,
-        include: {
-          _count: {
-            select: { assets: true }
-          }
-        },
-        orderBy: {
-          name: "asc",
-        },
-      }),
-      dbAsset.brands.count({ where }),
-    ]);
+    const result = await BrandService.getBrands({ page, limit, search });
 
     return NextResponse.json({
-      data: serializeBigInt(data),
-      metadata: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
+      data: serializeBigInt(result.data),
+      metadata: result.metadata,
     });
   } catch (error) {
     console.error("Error fetching brands:", error);
@@ -66,28 +33,12 @@ export async function GET(req: Request) {
   }
 }
 
-// POST - Create new brand
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const currentUser = await getCurrentUser();
-
-    const brand = await dbAsset.brands.create({
-      data: {
-        name: body.name,
-        created_at: new Date(),
-        updated_at: new Date(),
-      },
-    });
-
-    // Log activity
-    await logActivity(
-      'CREATE',
-      'Brand',
-      String(brand.id),
-      `Created brand: ${brand.name}`,
-      currentUser
-    );
+    
+    const brand = await BrandService.createBrand({ name: body.name }, currentUser);
 
     return NextResponse.json({
       data: serializeBigInt(brand),
@@ -102,7 +53,6 @@ export async function POST(req: Request) {
   }
 }
 
-// PUT - Update existing brand
 export async function PUT(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -115,22 +65,7 @@ export async function PUT(req: Request) {
     const body = await req.json();
     const currentUser = await getCurrentUser();
 
-    const brand = await dbAsset.brands.update({
-      where: { id: BigInt(id) },
-      data: {
-        name: body.name,
-        updated_at: new Date(),
-      },
-    });
-
-    // Log activity
-    await logActivity(
-      'UPDATE',
-      'Brand',
-      String(brand.id),
-      `Updated brand: ${brand.name}`,
-      currentUser
-    );
+    const brand = await BrandService.updateBrand(id, { name: body.name }, currentUser);
 
     return NextResponse.json({
       data: serializeBigInt(brand),
@@ -145,7 +80,6 @@ export async function PUT(req: Request) {
   }
 }
 
-// DELETE - Delete brand
 export async function DELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -156,37 +90,16 @@ export async function DELETE(req: Request) {
     }
 
     const currentUser = await getCurrentUser();
-
-    // Get brand name before delete
-    const brand = await dbAsset.brands.findUnique({
-      where: { id: BigInt(id) }
-    });
-
-    if (!brand) {
-      return NextResponse.json({ message: "Brand not found" }, { status: 404 });
-    }
-
-    await dbAsset.brands.delete({
-      where: { id: BigInt(id) },
-    });
-
-    // Log activity
-    await logActivity(
-      'DELETE',
-      'Brand',
-      String(id),
-      `Deleted brand: ${brand.name}`,
-      currentUser
-    );
+    await BrandService.deleteBrand(id, currentUser);
 
     return NextResponse.json({
       message: "Brand deleted successfully",
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error deleting brand:", error);
     return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 }
+      { message: error.message || "Internal server error" },
+      { status: error.message === "Brand not found" ? 404 : 500 }
     );
   }
 }

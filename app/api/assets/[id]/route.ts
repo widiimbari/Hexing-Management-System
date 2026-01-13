@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { dbAsset } from "@/lib/db";
-import { logActivity } from "@/lib/activity-logger";
+import { AssetLog } from "@/lib/system-logger";
 import { getCurrentUser } from "@/lib/auth";
-import { AssetCondition } from "@/generated/asset-client-v9";
+import { AssetCondition } from "@/generated/asset-client-v14";
 import fs from 'fs';
 import path from 'path';
 
@@ -25,7 +25,6 @@ export async function GET(
     const asset = await dbAsset.assets.findUnique({
       where: { id: BigInt(id) },
       include: {
-        asset_type: true,
         category: true,
         brand: true,
         area: true,
@@ -79,6 +78,7 @@ export async function PUT(
       where: { id: assetId },
       include: {
         location: true,
+        employee: true,
       }
     });
 
@@ -135,10 +135,14 @@ export async function PUT(
       ? (normalizedCondition as AssetCondition)
       : undefined;
 
+    const priceStr = formData.get('price') as string;
+    const price = priceStr ? parseFloat(priceStr) : null;
+
     const updateData: any = {
-      type_id: getBigInt(formData.get('type_id')),
       serial_number: formData.get('serial_number') as string,
       sap_id: (formData.get('sap_id') as string) || null,
+      model: (formData.get('model') as string) || null,
+      price: price,
       purchase_date: formData.get('purchase_date') ? new Date(formData.get('purchase_date') as string) : null,
       category_id: getBigInt(formData.get('category_id')),
       brand_id: getBigInt(formData.get('brand_id')),
@@ -174,7 +178,6 @@ export async function PUT(
       where: { id: assetId },
       data: updateData,
       include: {
-        asset_type: true,
         category: true,
         brand: true,
         area: true,
@@ -194,6 +197,9 @@ export async function PUT(
 
     // 1. Transaction: ASSIGNMENT (Holder Change)
     if (isHolderChanged) {
+      const oldHolderName = currentAsset.employee?.nama || 'None';
+      const newHolderName = updatedAsset.employee?.nama || 'None';
+      
       await dbAsset.asset_transactions.create({
         data: {
           asset_id: assetId,
@@ -208,7 +214,7 @@ export async function PUT(
           transaction_date: new Date(),
           created_by: changedById,
           creator_name: changedByName,
-          remarks: `Holder changed from ${oldEmployeeId || 'None'} to ${newEmployeeId || 'None'}`
+          remarks: `Holder changed from ${oldHolderName} to ${newHolderName}`
         }
       });
     }
@@ -228,7 +234,7 @@ export async function PUT(
           transaction_date: new Date(),
           created_by: changedById,
           creator_name: changedByName,
-          remarks: `Location changed`
+          remarks: `Location changed from ${currentAsset.location?.name || 'None'} to ${updatedAsset.location?.name || 'None'}`
         }
       });
     }
@@ -254,15 +260,49 @@ export async function PUT(
     }
 
     // Generic Update Log (Activity Log)
-    await logActivity(
-      'UPDATE',
-      'Asset',
-      String(assetId),
-      {
-        changes: Object.keys(updateData).filter(k => updateData[k] !== (currentAsset as any)[k]),
-      },
-      currentUser as any
-    );
+    // Calculate changes
+    const oldValues: Record<string, any> = {};
+    const newValues: Record<string, any> = {};
+    
+    // We compare with updateData to see what was INTENDED to change, 
+    // but better to compare currentAsset vs updatedAsset for truth
+    // However updatedAsset has Date objects, currentAsset has Date objects.
+    // Need to handle BigInt comparison and Date comparison carefully.
+
+    Object.keys(updateData).forEach(key => {
+      // Skip updated_at
+      if (key === 'updated_at') return;
+
+      const oldVal = (currentAsset as any)[key];
+      const newVal = updateData[key];
+
+      // Simple equality check (works for primitives, BigInts if same type)
+      // Dates need .getTime() or string comparison
+      let isDifferent = false;
+
+      if (oldVal instanceof Date && newVal instanceof Date) {
+        isDifferent = oldVal.getTime() !== newVal.getTime();
+      } else if (oldVal != newVal) { // loose equality for string/int/bigint mix
+         // Check if both are falsy (null vs undefined vs "")
+         if (!oldVal && !newVal) isDifferent = false;
+         else isDifferent = true;
+      }
+
+      if (isDifferent) {
+        oldValues[key] = serializeBigInt(oldVal);
+        newValues[key] = serializeBigInt(newVal);
+      }
+    });
+
+    if (Object.keys(oldValues).length > 0) {
+      await AssetLog.update(
+        'Asset',
+        String(assetId),
+        `Updated asset ${updatedAsset.serial_number}`,
+        oldValues,
+        newValues
+      );
+    }
 
     return NextResponse.json({
       data: serializeBigInt(updatedAsset),
@@ -318,12 +358,11 @@ export async function DELETE(
     });
 
     // Logging
-    await logActivity(
-      'DELETE',
+    await AssetLog.delete(
       'Asset',
       String(assetId),
       `Deleted asset ${currentAsset.serial_number}`,
-      currentUser as any
+      serializeBigInt(currentAsset)
     );
 
     return NextResponse.json({

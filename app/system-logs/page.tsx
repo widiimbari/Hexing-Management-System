@@ -94,19 +94,102 @@ const formatKey = (key: string) => {
     .replace(/^./, str => str.toUpperCase());
 };
 
+interface Lookups {
+  departments: Record<string, string>;
+  types: Record<string, string>;
+  categories: Record<string, string>;
+  brands: Record<string, string>;
+  areas: Record<string, string>;
+  locations: Record<string, string>;
+  employees: Record<string, string>;
+  suppliers: Record<string, string>;
+}
+
 interface ValueDisplayProps {
   values: any;
   title: string;
   compareValues?: any;
-  lookups?: { departments: Record<string, string> };
+  lookups?: Lookups;
 }
+
+const formatCondition = (condition: string) => {
+  if (!condition) return condition;
+  return condition
+    .toLowerCase()
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, l => l.toUpperCase());
+};
 
 const ValueDisplay = ({ values, title, compareValues, lookups }: ValueDisplayProps) => {
   if (!values || Object.keys(values).length === 0) return null;
-  
+
   const filteredKeys = Object.keys(values).filter(key => !IGNORED_KEYS.includes(key));
-  
+
   if (filteredKeys.length === 0) return null;
+
+  const resolveValue = (key: string, value: any): React.ReactNode => {
+    if (value === null) return <span className="text-slate-400 italic">null</span>;
+
+    // Resolve Gender
+    if (key === 'gender') {
+      return value === "L" ? "Male" : value === "P" ? "Female" : String(value);
+    }
+
+    // Resolve Condition
+    if (key === 'condition' || key === 'previous_condition' || key === 'new_condition') {
+      return formatCondition(String(value));
+    }
+
+    // Resolve Department Name
+    if (key === 'department_id' && lookups?.departments && value) {
+      const name = lookups.departments[String(value)];
+      if (name) return <span>{name} <span className="text-xs text-slate-400">(#{value})</span></span>;
+    }
+
+    // Resolve Type/Asset Type
+    if ((key === 'type_id' || key === 'asset_type_id') && lookups?.types && value) {
+      const name = lookups.types[String(value)];
+      if (name) return <span>{name} <span className="text-xs text-slate-400">(#{value})</span></span>;
+    }
+
+    // Resolve Category
+    if (key === 'category_id' && lookups?.categories && value) {
+      const name = lookups.categories[String(value)];
+      if (name) return <span>{name} <span className="text-xs text-slate-400">(#{value})</span></span>;
+    }
+
+    // Resolve Brand
+    if (key === 'brand_id' && lookups?.brands && value) {
+      const name = lookups.brands[String(value)];
+      if (name) return <span>{name} <span className="text-xs text-slate-400">(#{value})</span></span>;
+    }
+
+    // Resolve Area
+    if (key === 'area_id' && lookups?.areas && value) {
+      const name = lookups.areas[String(value)];
+      if (name) return <span>{name} <span className="text-xs text-slate-400">(#{value})</span></span>;
+    }
+
+    // Resolve Location
+    if (key === 'location_id' && lookups?.locations && value) {
+      const name = lookups.locations[String(value)];
+      if (name) return <span>{name} <span className="text-xs text-slate-400">(#{value})</span></span>;
+    }
+
+    // Resolve Employee
+    if (key === 'employee_id' && lookups?.employees && value) {
+      const name = lookups.employees[String(value)];
+      if (name) return <span>{name} <span className="text-xs text-slate-400">(#{value})</span></span>;
+    }
+
+    // Resolve Supplier
+    if (key === 'supplier_id' && lookups?.suppliers && value) {
+      const name = lookups.suppliers[String(value)];
+      if (name) return <span>{name} <span className="text-xs text-slate-400">(#{value})</span></span>;
+    }
+
+    return String(value);
+  };
 
   return (
     <div className="mt-2">
@@ -118,25 +201,6 @@ const ValueDisplay = ({ values, title, compareValues, lookups }: ValueDisplayPro
                const value = values[key];
                const isChanged = compareValues && String(compareValues[key]) !== String(value);
                const highlightClass = isChanged ? "bg-yellow-100" : "";
-               
-               let displayValue = value === null ? <span className="text-slate-400 italic">null</span> : String(value);
-               
-               // Resolve Gender
-               if (key === 'gender') {
-                 displayValue = value === "L" ? "Male" : value === "P" ? "Female" : String(value);
-               }
-               
-               // Resolve Department Name
-               if (key === 'department_id' && lookups?.departments && value) {
-                 const deptName = lookups.departments[String(value)];
-                 if (deptName) {
-                   displayValue = (
-                     <span>
-                       {deptName} <span className="text-xs text-slate-400">({value})</span>
-                     </span>
-                   );
-                 }
-               }
 
                return (
                  <tr key={key} className={`border-b border-slate-100 last:border-0 ${highlightClass}`}>
@@ -144,7 +208,7 @@ const ValueDisplay = ({ values, title, compareValues, lookups }: ValueDisplayPro
                      {formatKey(key)}
                    </td>
                    <td className="px-3 py-2 text-slate-800">
-                     {displayValue}
+                     {resolveValue(key, value)}
                    </td>
                  </tr>
                );
@@ -207,36 +271,79 @@ export default function SystemLogsPage() {
   const [loading, setLoading] = useState(true);
   const [exportLoading, setExportLoading] = useState(false);
   const [selectedLog, setSelectedLog] = useState<SystemLog | null>(null);
-  const [departments, setDepartments] = useState<Record<string, string>>({});
+  const [lookups, setLookups] = useState<Lookups>({
+    departments: {},
+    types: {},
+    categories: {},
+    brands: {},
+    areas: {},
+    locations: {},
+    employees: {},
+    suppliers: {},
+  });
 
   // Filters
   const [search, setSearch] = useState("");
   const [moduleFilter, setModuleFilter] = useState<string>("");
   const [actionFilter, setActionFilter] = useState<string>("");
-  
+
   // New Date Filters
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [period, setPeriod] = useState<string>("all");
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   useEffect(() => {
-    // Fetch departments for lookup
-    const fetchDepartments = async () => {
+    // Fetch all lookups for resolving IDs to names
+    const fetchLookups = async () => {
       try {
-        const res = await fetch('/api/assets/departments?limit=1000');
-        const data = await res.json();
-        if (data.data) {
+        const [deptRes, typesRes, catRes, brandsRes, areasRes, locsRes, empRes, suppRes] = await Promise.all([
+          fetch('/api/assets/departments?limit=1000'),
+          fetch('/api/assets/types?limit=1000'),
+          fetch('/api/assets/categories?limit=1000'),
+          fetch('/api/assets/brands?limit=1000'),
+          fetch('/api/assets/areas?limit=1000'),
+          fetch('/api/assets/locations?limit=1000'),
+          fetch('/api/assets/employees?limit=1000'),
+          fetch('/api/assets/suppliers?limit=1000'),
+        ]);
+
+        const createMap = (data: any[], idField = 'id', nameField = 'name') => {
           const map: Record<string, string> = {};
-          data.data.forEach((d: any) => {
-            map[d.id] = d.name;
-          });
-          setDepartments(map);
-        }
+          if (data) {
+            data.forEach((d: any) => {
+              map[d[idField]] = d[nameField] || d.nama || d.nik || d[idField];
+            });
+          }
+          return map;
+        };
+
+        const deptData = deptRes.ok ? (await deptRes.json()).data : [];
+        const typesData = typesRes.ok ? (await typesRes.json()).data : [];
+        const catData = catRes.ok ? (await catRes.json()).data : [];
+        const brandsData = brandsRes.ok ? (await brandsRes.json()).data : [];
+        const areasData = areasRes.ok ? (await areasRes.json()).data : [];
+        const locsData = locsRes.ok ? (await locsRes.json()).data : [];
+        const empData = empRes.ok ? (await empRes.json()).data : [];
+        const suppData = suppRes.ok ? (await suppRes.json()).data : [];
+
+        setLookups({
+          departments: createMap(deptData),
+          types: createMap(typesData),
+          categories: createMap(catData),
+          brands: createMap(brandsData),
+          areas: createMap(areasData),
+          locations: createMap(locsData),
+          employees: empData.reduce((acc: Record<string, string>, e: any) => {
+            acc[e.id] = `${e.nik} - ${e.nama}`;
+            return acc;
+          }, {}),
+          suppliers: createMap(suppData),
+        });
       } catch (e) {
-        console.error("Failed to fetch departments", e);
+        console.error("Failed to fetch lookups", e);
       }
     };
-    fetchDepartments();
+    fetchLookups();
   }, []);
 
   const handlePeriodChange = (value: string) => {
@@ -692,20 +799,20 @@ export default function SystemLogsPage() {
               </div>
 
               {selectedLog.old_values && (
-                <ValueDisplay 
-                  values={selectedLog.old_values} 
-                  title="Previous Values" 
+                <ValueDisplay
+                  values={selectedLog.old_values}
+                  title="Previous Values"
                   compareValues={selectedLog.new_values}
-                  lookups={{ departments }}
+                  lookups={lookups}
                 />
               )}
 
               {selectedLog.new_values && (
-                <ValueDisplay 
-                  values={selectedLog.new_values} 
-                  title="New Values" 
+                <ValueDisplay
+                  values={selectedLog.new_values}
+                  title="New Values"
                   compareValues={selectedLog.old_values}
-                  lookups={{ departments }}
+                  lookups={lookups}
                 />
               )}
 

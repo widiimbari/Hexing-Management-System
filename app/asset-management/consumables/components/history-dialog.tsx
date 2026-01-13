@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FileText, Download, Loader2 } from "lucide-react";
@@ -142,6 +142,9 @@ export function HistoryDialog({ open, onOpenChange }: HistoryDialogProps) {
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Request Document History</DialogTitle>
+          <DialogDescription>
+             View a list of all past purchase request documents.
+          </DialogDescription>
         </DialogHeader>
         
         <ScrollArea className="h-[400px] w-full pr-4">

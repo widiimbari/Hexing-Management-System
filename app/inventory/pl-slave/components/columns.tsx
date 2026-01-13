@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { attachment2 } from "@prisma/client";
+import { attachment2 } from "@/generated/inventory-client-v2";
 import { Badge } from "@/components/ui/badge";
 import { CellAction } from "./cell-action";
 

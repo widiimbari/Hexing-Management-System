@@ -9,7 +9,6 @@ export async function GET() {
   try {
     const assets = await dbAsset.assets.findMany({
       include: {
-        asset_type: true,
         category: true,
         brand: true,
         area: true,
@@ -79,7 +78,7 @@ export async function GET() {
     const headerRow = worksheet.getRow(headerRowIdx);
     
     const headers = [
-      "Nomor Serial", "SAP ID", "Tipe", "Kategori", "Merek", 
+      "Nomor Serial", "SAP ID", "Kategori", "Merek", "Model", "Harga",
       "Area", "Lokasi", "Karyawan", "Supplier", "Tanggal Pembelian", "Tanggal Dibuat"
     ];
     
@@ -103,19 +102,24 @@ export async function GET() {
     });
 
     // Column widths
-    const columnWidths = [20, 15, 15, 15, 15, 15, 15, 20, 20, 15, 20];
+    const columnWidths = [20, 15, 15, 15, 20, 18, 15, 15, 20, 20, 15, 20];
     columnWidths.forEach((width, index) => {
       worksheet.getColumn(index + 1).width = width;
     });
 
     // --- SETUP DATA ROWS ---
     assets.forEach((asset) => {
+      const priceFormatted = asset.price
+        ? new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(Number(asset.price))
+        : "";
+
       const rowData = [
         asset.serial_number,
         asset.sap_id || "",
-        asset.asset_type?.name || "",
         asset.category?.name || "",
         asset.brand?.name || "",
+        asset.model || "",
+        priceFormatted,
         asset.area?.name || "",
         asset.location?.name || "",
         asset.employee ? `${asset.employee.nik} - ${asset.employee.nama}` : "",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { attachment, attachment2 } from "@prisma/client";
+import { attachment, attachment2 } from "@/generated/inventory-client-v2";
 import { DataTable, DataTableColumn } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
@@ -55,7 +55,7 @@ export default function PLSlavePage() {
   const [data, setData] = useState<any[]>([]); // Can be Master or Slave
   const [rowCount, setRowCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState(""); // Search State
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const debouncedSearchTerm = useDebounce(searchTerm, 800);
   const [selectedMaster, setSelectedMaster] = useState<AttachmentWithCounts | null>(null);
   const [slaveExportDialogOpen, setSlaveExportDialogOpen] = useState(false);
   const [selectedSlaveIdForExport, setSelectedSlaveIdForExport] = useState<number | null>(null);

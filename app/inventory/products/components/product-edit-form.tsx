@@ -3,7 +3,7 @@
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { product } from "@prisma/client";
+import { product } from "@/generated/inventory-client-v2";
 
 import { Button } from "@/components/ui/button";
 import {

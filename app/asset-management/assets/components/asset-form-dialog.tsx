@@ -7,11 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-interface AssetType {
-  id: string;
-  name: string;
-}
-
 interface Category {
   id: string;
   name: string;
@@ -46,9 +41,10 @@ interface Employee {
 }
 
 interface AssetFormData {
-  type_id: string;
   serial_number: string;
   sap_id: string;
+  model: string;
+  price: string;
   imageFiles: File[];
   purchase_date: Date | undefined;
   category_id: string;
@@ -86,9 +82,10 @@ export function AssetFormDialog({
   loading = false 
 }: AssetFormDialogProps) {
   const [formData, setFormData] = useState<AssetFormData>({
-    type_id: "",
     serial_number: "",
     sap_id: "",
+    model: "",
+    price: "",
     imageFiles: [],
     purchase_date: undefined,
     category_id: "",
@@ -100,7 +97,6 @@ export function AssetFormDialog({
     condition: "Good",
   });
 
-  const [types, setTypes] = useState<AssetType[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -116,8 +112,7 @@ export function AssetFormDialog({
     const fetchDropdownData = async () => {
       setLoadingData(true);
       try {
-        const [typesRes, categoriesRes, brandsRes, suppliersRes, areasRes, locationsRes, employeesRes] = await Promise.all([
-          fetch("/api/assets/types?limit=0"),
+        const [categoriesRes, brandsRes, suppliersRes, areasRes, locationsRes, employeesRes] = await Promise.all([
           fetch("/api/assets/categories?limit=0"),
           fetch("/api/assets/brands?limit=0"),
           fetch("/api/assets/suppliers?limit=0"),
@@ -125,11 +120,6 @@ export function AssetFormDialog({
           fetch("/api/assets/locations?limit=0"),
           fetch("/api/assets/employees?limit=0"),
         ]);
-
-        if (typesRes.ok) {
-          const typesData = await typesRes.json();
-          setTypes(typesData.data || []);
-        }
 
         if (categoriesRes.ok) {
           const categoriesData = await categoriesRes.json();
@@ -182,9 +172,10 @@ export function AssetFormDialog({
       };
 
       setFormData({
-        type_id: asset.type_id || "",
         serial_number: asset.serial_number || "",
         sap_id: asset.sap_id || "",
+        model: asset.model || "",
+        price: asset.price ? String(asset.price) : "",
         imageFiles: [],
         purchase_date: asset.purchase_date ? new Date(asset.purchase_date) : undefined,
         category_id: asset.category_id || "",
@@ -207,9 +198,10 @@ export function AssetFormDialog({
     } else {
       // Reset form for add mode
       setFormData({
-        type_id: "",
         serial_number: "",
         sap_id: "",
+        model: "",
+        price: "",
         imageFiles: [],
         purchase_date: undefined,
         category_id: "",
@@ -277,26 +269,6 @@ export function AssetFormDialog({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="type">Asset Type</Label>
-              <Select
-                value={formData.type_id}
-                onValueChange={(value) => handleInputChange("type_id", value)}
-                disabled={loadingData}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select asset type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {types.map((type) => (
-                    <SelectItem key={type.id} value={type.id}>
-                      {type.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="serial_number">Serial Number</Label>
               <Input
                 id="serial_number"
@@ -322,25 +294,6 @@ export function AssetFormDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="condition">Condition</Label>
-              <Select
-                value={formData.condition}
-                onValueChange={(value) => handleInputChange("condition", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select condition" />
-                </SelectTrigger>
-                <SelectContent>
-                  {conditions.map((condition) => (
-                    <SelectItem key={condition.value} value={condition.value}>
-                      {condition.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
               <Select
                 value={formData.category_id}
@@ -354,6 +307,25 @@ export function AssetFormDialog({
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={category.id}>
                       {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="condition">Condition</Label>
+              <Select
+                value={formData.condition}
+                onValueChange={(value) => handleInputChange("condition", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select condition" />
+                </SelectTrigger>
+                <SelectContent>
+                  {conditions.map((condition) => (
+                    <SelectItem key={condition.value} value={condition.value}>
+                      {condition.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -381,25 +353,15 @@ export function AssetFormDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="employee">Employee</Label>
-              <Select
-                value={formData.employee_id}
-                onValueChange={(value) => handleInputChange("employee_id", value)}
-                disabled={loadingData}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select employee" />
-                </SelectTrigger>
-                <SelectContent>
-                  {employees.map((employee) => (
-                    <SelectItem key={employee.id} value={employee.id}>
-                      {employee.nik} - {employee.nama}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="model">Model</Label>
+              <Input
+                id="model"
+                value={formData.model}
+                onChange={(e) => handleInputChange("model", e.target.value)}
+                placeholder="e.g. Core i5-1235U, ProBook 450 G9"
+              />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="area">Area</Label>
               <Select
@@ -444,6 +406,39 @@ export function AssetFormDialog({
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="employee">Employee</Label>
+              <Select
+                value={formData.employee_id}
+                onValueChange={(value) => handleInputChange("employee_id", value)}
+                disabled={loadingData}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select employee" />
+                </SelectTrigger>
+                <SelectContent>
+                  {employees.map((employee) => (
+                    <SelectItem key={employee.id} value={employee.id}>
+                      {employee.nik} - {employee.nama}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="price">Price (IDR)</Label>
+              <Input
+                id="price"
+                type="number"
+                min="0"
+                step="0.01"
+                value={formData.price}
+                onChange={(e) => handleInputChange("price", e.target.value)}
+                placeholder="e.g. 15000000"
+              />
             </div>
 
             <div className="space-y-2">

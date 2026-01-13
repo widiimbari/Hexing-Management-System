@@ -48,8 +48,7 @@ export async function GET(req: Request) {
             select: {
               serial_number: true,
               sap_id: true,
-              type_id: true,
-              asset_type: true
+              category: true
             }
           },
           previous_holder: { select: { nama: true } },

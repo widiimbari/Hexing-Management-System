@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { attachment } from "@prisma/client";
-import { PlusCircle, FileDown, ChevronDown, MoreHorizontal, Eye, Edit, Trash, ClipboardList } from "lucide-react";
+import { useDebounce } from "@/hooks/use-debounce";
+import { attachment } from "@/generated/inventory-client-v2";
+import { PlusCircle, FileDown, ChevronDown, MoreHorizontal, Eye, Edit, Trash, ClipboardList, RefreshCw } from "lucide-react";
 import { DataTable, DataTableColumn } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
@@ -56,7 +57,8 @@ export default function PLMasterPage() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  
+  const debouncedSearchTerm = useDebounce(searchTerm, 800);
+
   // Pagination State for DataTable
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -86,13 +88,32 @@ export default function PLMasterPage() {
   const [viewingItems, setViewingItems] = useState<AttachmentWithCounts | null>(null);
   const [isItemsViewOpen, setIsItemsViewOpen] = useState(false);
 
+  // Sync State
+  const [syncing, setSyncing] = useState(false);
+
+  const handleSync = async () => {
+    setSyncing(true);
+    try {
+      const res = await fetch("/api/attachments/sync", { method: "POST" });
+      if (!res.ok) throw new Error("Sync failed");
+      const result = await res.json();
+      alert(`Sync completed! ${result.synced} attachment(s) updated.`);
+      fetchData();
+    } catch (error) {
+      console.error("Sync failed:", error);
+      alert("Sync failed. Check console.");
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   const fetchData = async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams({
         page: (pagination.pageIndex + 1).toString(),
         limit: pagination.pageSize.toString(),
-        search: searchTerm,
+        search: debouncedSearchTerm,
       });
       const res = await fetch(`/api/attachments?${params}`);
       if (!res.ok) throw new Error("Failed to fetch");
@@ -108,7 +129,7 @@ export default function PLMasterPage() {
 
   useEffect(() => {
     fetchData();
-  }, [pagination.pageIndex, pagination.pageSize, searchTerm]);
+  }, [pagination.pageIndex, pagination.pageSize, debouncedSearchTerm]);
 
   const refreshData = () => {
     fetchData();
@@ -374,14 +395,27 @@ export default function PLMasterPage() {
       <Card className="shadow-md border-none overflow-hidden">
         <CardContent className="p-0">
           <div className="p-4 border-b flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/50">
-            {(role === "super_admin" || role === "admin") && (
-              <Button onClick={() => {
-                setEditingAttachment(null);
-                setIsAddOpen(true);
-              }}>
-                <PlusCircle className="mr-2 h-4 w-4" /> Add PL Master
-              </Button>
-            )}
+            <div className="flex gap-2">
+              {(role === "super_admin" || role === "admin") && (
+                <Button onClick={() => {
+                  setEditingAttachment(null);
+                  setIsAddOpen(true);
+                }}>
+                  <PlusCircle className="mr-2 h-4 w-4" /> Add PL Master
+                </Button>
+              )}
+              {role === "super_admin" && (
+                <Button
+                  variant="outline"
+                  onClick={handleSync}
+                  disabled={syncing}
+                  title="Sync qty/used_qty dengan data product aktual"
+                >
+                  <RefreshCw className={`mr-2 h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
+                  {syncing ? "Syncing..." : "Sync Data"}
+                </Button>
+              )}
+            </div>
             <Input
               type="text"
               placeholder="Search"

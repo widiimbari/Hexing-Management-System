@@ -104,6 +104,11 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+
 
 exports.Prisma.ModelName = {
   warehouse_location: 'warehouse_location',
@@ -120,7 +125,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\hexing-9\\Documents\\hexing-inventory\\generated\\warehouse-client",
+      "value": "C:\\Users\\hexing-9\\Documents\\HMS\\generated\\warehouse-client",
       "fromEnvVar": null
     },
     "config": {
@@ -146,7 +151,8 @@ const config = {
   "datasourceNames": [
     "db"
   ],
-  "activeProvider": "mysql",
+  "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -155,8 +161,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/warehouse-client\"\n}\n\ndatasource db {\n  provider = \"mysql\"\n  url      = env(\"WAREHOUSE_DATABASE_URL\")\n}\n\nmodel warehouse_location {\n  id   Int    @id @default(autoincrement())\n  code String @unique\n  name String\n}\n\nmodel stock_opname {\n  id         Int      @id @default(autoincrement())\n  date       DateTime @default(now())\n  status     String\n}\n",
-  "inlineSchemaHash": "cfdfa9623733743adc56542a3157b1a8ec6b514d9de03d23bbfef950b4cf9aa9",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/warehouse-client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"WAREHOUSE_DATABASE_URL\")\n}\n\nmodel warehouse_location {\n  id   Int    @id @default(autoincrement())\n  code String @unique\n  name String\n}\n\nmodel stock_opname {\n  id         Int      @id @default(autoincrement())\n  date       DateTime @default(now())\n  status     String\n}\n",
+  "inlineSchemaHash": "c3bf947f2bb9313886a9a22801d2142bba6009f84a1710a5b52fa0ebbef998c9",
   "copyEngine": true
 }
 config.dirname = '/'

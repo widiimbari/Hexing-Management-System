@@ -1,5 +1,8 @@
 import { db } from "@/lib/db";
 
+// Force dynamic rendering - skip prerender during build
+export const dynamic = 'force-dynamic';
+
 export default async function StokPage() {
   // PENTING: Ganti 'nama_model_di_schema' dengan nama model tabel kamu.
   // Lihat baris paling atas di file schema.prisma, misal: model production_log { ... }

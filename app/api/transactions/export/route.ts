@@ -37,7 +37,7 @@ export async function GET(req: Request) {
           select: {
             serial_number: true,
             sap_id: true,
-            asset_type: { select: { name: true } }
+            category: { select: { name: true } }
           }
         },
         previous_holder: { select: { nama: true } },
@@ -151,7 +151,7 @@ export async function GET(req: Request) {
       const rowData = [
         t.transaction_date,
         t.asset.serial_number,
-        t.asset.asset_type?.name || '-',
+        t.asset.category?.name || '-',
         t.transaction_type.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase()),
         details,
         t.creator_name || 'System',

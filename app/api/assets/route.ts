@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { dbAsset } from "@/lib/db";
-import { logActivity } from "@/lib/activity-logger";
 import { AssetLog } from "@/lib/system-logger";
 import { getCurrentUser } from "@/lib/auth";
-import { AssetCondition } from "@/generated/asset-client-v9";
+import { AssetCondition } from "@/generated/asset-client-v14";
 
 // Helper to serialize BigInt
 function serializeBigInt(data: any): any {
@@ -28,9 +27,9 @@ export async function GET(req: Request) {
     
     if (search) {
       where.OR = [
-        { asset_type: { name: { contains: search } } }, // Search by type name
         { serial_number: { contains: search } },
         { sap_id: { contains: search } },
+        { model: { contains: search } },
         { category: { name: { contains: search } } },
         { brand: { name: { contains: search } } },
         { area: { name: { contains: search } } },
@@ -45,7 +44,6 @@ export async function GET(req: Request) {
         take: limit,
         skip,
         include: {
-          asset_type: true,
           category: true,
           brand: true,
           area: true,
@@ -108,10 +106,14 @@ export async function POST(req: Request) {
       ? (normalizedCondition as AssetCondition)
       : AssetCondition.GOOD;
 
+    const priceStr = formData.get('price') as string;
+    const price = priceStr ? parseFloat(priceStr) : null;
+
     const data = {
-      type_id: getBigInt(formData.get('type_id')),
       serial_number: formData.get('serial_number') as string,
       sap_id: (formData.get('sap_id') as string) || null,
+      model: (formData.get('model') as string) || null,
+      price: price,
       purchase_date: formData.get('purchase_date') ? new Date(formData.get('purchase_date') as string) : null,
       category_id: getBigInt(formData.get('category_id')),
       brand_id: getBigInt(formData.get('brand_id')),
@@ -246,7 +248,6 @@ export async function POST(req: Request) {
         return await tx.assets.findUnique({
           where: { id: newAsset.id },
           include: {
-            asset_type: true,
             category: true,
             brand: true,
             area: true,

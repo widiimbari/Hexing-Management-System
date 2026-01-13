@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { attachment2 } from "@prisma/client";
+import { attachment2 } from "@/generated/inventory-client-v2";
 import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 

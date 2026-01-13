@@ -20,7 +20,7 @@ export type LogAction =
   | 'RETURN';
 
 // Entity types per module
-export type AssetEntity = 'Asset' | 'Employee' | 'Category' | 'Brand' | 'Area' | 'Location' | 'Supplier' | 'Department' | 'AssetType' | 'Transaction';
+export type AssetEntity = 'Asset' | 'Employee' | 'Category' | 'Brand' | 'Area' | 'Location' | 'Supplier' | 'Department' | 'AssetType' | 'Transaction' | 'Consumable' | 'ConsumableRequest';
 export type InventoryEntity = 'Product' | 'Attachment' | 'PackingList' | 'Box' | 'Pallet';
 export type WarehouseEntity = 'StockIn' | 'StockOut' | 'Transfer';
 export type UserEntity = 'User' | 'Session';
@@ -46,11 +46,37 @@ interface LogOptions {
 async function getClientInfo(): Promise<{ ip: string | null; userAgent: string | null }> {
   try {
     const headersList = await headers();
+
+    // First check for our custom header set by middleware
+    const middlewareIp = headersList.get('x-client-ip');
+
+    // Check various headers that might contain the real IP
     const forwardedFor = headersList.get('x-forwarded-for');
     const realIp = headersList.get('x-real-ip');
+    const cfConnectingIp = headersList.get('cf-connecting-ip'); // Cloudflare
+    const trueClientIp = headersList.get('true-client-ip'); // Akamai/Cloudflare
     const userAgent = headersList.get('user-agent');
 
-    let ip = forwardedFor?.split(',')[0]?.trim() || realIp || null;
+    // Priority: middleware-set > x-forwarded-for > x-real-ip > cf-connecting-ip > true-client-ip
+    let ip = middlewareIp
+      || forwardedFor?.split(',')[0]?.trim()
+      || realIp
+      || cfConnectingIp
+      || trueClientIp
+      || null;
+
+    // If still localhost, try to get from host header for display purposes
+    if (!ip || ip === '127.0.0.1' || ip === '::1' || ip === 'localhost') {
+      const host = headersList.get('host');
+      // If accessed via network IP (not localhost), note it
+      if (host && !host.includes('localhost') && !host.includes('127.0.0.1')) {
+        // Extract just the host part (without port)
+        const hostOnly = host.split(':')[0];
+        if (hostOnly !== 'localhost' && hostOnly !== '127.0.0.1') {
+          ip = `local-client (via ${hostOnly})`;
+        }
+      }
+    }
 
     return { ip, userAgent };
   } catch {

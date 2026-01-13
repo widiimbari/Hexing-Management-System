@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { dbAsset } from "@/lib/db";
+import { CategoryService } from "@/modules/master-data/categories/application/category-service";
 
 // Helper to serialize BigInt
 function serializeBigInt(data: any): any {
@@ -10,7 +10,6 @@ function serializeBigInt(data: any): any {
   );
 }
 
-// GET - Fetch all categories with pagination and search
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -18,42 +17,11 @@ export async function GET(req: Request) {
     const limit = parseInt(searchParams.get("limit") || "10");
     const search = searchParams.get("search") || "";
 
-    const skip = limit > 0 ? (page - 1) * limit : undefined;
-    const take = limit > 0 ? limit : undefined;
-
-    const where: any = {};
-    
-    if (search) {
-      where.OR = [
-        { name: { contains: search } },
-      ];
-    }
-
-    const [data, total] = await Promise.all([
-      dbAsset.categories.findMany({
-        where,
-        take,
-        skip,
-        include: {
-          _count: {
-            select: { assets: true }
-          }
-        },
-        orderBy: {
-          name: "asc",
-        },
-      }),
-      dbAsset.categories.count({ where }),
-    ]);
+    const result = await CategoryService.getCategories({ page, limit, search });
 
     return NextResponse.json({
-      data: serializeBigInt(data),
-      metadata: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
+      data: serializeBigInt(result.data),
+      metadata: result.metadata,
     });
   } catch (error) {
     console.error("Error fetching categories:", error);
@@ -64,18 +32,10 @@ export async function GET(req: Request) {
   }
 }
 
-// POST - Create new category
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    
-    const category = await dbAsset.categories.create({
-      data: {
-        name: body.name,
-        created_at: new Date(),
-        updated_at: new Date(),
-      },
-    });
+    const category = await CategoryService.createCategory({ name: body.name });
 
     return NextResponse.json({
       data: serializeBigInt(category),
@@ -90,7 +50,6 @@ export async function POST(req: Request) {
   }
 }
 
-// PUT - Update existing category
 export async function PUT(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -101,14 +60,7 @@ export async function PUT(req: Request) {
     }
     
     const body = await req.json();
-    
-    const category = await dbAsset.categories.update({
-      where: { id: BigInt(id) },
-      data: {
-        name: body.name,
-        updated_at: new Date(),
-      },
-    });
+    const category = await CategoryService.updateCategory(id, { name: body.name });
 
     return NextResponse.json({
       data: serializeBigInt(category),
@@ -116,6 +68,29 @@ export async function PUT(req: Request) {
     });
   } catch (error) {
     console.error("Error updating category:", error);
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+    
+    if (!id) {
+      return NextResponse.json({ message: "Category ID is required" }, { status: 400 });
+    }
+    
+    await CategoryService.deleteCategory(id);
+
+    return NextResponse.json({
+      message: "Category deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting category:", error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

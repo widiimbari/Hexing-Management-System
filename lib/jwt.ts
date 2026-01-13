@@ -32,8 +32,8 @@ export const JWT_SECRET = getJWTSecret();
 export const JWT_KEY = new TextEncoder().encode(JWT_SECRET);
 
 // JWT configuration constants
-export const JWT_EXPIRY = "24h"; // Token expiry time
-export const JWT_COOKIE_MAX_AGE = 60 * 60 * 24; // 24 hours in seconds
+export const JWT_EXPIRY = "8h"; // Token expiry time (8 jam kerja)
+export const JWT_COOKIE_MAX_AGE = 60 * 60 * 8; // 8 hours in seconds
 export const JWT_ALGORITHM = "HS256"; // HMAC SHA-256
 
 /**

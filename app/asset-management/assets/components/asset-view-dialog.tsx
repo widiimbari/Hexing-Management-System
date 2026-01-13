@@ -5,11 +5,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { 
-  Calendar, 
-  Package, 
-  Building, 
-  User, 
+import {
+  Calendar,
+  Package,
+  Building,
+  User,
   ImageIcon,
   Clock,
   Fingerprint,
@@ -22,7 +22,8 @@ import {
   ExternalLink,
   History,
   Box,
-  X
+  X,
+  Banknote
 } from "lucide-react";
 import { format } from "date-fns";
 import { ChangeConditionDialog } from "./change-condition-dialog";
@@ -46,6 +47,19 @@ const formatUTC = (dateStr: string) => {
   const date = new Date(dateStr);
   const utcDate = new Date(date.valueOf() + date.getTimezoneOffset() * 60 * 1000);
   return format(utcDate, "dd/MM/yyyy HH:mm:ss");
+};
+
+// Helper to format currency (IDR)
+const formatCurrency = (value: number | string | null | undefined) => {
+  if (value === null || value === undefined || value === "") return "-";
+  const numValue = typeof value === "string" ? parseFloat(value) : value;
+  if (isNaN(numValue)) return "-";
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(numValue);
 };
 
 interface Asset {
@@ -171,7 +185,7 @@ export function AssetViewDialog({ open, onOpenChange, asset, onAssetUpdated }: A
                     {currentAsset.sap_id || currentAsset.serial_number}
                   </div>
                   <p className="text-sm text-slate-500 flex items-center gap-2">
-                    {currentAsset.asset_type?.name || "Asset"} 
+                    {currentAsset.category?.name || "Asset"}
                     <span className="text-slate-300">•</span> 
                     <span className="font-mono text-xs bg-slate-100 px-2 py-0.5 rounded">{currentAsset.serial_number}</span>
                   </p>
@@ -283,14 +297,30 @@ export function AssetViewDialog({ open, onOpenChange, asset, onAssetUpdated }: A
                      </div>
                   </div>
                   <div className="p-4 hover:bg-slate-50 transition-colors">
+                     <p className="text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Model</p>
+                     <div className="font-semibold text-slate-900 flex items-center gap-2">
+                       <Box className="h-4 w-4 text-slate-400" />
+                       {currentAsset.model || "-"}
+                     </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 divide-x divide-slate-100 border-b border-slate-100">
+                  <div className="p-4 hover:bg-slate-50 transition-colors">
                      <p className="text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Category</p>
                      <div className="font-semibold text-slate-900 flex items-center gap-2">
                        <Tag className="h-4 w-4 text-slate-400" />
                        {currentAsset.category?.name || "-"}
                      </div>
                   </div>
+                  <div className="p-4 hover:bg-slate-50 transition-colors">
+                     <p className="text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Price</p>
+                     <div className="font-semibold text-slate-900 flex items-center gap-2">
+                       <Banknote className="h-4 w-4 text-slate-400" />
+                       {formatCurrency(currentAsset.price)}
+                     </div>
+                  </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 divide-x divide-slate-100">
+                <div className="grid grid-cols-1 md:grid-cols-2 divide-x divide-slate-100 border-b border-slate-100">
                   <div className="p-4 hover:bg-slate-50 transition-colors">
                      <p className="text-xs font-medium text-slate-500 mb-1 uppercase tracking-wider">Purchase Date</p>
                      <div className="font-semibold text-slate-900 flex items-center gap-2">

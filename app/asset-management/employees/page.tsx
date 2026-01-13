@@ -24,6 +24,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useRole } from "@/hooks/use-role";
@@ -58,7 +68,7 @@ export default function EmployeesPage() {
   const [loading, setLoading] = useState(true);
   const [rowCount, setRowCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
-  const debouncedSearch = useDebounce(searchTerm, 500);
+  const debouncedSearch = useDebounce(searchTerm, 800);
   
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -71,6 +81,9 @@ export default function EmployeesPage() {
   const [formLoading, setFormLoading] = useState(false);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const fetchDepartments = async () => {
     try {
@@ -135,19 +148,29 @@ export default function EmployeesPage() {
     }
   };
 
-  const handleDeleteEmployee = async (employee: Employee) => {
-    if (!confirm(`Are you sure you want to delete employee "${employee.nama}" (${employee.nik})?`)) return;
-    
+  const handleDeleteClick = (employee: Employee) => {
+    setEmployeeToDelete(employee);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!employeeToDelete) return;
+
+    setDeleteLoading(true);
     try {
-      const res = await fetch(`/api/assets/employees/${employee.id}`, {
+      const res = await fetch(`/api/assets/employees/${employeeToDelete.id}`, {
         method: 'DELETE',
       });
 
       if (!res.ok) throw new Error("Failed to delete employee");
-      
+
+      setDeleteDialogOpen(false);
+      setEmployeeToDelete(null);
       fetchData();
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -262,9 +285,9 @@ export default function EmployeesPage() {
                   <Edit className="mr-2 h-4 w-4" /> Edit
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   className="text-red-600 focus:text-red-600"
-                  onClick={() => handleDeleteEmployee(row)}
+                  onClick={() => handleDeleteClick(row)}
                 >
                   <Trash className="mr-2 h-4 w-4" /> Delete
                 </DropdownMenuItem>

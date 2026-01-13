@@ -7,8 +7,7 @@ import fs from "fs";
 export async function GET() {
   try {
     // Fetch all dropdown data
-    const [types, categories, brands, areas, locations, suppliers, employees] = await Promise.all([
-      dbAsset.asset_types.findMany({ orderBy: { name: 'asc' } }),
+    const [categories, brands, areas, locations, suppliers, employees] = await Promise.all([
       dbAsset.categories.findMany({ orderBy: { name: 'asc' } }),
       dbAsset.brands.findMany({ orderBy: { name: 'asc' } }),
       dbAsset.areas.findMany({ orderBy: { name: 'asc' } }),
@@ -25,7 +24,7 @@ export async function GET() {
     // validationSheet.state = 'veryHidden'; // Make it visible so users can see the data
 
     // Style dropdown data sheet
-    validationSheet.getCell('A1').value = 'Tipe Asset';
+    validationSheet.getCell('A1').value = 'Kategori';
     validationSheet.getCell('A1').font = { bold: true, size: 12, color: { argb: 'FFFFFF' } };
     validationSheet.getCell('A1').fill = {
       type: 'pattern',
@@ -40,7 +39,7 @@ export async function GET() {
       right: { style: 'thin' }
     };
 
-    validationSheet.getCell('B1').value = 'Kategori';
+    validationSheet.getCell('B1').value = 'Merek';
     validationSheet.getCell('B1').font = { bold: true, size: 12, color: { argb: 'FFFFFF' } };
     validationSheet.getCell('B1').fill = {
       type: 'pattern',
@@ -55,7 +54,7 @@ export async function GET() {
       right: { style: 'thin' }
     };
 
-    validationSheet.getCell('C1').value = 'Merek';
+    validationSheet.getCell('C1').value = 'Area';
     validationSheet.getCell('C1').font = { bold: true, size: 12, color: { argb: 'FFFFFF' } };
     validationSheet.getCell('C1').fill = {
       type: 'pattern',
@@ -70,7 +69,7 @@ export async function GET() {
       right: { style: 'thin' }
     };
 
-    validationSheet.getCell('D1').value = 'Area';
+    validationSheet.getCell('D1').value = 'Lokasi';
     validationSheet.getCell('D1').font = { bold: true, size: 12, color: { argb: 'FFFFFF' } };
     validationSheet.getCell('D1').fill = {
       type: 'pattern',
@@ -85,7 +84,7 @@ export async function GET() {
       right: { style: 'thin' }
     };
 
-    validationSheet.getCell('E1').value = 'Lokasi';
+    validationSheet.getCell('E1').value = 'Supplier';
     validationSheet.getCell('E1').font = { bold: true, size: 12, color: { argb: 'FFFFFF' } };
     validationSheet.getCell('E1').fill = {
       type: 'pattern',
@@ -100,7 +99,7 @@ export async function GET() {
       right: { style: 'thin' }
     };
 
-    validationSheet.getCell('F1').value = 'Supplier';
+    validationSheet.getCell('F1').value = 'Karyawan (NIK - Nama)';
     validationSheet.getCell('F1').font = { bold: true, size: 12, color: { argb: 'FFFFFF' } };
     validationSheet.getCell('F1').fill = {
       type: 'pattern',
@@ -115,35 +114,9 @@ export async function GET() {
       right: { style: 'thin' }
     };
 
-    validationSheet.getCell('G1').value = 'Karyawan (NIK - Nama)';
-    validationSheet.getCell('G1').font = { bold: true, size: 12, color: { argb: 'FFFFFF' } };
-    validationSheet.getCell('G1').fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: 'FF2F75B5' }
-    };
-    validationSheet.getCell('G1').alignment = { vertical: 'middle', horizontal: 'center' };
-    validationSheet.getCell('G1').border = {
-      top: { style: 'thin' },
-      left: { style: 'thin' },
-      bottom: { style: 'thin' },
-      right: { style: 'thin' }
-    };
-
     // Add dropdown data to validation sheet
-    types.forEach((type, index) => {
-      const cell = validationSheet.getCell(`A${index + 2}`);
-      cell.value = type.name;
-      cell.border = {
-        top: { style: 'thin' },
-        left: { style: 'thin' },
-        bottom: { style: 'thin' },
-        right: { style: 'thin' }
-      };
-    });
-
     categories.forEach((category, index) => {
-      const cell = validationSheet.getCell(`B${index + 2}`);
+      const cell = validationSheet.getCell(`A${index + 2}`);
       cell.value = category.name;
       cell.border = {
         top: { style: 'thin' },
@@ -154,7 +127,7 @@ export async function GET() {
     });
 
     brands.forEach((brand, index) => {
-      const cell = validationSheet.getCell(`C${index + 2}`);
+      const cell = validationSheet.getCell(`B${index + 2}`);
       cell.value = brand.name;
       cell.border = {
         top: { style: 'thin' },
@@ -165,7 +138,7 @@ export async function GET() {
     });
 
     areas.forEach((area, index) => {
-      const cell = validationSheet.getCell(`D${index + 2}`);
+      const cell = validationSheet.getCell(`C${index + 2}`);
       cell.value = area.name;
       cell.border = {
         top: { style: 'thin' },
@@ -176,7 +149,7 @@ export async function GET() {
     });
 
     locations.forEach((location, index) => {
-      const cell = validationSheet.getCell(`E${index + 2}`);
+      const cell = validationSheet.getCell(`D${index + 2}`);
       cell.value = location.name;
       cell.border = {
         top: { style: 'thin' },
@@ -187,7 +160,7 @@ export async function GET() {
     });
 
     suppliers.forEach((supplier, index) => {
-      const cell = validationSheet.getCell(`F${index + 2}`);
+      const cell = validationSheet.getCell(`E${index + 2}`);
       cell.value = supplier.name;
       cell.border = {
         top: { style: 'thin' },
@@ -198,7 +171,7 @@ export async function GET() {
     });
 
     employees.forEach((employee, index) => {
-      const cell = validationSheet.getCell(`G${index + 2}`);
+      const cell = validationSheet.getCell(`F${index + 2}`);
       cell.value = `${employee.nik} - ${employee.nama}`;
       cell.border = {
         top: { style: 'thin' },
@@ -213,24 +186,23 @@ export async function GET() {
     validationSheet.getColumn('B').width = 20;
     validationSheet.getColumn('C').width = 20;
     validationSheet.getColumn('D').width = 20;
-    validationSheet.getColumn('E').width = 20;
-    validationSheet.getColumn('F').width = 25;
-    validationSheet.getColumn('G').width = 30;
+    validationSheet.getColumn('E').width = 25;
+    validationSheet.getColumn('F').width = 30;
 
 
 
     // --- SETUP TABLE HEADER ---
     const headers = [
-      "Nomor Serial*", "SAP ID", "Tipe", "Kategori", "Merek", 
+      "Nomor Serial*", "SAP ID", "Kategori", "Merek",
       "Area", "Lokasi", "Karyawan (NIK - Nama)", "Supplier", "Tanggal Pembelian (YYYY-MM-DD)"
     ];
-    
+
     const headerRowIdx = 1;
     const headerRow = worksheet.getRow(headerRowIdx);
     headerRow.values = headers;
 
     // Column widths
-    const columnWidths = [20, 15, 15, 15, 15, 15, 15, 25, 20, 20];
+    const columnWidths = [20, 15, 15, 15, 15, 15, 25, 20, 20];
     columnWidths.forEach((width, index) => {
       worksheet.getColumn(index + 1).width = width;
     });
@@ -253,7 +225,6 @@ export async function GET() {
     });
 
     // Add sample data rows with actual data from dropdown
-    const sampleType = types[0]?.name || "";
     const sampleCategory = categories[0]?.name || "";
     const sampleBrand = brands[0]?.name || "";
     const sampleArea = areas[0]?.name || "";
@@ -264,7 +235,6 @@ export async function GET() {
     worksheet.addRow({
       serial_number: "CONTOH001",
       sap_id: "SAP001",
-      type: sampleType,
       category: sampleCategory,
       brand: sampleBrand,
       area: sampleArea,
@@ -277,7 +247,6 @@ export async function GET() {
     worksheet.addRow({
       serial_number: "CONTOH002",
       sap_id: "SAP002",
-      type: sampleType,
       category: sampleCategory,
       brand: sampleBrand,
       area: sampleArea,
@@ -303,71 +272,61 @@ export async function GET() {
 
     // Add data validation for dropdown columns
     for (let row = 2; row <= 100; row++) { // Apply to rows 2-100 for future use
-      // Type dropdown
+      // Category dropdown
       worksheet.getCell(`C${row}`).dataValidation = {
         type: 'list',
         allowBlank: true,
-        formulae: [`'Data Dropdown'!$A$2:$A$${types.length + 1}`],
-        showErrorMessage: true,
-        errorTitle: 'Tipe Tidak Valid',
-        error: 'Silakan pilih tipe yang valid dari dropdown'
-      };
-
-      // Category dropdown
-      worksheet.getCell(`D${row}`).dataValidation = {
-        type: 'list',
-        allowBlank: true,
-        formulae: [`'Data Dropdown'!$B$2:$B$${categories.length + 1}`],
+        formulae: [`'Data Dropdown'!$A$2:$A$${categories.length + 1}`],
         showErrorMessage: true,
         errorTitle: 'Kategori Tidak Valid',
         error: 'Silakan pilih kategori yang valid dari dropdown'
       };
 
       // Brand dropdown
-      worksheet.getCell(`E${row}`).dataValidation = {
+      worksheet.getCell(`D${row}`).dataValidation = {
         type: 'list',
         allowBlank: true,
-        formulae: [`'Data Dropdown'!$C$2:$C$${brands.length + 1}`],
+        formulae: [`'Data Dropdown'!$B$2:$B$${brands.length + 1}`],
         showErrorMessage: true,
         errorTitle: 'Merek Tidak Valid',
         error: 'Silakan pilih merek yang valid dari dropdown'
       };
 
       // Area dropdown
-      worksheet.getCell(`F${row}`).dataValidation = {
+      worksheet.getCell(`E${row}`).dataValidation = {
         type: 'list',
         allowBlank: true,
-        formulae: [`'Data Dropdown'!$D$2:$D$${areas.length + 1}`],
+        formulae: [`'Data Dropdown'!$C$2:$C$${areas.length + 1}`],
         showErrorMessage: true,
         errorTitle: 'Area Tidak Valid',
         error: 'Silakan pilih area yang valid dari dropdown'
       };
 
       // Location dropdown
-      worksheet.getCell(`G${row}`).dataValidation = {
+      worksheet.getCell(`F${row}`).dataValidation = {
         type: 'list',
         allowBlank: true,
-        formulae: [`'Data Dropdown'!$E$2:$E$${locations.length + 1}`],
+        formulae: [`'Data Dropdown'!$D$2:$D$${locations.length + 1}`],
         showErrorMessage: true,
         errorTitle: 'Lokasi Tidak Valid',
         error: 'Silakan pilih lokasi yang valid dari dropdown'
       };
 
       // Employee dropdown
-      worksheet.getCell(`H${row}`).dataValidation = {
+      worksheet.getCell(`G${row}`).dataValidation = {
         type: 'list',
         allowBlank: true,
-        formulae: [`'Data Dropdown'!$G$2:$G$${employees.length + 1}`],
+        formulae: [`'Data Dropdown'!$F$2:$F$${employees.length + 1}`],
         showErrorMessage: true,
         errorTitle: 'Karyawan Tidak Valid',
         error: 'Silakan pilih karyawan yang valid dari dropdown'
       };
 
       // Supplier dropdown
-      worksheet.getCell(`I${row}`).dataValidation = {
+      worksheet.getCell(`H${row}`).dataValidation = {
         type: 'list',
         allowBlank: true,
-        formulae: [`'Data Dropdown'!$F$2:$F$${suppliers.length + 1}`],
+        formulae: [`'Data Dropdown'!$E$2:$E$${suppliers.length + 1}`],
         showErrorMessage: true,
         errorTitle: 'Supplier Tidak Valid',
         error: 'Silakan pilih supplier yang valid dari dropdown'
@@ -385,7 +344,7 @@ export async function GET() {
     const instructions = [
       '1. Isi data asset pada sheet "Template Import Asset"',
       '2. Field wajib ditandai dengan * (Nomor Serial)',
-      '3. Gunakan menu dropdown untuk Tipe, Kategori, Merek, Area, Lokasi, Supplier, dan Karyawan',
+      '3. Gunakan menu dropdown untuk Kategori, Merek, Area, Lokasi, Supplier, dan Karyawan',
       '4. Data dropdown tersedia di sheet "Data Dropdown" (sheet terpisah yang bisa dilihat)',
       '5. Format tanggal harus YYYY-MM-DD (contoh: 2024-01-15)',
       '6. Format karyawan: "NIK - Nama" akan tersedia di dropdown',
@@ -397,27 +356,25 @@ export async function GET() {
       'Data Referensi Dropdown:',
       '• Sheet "Data Dropdown" berisi semua pilihan yang tersedia',
       '• Setiap kolom memiliki data referensi yang sudah ada di sistem',
-      '• Tipe Asset → Kolom A pada sheet Data Dropdown',
-      '• Kategori → Kolom B pada sheet Data Dropdown', 
-      '• Merek → Kolom C pada sheet Data Dropdown',
-      '• Area → Kolom D pada sheet Data Dropdown',
-      '• Lokasi → Kolom E pada sheet Data Dropdown',
-      '• Supplier → Kolom F pada sheet Data Dropdown',
-      '• Karyawan → Kolom G pada sheet Data Dropdown (Format: NIK - Nama)',
+      '• Kategori → Kolom A pada sheet Data Dropdown',
+      '• Merek → Kolom B pada sheet Data Dropdown',
+      '• Area → Kolom C pada sheet Data Dropdown',
+      '• Lokasi → Kolom D pada sheet Data Dropdown',
+      '• Supplier → Kolom E pada sheet Data Dropdown',
+      '• Karyawan → Kolom F pada sheet Data Dropdown (Format: NIK - Nama)',
       '',
       'Cara Membuat Dropdown Manual (jika dropdown tidak muncul):',
-      '1. Klik cell pada kolom Tipe (kolom C, baris 2+)',
+      '1. Klik cell pada kolom Kategori (kolom C, baris 2+)',
       '2. Pergi ke menu Data → Data Validation',
       '3. Pada Settings → Allow: pilih "List"',
       '4. Pada Source: ketik =Data Dropdown!$A$2:$A$100',
       '5. Klik OK → Dropdown akan muncul',
       '6. Ulangi untuk kolom lain:',
-      '   • Kategori: =Data Dropdown!$B$2:$B$100',
-      '   • Merek: =Data Dropdown!$C$2:$C$100',
-      '   • Area: =Data Dropdown!$D$2:$D$100',
-      '   • Lokasi: =Data Dropdown!$E$2:$E$100',
-      '   • Supplier: =Data Dropdown!$F$2:$F$100',
-      '   • Karyawan: =Data Dropdown!$G$2:$G$100',
+      '   • Merek: =Data Dropdown!$B$2:$B$100',
+      '   • Area: =Data Dropdown!$C$2:$C$100',
+      '   • Lokasi: =Data Dropdown!$D$2:$D$100',
+      '   • Supplier: =Data Dropdown!$E$2:$E$100',
+      '   • Karyawan: =Data Dropdown!$F$2:$F$100',
       '',
       'Catatan Penting:',
       '- Sheet "Data Dropdown" berisi data real-time dari sistem',

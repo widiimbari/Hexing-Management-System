@@ -46,7 +46,7 @@ interface Transaction {
   asset: {
     serial_number: string;
     sap_id: string;
-    asset_type: { name: string };
+    category?: { name: string };
   };
   creator?: {
     name: string;
@@ -61,7 +61,7 @@ export default function TransactionsPage() {
   const [rowCount, setRowCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("ALL");
-  const debouncedSearch = useDebounce(searchTerm, 500);
+  const debouncedSearch = useDebounce(searchTerm, 800);
   
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -131,7 +131,7 @@ export default function TransactionsPage() {
       cell: ({ row }) => (
         <div className="flex flex-col">
           <span className="font-medium">{row.asset.serial_number}</span>
-          <span className="text-xs text-muted-foreground">{row.asset.asset_type?.name}</span>
+          <span className="text-xs text-muted-foreground">{row.asset.category?.name || "-"}</span>
         </div>
       )
     },

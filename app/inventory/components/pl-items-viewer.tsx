@@ -16,7 +16,7 @@ interface PLItemsViewerProps {
 export function PLItemsViewer({ attachmentId, mode }: PLItemsViewerProps) {
   const [view, setView] = useState("serial");
   const [search, setSearch] = useState("");
-  const debouncedSearch = useDebounce(search, 500);
+  const debouncedSearch = useDebounce(search, 800);
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [metadata, setMetadata] = useState({ total: 0, page: 1, limit: 10, totalPages: 0 });

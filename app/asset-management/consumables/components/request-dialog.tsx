@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface RequestDialogProps {
   open: boolean;
@@ -14,6 +16,10 @@ interface RequestDialogProps {
 
 export function RequestDialog({ open, onOpenChange, onSave }: RequestDialogProps) {
   const [loading, setLoading] = useState(false);
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [mode, setMode] = useState<'new' | 'existing'>('new');
+  const [selectedDoc, setSelectedDoc] = useState("");
+  
   const [formData, setFormData] = useState({
     item_name: "",
     brand_type: "",
@@ -24,8 +30,34 @@ export function RequestDialog({ open, onOpenChange, onSave }: RequestDialogProps
     item_image: null as File | null,
   });
 
+  useEffect(() => {
+    if (open) {
+        fetchDocuments();
+    }
+  }, [open]);
+
+  const fetchDocuments = async () => {
+    try {
+        const res = await fetch("/api/assets/consumables/documents");
+        const result = await res.json();
+        // Filter documents that are likely active (e.g. created recently or have pending items)
+        // For now, let's show all, or filter client side if needed. 
+        // Showing all might be too much, but let's assume the user knows which one.
+        // Or sort by date desc (API already does).
+        setDocuments(result.data || []);
+    } catch (err) {
+        console.error("Failed to fetch documents", err);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (mode === 'existing' && !selectedDoc) {
+        alert("Please select a document");
+        return;
+    }
+
     setLoading(true);
     try {
       const payload = new FormData();
@@ -37,6 +69,10 @@ export function RequestDialog({ open, onOpenChange, onSave }: RequestDialogProps
       payload.append("remarks", formData.remarks);
       if (formData.item_image) {
         payload.append("item_image", formData.item_image);
+      }
+      
+      if (mode === 'existing') {
+          payload.append("existing_document_number", selectedDoc);
       }
 
       const res = await fetch("/api/assets/consumables", {
@@ -57,6 +93,8 @@ export function RequestDialog({ open, onOpenChange, onSave }: RequestDialogProps
         remarks: "",
         item_image: null 
       });
+      setMode('new');
+      setSelectedDoc("");
     } catch (error) {
       console.error(error);
       alert("Error creating request");
@@ -72,6 +110,47 @@ export function RequestDialog({ open, onOpenChange, onSave }: RequestDialogProps
           <DialogTitle>New Purchase Request</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          
+          {/* Document Mode Selection */}
+          <div className="space-y-2 pb-2 border-b">
+            <Label>Document Type</Label>
+            <RadioGroup defaultValue="new" value={mode} onValueChange={(v: any) => setMode(v)} className="flex gap-4">
+                <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="new" id="r-new" />
+                    <Label htmlFor="r-new" className="font-normal cursor-pointer">New Document</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="existing" id="r-existing" />
+                    <Label htmlFor="r-existing" className="font-normal cursor-pointer">Add to Existing</Label>
+                </div>
+            </RadioGroup>
+          </div>
+
+          {mode === 'existing' && (
+              <div className="space-y-2">
+                <Label>Select Document</Label>
+                <Select value={selectedDoc} onValueChange={setSelectedDoc}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select a document..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {documents.filter((d: any) => d.pending_items > 0).length === 0 ? (
+                            <SelectItem value="none" disabled>No active documents found</SelectItem>
+                        ) : (
+                            documents.filter((d: any) => d.pending_items > 0).map((doc: any) => (
+                                <SelectItem key={doc.document_number} value={doc.document_number}>
+                                    {doc.document_number} 
+                                    <span className="text-xs text-muted-foreground ml-2">
+                                        ({doc.pending_items} pending)
+                                    </span>
+                                </SelectItem>
+                            ))
+                        )}
+                    </SelectContent>
+                </Select>
+              </div>
+          )}
+
           <div className="space-y-2">
             <Label>Item Name</Label>
             <Input 

@@ -12,6 +12,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+// Force dynamic rendering - skip prerender during build
+export const dynamic = 'force-dynamic';
+
 async function getStats() {
   try {
     const now = new Date();

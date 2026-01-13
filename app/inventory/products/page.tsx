@@ -76,8 +76,8 @@ export default function ProductsPage() {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   // Debounced Search for Type Detection
-  const debouncedStartSerial = useDebounce(startSerial, 500);
-  const debouncedEndSerial = useDebounce(endSerial, 500);
+  const debouncedStartSerial = useDebounce(startSerial, 800);
+  const debouncedEndSerial = useDebounce(endSerial, 800);
   const [detectedStartTypes, setDetectedStartTypes] = useState<string[]>([]);
   const [detectedEndTypes, setDetectedEndTypes] = useState<string[]>([]);
   const [searchWarning, setSearchWarning] = useState<string | null>(null);

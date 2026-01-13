@@ -32,7 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { attachment } from "@prisma/client";
+import { attachment } from "@/generated/inventory-client-v2";
 
 // Define the type for fetched masters
 type AttachmentWithCounts = attachment & {

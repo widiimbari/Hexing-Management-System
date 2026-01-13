@@ -1,448 +1,177 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
-import { DataTable, DataTableColumn } from "@/components/ui/data-table";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  PlusCircle, Search, FileText, CheckCircle, Clock, Download, Upload,
-  Archive, ShoppingCart, Printer, FileSpreadsheet, ChevronDown, ChevronRight, ImageIcon, Trash
-} from "lucide-react";import { Badge } from "@/components/ui/badge";
+import { 
+  PlusCircle, Search, Clock, Download, Upload, 
+  Archive, ShoppingCart, CalendarIcon
+} from "lucide-react";
 import { useDebounce } from "@/hooks/use-debounce";
-import { format } from "date-fns";
+import { 
+  format, startOfDay, endOfDay, startOfWeek, endOfWeek, 
+  startOfMonth, endOfMonth, startOfYear, endOfYear
+} from "date-fns";
 import { RequestDialog } from "./components/request-dialog";
 import { SettlementDialog } from "./components/settlement-dialog";
-import { ConsumableImportDialog } from "./components/import-dialog";
-import { CopyLinkButton } from "./components/copy-link-button";
+import { ConsumableImportExportDialog } from "./components/consumable-import-export-dialog";
+import { BulkSettlementDialog } from "./components/bulk-settlement-dialog";
+import { UsageDialog } from "./components/usage-dialog";
+import { UsageHistoryDialog } from "./components/usage-history-dialog";
+import { exportRequestToExcel } from "./components/export-excel";
+import { exportRequestToPDF } from "./components/export-pdf";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+import { DateRange } from "react-day-picker";
+import { AlertModal } from "@/components/ui/alert-modal";
+import { MessageDialog } from "@/components/ui/message-dialog";
+import { ImageViewDialog } from "@/components/ui/image-view-dialog";
+import { getRequestColumns, getInventoryColumns } from "./components/columns";
+import { ExpandedRow } from "./components/expanded-row";
 
 export default function ConsumablesPage() {
   const [items, setItems] = useState<any[]>([]);
   const [documents, setDocuments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const debouncedSearch = useDebounce(searchTerm, 500);
   
   const [requestOpen, setRequestOpen] = useState(false);
   const [settleOpen, setSettleOpen] = useState(false);
-  const [importOpen, setImportOpen] = useState(false);
-  
+  const [bulkSettleOpen, setBulkSettleOpen] = useState(false);
+  const [importExportOpen, setImportExportOpen] = useState(false);
+  const [importMode, setImportMode] = useState<'import' | 'export' | null>(null);
+  const [usageOpen, setUsageOpen] = useState(false);
+  const [usageHistoryOpen, setUsageHistoryOpen] = useState(false);
+  const [imageViewOpen, setImageViewOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<{ src: string, alt: string } | null>(null);
+
+  const [deleteAlert, setDeleteAlert] = useState<{ open: boolean, data: any }>({ open: false, data: null });
+  const [msg, setMsg] = useState({ open: false, title: "", desc: "" });
+
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
+  const [selectedItemForUsage, setSelectedItemForUsage] = useState<any>(null);
+  const [selectedItemForHistory, setSelectedItemForHistory] = useState<any>(null);
+  const [selectedDocForBulk, setSelectedDocForBulk] = useState<any>(null);
   const [expandedDocNumber, setExpandedDocNumber] = useState<string | null>(null);
+
+  const [reqPag, setReqPag] = useState({ pageIndex: 0, pageSize: 10 });
+  const [invPag, setInvPag] = useState({ pageIndex: 0, pageSize: 10 });
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [itemsRes, docsRes] = await Promise.all([
+      const [iRes, dRes] = await Promise.all([
         fetch(`/api/assets/consumables?search=${debouncedSearch}`),
         fetch(`/api/assets/consumables/documents`)
       ]);
-
-      const itemsResult = await itemsRes.json();
-      const docsResult = await docsRes.json();
-
-      setItems(itemsResult.data || []);
-      setDocuments(docsResult.data || []);
-    } catch (err) {
-      console.error(err);
-      setItems([]);
-      setDocuments([]);
-    } finally {
-      setLoading(false);
-    }
+      const iResult = await iRes.json(), dResult = await dRes.json();
+      setItems(iResult.data || []); setDocuments(dResult.data || []);
+    } catch (err) { console.error(err); } finally { setLoading(false); }
   }, [debouncedSearch]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  const handleSettle = (item: any) => {
-    setSelectedRequest(item);
-    setSettleOpen(true);
-  };
-
-  const toggleRow = (docNumber: string) => {
-    if (expandedDocNumber === docNumber) {
-      setExpandedDocNumber(null);
-    } else {
-      setExpandedDocNumber(docNumber);
-    }
-  };
-
-  const handlePrintDocument = (doc: any) => {
-    const docItems = items.filter(i => i.document_number === doc.document_number);
-    if (docItems.length === 0) return;
-
-    const pdf = new jsPDF({ orientation: "landscape", format: "a4" });
-    const img = new Image();
-    img.src = "/HEXING LOGO.png";
-
-    const generate = () => {
-        const pageWidth = pdf.internal.pageSize.getWidth();
-
-        pdf.setFontSize(14);
-        pdf.setFont("helvetica", "bold");
-        pdf.text("FORMULIR PERMOHONAN PENYEDIAAN BARANG / JASA", pageWidth / 2, 20, { align: "center" });
-        
-        pdf.setFontSize(10);
-        pdf.setFont("helvetica", "normal");
-        pdf.text(`Doc No: ${doc.document_number}`, 14, 40);
-        pdf.text(`Tanggal: ${format(new Date(doc.request_date), "dd MMMM yyyy")}`, 14, 45);
-
-        const tableBody = docItems.map((item: any, index: number) => {
-            const qty = item.qty_estimated;
-            const price = parseFloat(item.price_estimated);
-            const subtotal = qty * price;
-            const shipping = subtotal * 0.03; 
-            const total = subtotal + shipping;
-
-            return [
-                index + 1,
-                item.item_name,
-                item.brand_type || "-",
-                qty,
-                "Unit",
-                new Intl.NumberFormat("id-ID").format(price),
-                new Intl.NumberFormat("id-ID").format(subtotal),
-                new Intl.NumberFormat("id-ID").format(shipping),
-                new Intl.NumberFormat("id-ID").format(total),
-                item.remarks || "-"
-            ];
-        });
-
-        const totalSubtotal = docItems.reduce((acc: number, item: any) => acc + (item.qty_estimated * parseFloat(item.price_estimated)), 0);
-        const totalShipping = totalSubtotal * 0.03;
-        const totalGrand = totalSubtotal + totalShipping;
-
-        autoTable(pdf, {
-            startY: 55,
-            head: [["No", "Nama Barang", "Merk/Tipe", "Qty", "Satuan", "Harga Satuan (Est)", "Subtotal", "Fee 3%", "Total", "Keterangan"]],
-            body: tableBody,
-            foot: [[ 
-                { content: "TOTAL ESTIMASI", colSpan: 6, styles: { halign: 'right', fontStyle: 'bold' } },
-                { content: new Intl.NumberFormat("id-ID").format(totalSubtotal), styles: { fontStyle: 'bold' } },
-                { content: new Intl.NumberFormat("id-ID").format(totalShipping), styles: { fontStyle: 'bold' } },
-                { content: new Intl.NumberFormat("id-ID").format(totalGrand), colSpan: 2, styles: { fontStyle: 'bold' } },
-            ]],
-            theme: 'grid',
-            headStyles: { fillColor: [220, 220, 220], textColor: [0,0,0] },
-            styles: { fontSize: 9, textColor: [0,0,0] },
-            columnStyles: {
-                0: { cellWidth: 10 }, 
-                1: { cellWidth: 70 }, 
-                9: { cellWidth: 40 }
-            }
-        });
-
-        const finalY = (pdf as any).lastAutoTable.finalY + 20;
-        
-        const colWidth = pageWidth / 3;
-        pdf.setFontSize(10);
-        pdf.text("Prepared By,", colWidth * 0.5, finalY, { align: "center" });
-        pdf.text("Checked By,", colWidth * 1.5, finalY, { align: "center" });
-        pdf.text("Approved By,", colWidth * 2.5, finalY, { align: "center" });
-
-        pdf.line(colWidth * 0.2, finalY + 25, colWidth * 0.8, finalY + 25);
-        pdf.line(colWidth * 1.2, finalY + 25, colWidth * 1.8, finalY + 25);
-        pdf.line(colWidth * 2.2, finalY + 25, colWidth * 2.8, finalY + 25);
-
-        pdf.text("( .................... )", colWidth * 0.5, finalY + 30, { align: "center" });
-        pdf.text("( .................... )", colWidth * 1.5, finalY + 30, { align: "center" });
-        pdf.text("( .................... )", colWidth * 2.5, finalY + 30, { align: "center" });
-
-        pdf.save(`Request_${doc.document_number.replace(/[\/\\]/g, '-')}.pdf`);
+    const updateSelected = (state: any, setState: any) => {
+        if (!state) return;
+        const updated = items.find(i => i.id === state.id);
+        if (updated && JSON.stringify(updated) !== JSON.stringify(state)) setState(updated);
     };
+    updateSelected(selectedItemForUsage, setSelectedItemForUsage);
+    updateSelected(selectedItemForHistory, setSelectedItemForHistory);
+  }, [items, selectedItemForUsage, selectedItemForHistory]);
 
-    img.onload = () => {
-        pdf.addImage(img, "PNG", 14, 10, 30, 10);
-        generate();
-    };
-    img.onerror = () => generate();
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  const handleDatePreset = (p: string) => {
+    const now = new Date(); let from, to;
+    if (p === 'daily') { from = startOfDay(now); to = endOfDay(now); }
+    else if (p === 'weekly') { from = startOfWeek(now, { weekStartsOn: 1 }); to = endOfWeek(now, { weekStartsOn: 1 }); }
+    else if (p === 'monthly') { from = startOfMonth(now); to = endOfMonth(now); }
+    else if (p === 'yearly') { from = startOfYear(now); to = endOfYear(now); }
+    else { setDateRange(undefined); return; }
+    setDateRange({ from, to });
   };
 
-  const handlePrintDocumentExcel = async (doc: any) => {
-    const docItems = items.filter(i => i.document_number === doc.document_number);
-    if (docItems.length === 0) return;
-
+  const onConfirmDelete = async () => {
+    if (!deleteAlert.data) return;
+    setLoading(true);
     try {
-      const ExcelJS = (await import("exceljs")).default;
-      const workbook = new ExcelJS.Workbook();
-      const sheet = workbook.addWorksheet("Request Form");
-
-      try {
-        const logoRes = await fetch('/HEXING LOGO.png');
-        if (logoRes.ok) {
-            const logoBlob = await logoRes.arrayBuffer();
-            const logoId = workbook.addImage({
-                buffer: logoBlob,
-                extension: 'png',
-            });
-            sheet.addImage(logoId, {
-                tl: { col: 0.2, row: 0.2 },
-                ext: { width: 100, height: 35 }
-            });
-        }
-      } catch (e) {
-        console.warn("Could not add logo to excel", e);
-      }
-
-      sheet.mergeCells('C1:I2'); 
-      sheet.getCell('C1').value = "FORMULIR PERMOHONAN PENYEDIAAN BARANG / JASA";
-      sheet.getCell('C1').font = { size: 14, bold: true };
-      sheet.getCell('C1').alignment = { horizontal: 'center', vertical: 'middle' };
-
-      sheet.getCell('A4').value = "Doc No:";
-      sheet.getCell('A4').font = { bold: true };
-      sheet.mergeCells('B4:E4');
-      sheet.getCell('B4').value = doc.document_number;
-      sheet.getCell('B4').alignment = { horizontal: 'left' };
-
-      sheet.getCell('A5').value = "Tanggal:";
-      sheet.getCell('A5').font = { bold: true };
-      sheet.mergeCells('B5:E5');
-      sheet.getCell('B5').value = format(new Date(doc.request_date), "dd MMMM yyyy");
-
-      const headerRowIdx = 8;
-      const headerRow = sheet.getRow(headerRowIdx);
-      headerRow.values = ["No", "Nama Barang", "Merk/Tipe", "Qty", "Satuan", "Harga Satuan (Est)", "Subtotal", "Fee 3%", "Total", "Keterangan"];
-      headerRow.font = { bold: true };
-      headerRow.height = 25;
-      headerRow.eachCell(cell => {
-        cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'E5E7EB' } };
-        cell.alignment = { horizontal: 'center', vertical: 'middle' };
-      });
-
-      let totalSubtotal = 0;
-      let totalShipping = 0;
-      let totalGrand = 0;
-
-      docItems.forEach((item, index) => {
-        const qty = item.qty_estimated;
-        const price = parseFloat(item.price_estimated);
-        const subtotal = qty * price;
-        const shipping = subtotal * 0.03;
-        const total = subtotal + shipping;
-
-        totalSubtotal += subtotal;
-        totalShipping += shipping;
-        totalGrand += total;
-
-        const row = sheet.addRow([
-            index + 1,
-            item.item_name,
-            item.brand_type,
-            qty,
-            "Unit",
-            price,
-            subtotal,
-            shipping,
-            total,
-            item.remarks || "-"
-        ]);
-        row.eachCell(cell => {
-            cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
-            cell.alignment = { vertical: 'middle' };
-        });
-        row.getCell(1).alignment = { horizontal: 'center' };
-        row.getCell(4).alignment = { horizontal: 'center' };
-        row.getCell(5).alignment = { horizontal: 'center' };
-      });
-
-      const totalRow = sheet.addRow(["TOTAL ESTIMASI", "", "", "", "", "", totalSubtotal, totalShipping, totalGrand, ""]);
-      const totalRowIdx = totalRow.number;
-      
-      sheet.mergeCells(`A${totalRowIdx}:F${totalRowIdx}`);
-      sheet.getCell(`A${totalRowIdx}`).alignment = { horizontal: 'right', vertical: 'middle' };
-      
-      totalRow.font = { bold: true };
-      totalRow.eachCell(cell => {
-          cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
-          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'DCFCE7' } };
-      });
-
-      const signRowIdx = docItems.length + 13;
-      sheet.getCell(`B${signRowIdx}`).value = "Prepared By,";
-      sheet.getCell(`E${signRowIdx}`).value = "Checked By,";
-      sheet.getCell(`H${signRowIdx}`).value = "Approved By,";
-      
-      [`B${signRowIdx}`, `E${signRowIdx}`, `H${signRowIdx}`].forEach(cellAddr => {
-          sheet.getCell(cellAddr).alignment = { horizontal: 'center' };
-          sheet.getCell(cellAddr).font = { bold: true };
-      });
-      
-      const nameRowIdx = docItems.length + 18;
-      sheet.getCell(`B${nameRowIdx}`).value = "(....................)";
-      sheet.getCell(`E${nameRowIdx}`).value = "(....................)";
-      sheet.getCell(`H${nameRowIdx}`).value = "(....................)";
-      
-      [`B${nameRowIdx}`, `E${nameRowIdx}`, `H${nameRowIdx}`].forEach(cellAddr => {
-          sheet.getCell(cellAddr).alignment = { horizontal: 'center' };
-      });
-
-      sheet.columns = [
-          { width: 5 }, { width: 35 }, { width: 20 }, { width: 8 }, { width: 8 }, 
-          { width: 18 }, { width: 18 }, { width: 15 }, { width: 18 }, { width: 25 }
-      ];
-      ['F', 'G', 'H', 'I'].forEach(col => sheet.getColumn(col).numFmt = '#,##0');
-
-      const buffer = await workbook.xlsx.writeBuffer();
-      const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `Request_${doc.document_number.replace(/[\/\\]/g, '-')}.xlsx`;
-      a.click();
-      a.remove();
-
-    } catch (err) {
-        console.error(err);
-        alert("Failed to export Excel");
-    }
+      const res = await fetch(deleteAlert.data.type === 'document' 
+        ? `/api/assets/consumables/documents?doc_no=${encodeURIComponent(deleteAlert.data.id)}`
+        : `/api/assets/consumables/${deleteAlert.data.id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error((await res.json()).message || "Failed to delete");
+      await fetchData(); setDeleteAlert({ open: false, data: null });
+    } catch (err: any) { setMsg({ open: true, title: "Error", desc: err.message || "Failed to delete" }); }
+    finally { setLoading(false); }
   };
 
-  const handleExportReport = async () => {
+  const handleImport = async (file: File) => {
+    const formData = new FormData(); formData.append('file', file);
     try {
-      const ExcelJS = (await import("exceljs")).default;
-      const workbook = new ExcelJS.Workbook();
-      const sheet = workbook.addWorksheet("Monthly Report");
+      const res = await fetch('/api/assets/consumables/import', { method: 'POST', body: formData });
+      const result = await res.json();
+      if (!res.ok) return { success: false, message: result.message || "Failed to import", errors: result.errors || [] };
+      fetchData(); return { success: true, message: result.message };
+    } catch (err: any) { return { success: false, message: err.message || "Failed to import" }; }
+  };
 
-      sheet.mergeCells('A1:K1');
-      sheet.getCell('A1').value = "MONTHLY PURCHASE REPORT (NON-SAP)";
-      sheet.getCell('A1').font = { size: 16, bold: true };
-      sheet.getCell('A1').alignment = { horizontal: 'center' };
-
-      sheet.mergeCells('A2:K2');
-      sheet.getCell('A2').value = `Periode: ${format(new Date(), "MMMM yyyy")}`;
-      sheet.getCell('A2').alignment = { horizontal: 'center' };
-
-      const headerRow = sheet.getRow(4);
-      headerRow.values = ["No", "Tgl Beli", "Item Name", "Brand/Type", "Qty", "Unit", "Harga Satuan (Real)", "Subtotal Barang", "Shipping & Handling (3%)", "GRAND TOTAL (IDR)", "Bukti"];
+  const handleDownloadTemplate = async () => {
+    try {
+      const response = await fetch('/api/assets/consumables/template');
+      if (!response.ok) throw new Error('Failed to download template');
       
-      headerRow.eachCell((cell) => {
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFF00' } };
-        cell.font = { bold: true };
-        cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
-        cell.alignment = { horizontal: 'center' };
-      });
-
-      sheet.columns = [
-        { key: 'no', width: 5 }, { key: 'date', width: 12 }, { key: 'item', width: 30 }, { key: 'brand', width: 20 },
-        { key: 'qty', width: 8 }, { key: 'unit', width: 8 }, { key: 'price', width: 18 }, { key: 'subtotal', width: 18 },
-        { key: 'shipping', width: 18 }, { key: 'total', width: 18 }, { key: 'proof', width: 15 },
-      ];
-
-      const completedItems = items.filter(d => d.status === "COMPLETED");
-      let totalMonthly = 0;
-      let totalShipping = 0;
-      let totalGrand = 0;
-
-      completedItems.forEach((d, index) => {
-        const subtotal = parseFloat(d.subtotal_item || 0);
-        const shipping = parseFloat(d.shipping_fee || 0);
-        const grand = parseFloat(d.grand_total || 0);
-        
-        totalMonthly += subtotal;
-        totalShipping += shipping;
-        totalGrand += grand;
-
-        const row = sheet.addRow([
-          index + 1,
-          d.settlement_date ? format(new Date(d.settlement_date), "dd-MMM") : "-",
-          d.item_name,
-          d.brand_type,
-          d.qty_actual,
-          "Unit",
-          parseFloat(d.unit_price_real || 0),
-          parseFloat(d.subtotal_item || 0),
-          parseFloat(d.shipping_fee || 0),
-          parseFloat(d.grand_total || 0),
-          d.receipt_image ? { text: "Link", hyperlink: d.receipt_image } : "-"
-        ]);
-
-        ['H', 'I', 'J'].forEach(col => {
-            row.getCell(col).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '90EE90' } };
-        });
-      });
-
-      const totalRow = sheet.addRow(["TOTAL BULANAN", "", "", "", "", "", "", totalMonthly, totalShipping, totalGrand, ""]);
-      totalRow.font = { bold: true };
-      
-      sheet.getColumn('price').numFmt = '#,##0';
-      sheet.getColumn('subtotal').numFmt = '#,##0';
-      sheet.getColumn('shipping').numFmt = '#,##0';
-      sheet.getColumn('total').numFmt = '#,##0';
-
-      const buffer = await workbook.xlsx.writeBuffer();
-      const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
+      const a = document.createElement('a');
       a.href = url;
-      a.download = `Consumables_Report_${format(new Date(), "yyyy_MM")}.xlsx`;
+      a.download = "Template_Import_Consumables.xlsx";
+      document.body.appendChild(a);
       a.click();
-      a.remove();
-    } catch (err) {
-        console.error(err);
-        alert("Failed to export report");
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Error downloading template:', error);
+      throw error;
     }
   };
 
-  const inventoryColumns: DataTableColumn<any>[] = [
-    {
-        id: "settle_date",
-        header: "Purchase Date",
-        cell: ({ row }) => row.settlement_date ? format(new Date(row.settlement_date), "dd/MM/yyyy") : "-"
-    },
-    {
-        id: "item",
-        header: "Item Name",
-        cell: ({ row }) => <span className="font-medium">{row.item_name}</span>
-    },
-    { accessorKey: "brand_type", header: "Brand/Type" },
-    {
-        id: "link",
-        header: "Link",
-        cell: ({ row }) => <CopyLinkButton url={row.purchase_link} />
-    },
-    {
-        id: "qty",
-        header: "Real Qty",
-        cell: ({ row }) => row.qty_actual
-    },
-    {
-        id: "unit_price",
-        header: "Real Price",
-        cell: ({ row }) => new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(parseFloat(row.unit_price_real))
-    },
-    {
-        id: "total",
-        header: "Grand Total",
-        cell: ({ row }) => row.grand_total ? new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(parseFloat(row.grand_total)) : "-"
-    },
-    {
-      id: "proof",
-      header: "Proof",
-      cell: ({ row }) => row.receipt_image ? (
-          <Button size="sm" variant="outline" asChild>
-            <a href={row.receipt_image} target="_blank">View Receipt</a>
-          </Button>
-      ) : <span className="text-muted-foreground">-</span>
-    }
-  ];
+  const filterByDate = (d?: string) => {
+      if (!dateRange?.from || !dateRange?.to || !d) return true;
+      const date = new Date(d); return date >= startOfDay(dateRange.from) && date <= endOfDay(dateRange.to);
+  };
 
-  const completedData = items.filter(d => d.status === "COMPLETED");
+  const filteredDocs = useMemo(() => documents.filter(d => filterByDate(d.request_date)), [documents, dateRange]);
+  const compData = useMemo(() => items.filter(d => d.status === "COMPLETED" && filterByDate(d.settlement_date)), [items, dateRange]);
+
+  const pDocs = useMemo(() => filteredDocs.slice(reqPag.pageIndex * reqPag.pageSize, (reqPag.pageIndex + 1) * reqPag.pageSize), [filteredDocs, reqPag]);
+  const pInv = useMemo(() => compData.slice(invPag.pageIndex * invPag.pageSize, (invPag.pageIndex + 1) * invPag.pageSize), [compData, invPag]);
+
+  const reqCols = getRequestColumns({
+    expandedDocNumber, 
+    handleBulkSettle: (doc) => { setSelectedDocForBulk(doc); setBulkSettleOpen(true); }, 
+    handlePrintDocument: (doc) => exportRequestToPDF(doc, items).catch(e => setMsg({open: true, title: "Error", desc: e.message})), 
+    handlePrintDocumentExcel: (doc) => exportRequestToExcel(doc, items).catch(e => setMsg({open: true, title: "Error", desc: e.message})), 
+    handleDeleteDocument: (id) => setDeleteAlert({ open: true, data: { type: 'document', id, name: id } })
+  });
+
+  const invCols = getInventoryColumns({
+    handleViewHistory: (item) => { setSelectedItemForHistory(item); setUsageHistoryOpen(true); }, 
+    handleUse: (item) => { setSelectedItemForUsage(item); setUsageOpen(true); }, 
+    handleDeleteItem: (id, name) => setDeleteAlert({ open: true, data: { type: 'item', id, name } }), 
+    handleViewImage: (src, alt) => { setSelectedImage({ src, alt }); setImageViewOpen(true); }
+  });
 
   return (
     <div className="container mx-auto py-10">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-2">
-            <FileText className="h-8 w-8 text-primary" /> Non-SAP Assets
-          </h1>
+          <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-2"><Archive className="h-8 w-8 text-primary" /> Non-SAP Assets</h1>
           <p className="text-muted-foreground">Manage purchase requests and monthly reporting.</p>
         </div>
       </div>
@@ -450,234 +179,46 @@ export default function ConsumablesPage() {
       <Tabs defaultValue="requests" className="w-full">
         <div className="flex justify-between items-center mb-4">
             <TabsList>
-                <TabsTrigger value="requests" className="flex gap-2">
-                    <ShoppingCart className="h-4 w-4" /> Purchase Requests
-                </TabsTrigger>
-                <TabsTrigger value="inventory" className="flex gap-2">
-                    <Archive className="h-4 w-4" /> Consumables Inventory
-                </TabsTrigger>
+                <TabsTrigger value="requests" className="flex gap-2"><ShoppingCart className="h-4 w-4" /> Purchase Requests</TabsTrigger>
+                <TabsTrigger value="inventory" className="flex gap-2"><Archive className="h-4 w-4" /> Consumables Inventory</TabsTrigger>
             </TabsList>
-
-            <div className="flex gap-2">
-                <Button variant="outline" onClick={handleExportReport}>
-                    <Download className="mr-2 h-4 w-4" /> Export Report
-                </Button>
-                <Button variant="outline" onClick={() => setImportOpen(true)}>
-                    <Upload className="mr-2 h-4 w-4" /> Import Excel
-                </Button>
-                <Button onClick={() => setRequestOpen(true)}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> New Request
-                </Button>
+            <div className="flex gap-2 items-center">
+                <Select onValueChange={handleDatePreset}><SelectTrigger className="w-[130px]"><SelectValue placeholder="Quick Filter" /></SelectTrigger>
+                    <SelectContent><SelectItem value="all_time">All Time</SelectItem><SelectItem value="daily">Daily</SelectItem><SelectItem value="weekly">Weekly</SelectItem><SelectItem value="monthly">Monthly</SelectItem><SelectItem value="yearly">Yearly</SelectItem></SelectContent>
+                </Select>
+                <Popover><PopoverTrigger asChild><Button variant="outline" className={cn("w-[240px] justify-start text-left font-normal", !dateRange && "text-muted-foreground")}><CalendarIcon className="mr-2 h-4 w-4" />{dateRange?.from ? (dateRange.to ? <>{format(dateRange.from, "LLL dd, y")} - {format(dateRange.to, "LLL dd, y")}</> : format(dateRange.from, "LLL dd, y")) : <span>Pick a date range</span>}</Button></PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end"><Calendar initialFocus mode="range" defaultMonth={dateRange?.from} selected={dateRange} onSelect={setDateRange} numberOfMonths={2} /></PopoverContent>
+                </Popover>
             </div>
         </div>
 
-        <TabsContent value="requests">
-            <Card className="shadow-md border-none overflow-hidden">
-                <CardContent className="p-0">
-                <div className="p-4 border-b bg-amber-50/50 flex items-center gap-2 text-amber-700">
-                     <Clock className="h-4 w-4" />
-                     <span className="text-sm font-medium">Request Documents Overview</span>
-                     
-                     <div className="relative max-w-xs w-full ml-auto">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Search documents..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-9 bg-white"
-                        />
-                    </div>
-                </div>
-                
-                <div className="relative w-full overflow-auto">
-                  <Table>
-                    <TableHeader className="bg-slate-50">
-                      <TableRow>
-                        <TableHead className="w-[50px]"></TableHead>
-                        <TableHead>Document No</TableHead>
-                        <TableHead>Req Date</TableHead>
-                        <TableHead className="w-[200px]">Item Progress</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Action</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {documents.length === 0 ? (
-                        <TableRow>
-                          <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-                            No requests found.
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        documents.map(doc => {
-                          const percent = Math.round((doc.completed_items / doc.total_items) * 100) || 0;
-                          return (
-                            <React.Fragment key={doc.document_number}>
-                              <TableRow 
-                                key={doc.document_number} 
-                                className="cursor-pointer hover:bg-slate-50 transition-colors"
-                                onClick={() => toggleRow(doc.document_number)}
-                              >
-                                <TableCell className="align-middle text-center w-[50px]">
-                                    {expandedDocNumber === doc.document_number ? <ChevronDown className="h-4 w-4 text-slate-500" /> : <ChevronRight className="h-4 w-4 text-slate-500" />}
-                                </TableCell>
-                                <TableCell className="font-medium text-blue-600 align-middle">
-                                    <div className="flex items-center gap-2">
-                                        <FileText className="h-4 w-4" />
-                                        {doc.document_number}
-                                    </div>
-                                </TableCell>
-                                <TableCell className="align-middle">{format(new Date(doc.request_date), "dd MMMM yyyy")}</TableCell>
-                                <TableCell className="align-middle">
-                                    <div className="w-full">
-                                        <div className="flex justify-between text-xs mb-1 text-muted-foreground">
-                                            <span>{doc.completed_items}/{doc.total_items}</span>
-                                            <span>{percent}%</span>
-                                        </div>
-                                        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                                            <div className={`h-full transition-all ${percent === 100 ? 'bg-emerald-500' : 'bg-blue-500'}`} style={{ width: `${percent}%` }} />
-                                        </div>
-                                    </div>
-                                </TableCell>
-                                <TableCell>
-                                    {doc.pending_items === 0 && doc.total_items > 0 ? (
-                                        <Badge className="bg-emerald-600 hover:bg-emerald-700">Completed</Badge>
-                                    ) : doc.completed_items > 0 ? (
-                                        <Badge className="bg-blue-600 hover:bg-blue-700">Partial</Badge>
-                                    ) : (
-                                        <Badge variant="outline" className="text-amber-600 border-amber-600">Pending</Badge>
-                                    )}
-                                </TableCell>
-                                <TableCell onClick={e => e.stopPropagation()} className="align-middle">
-                                    <div className="flex gap-2">
-                                        <Button size="sm" variant="outline" onClick={() => handlePrintDocument(doc)}>
-                                            <Printer className="mr-2 h-4 w-4" /> PDF
-                                        </Button>
-                                        <Button size="sm" variant="outline" onClick={() => handlePrintDocumentExcel(doc)}>
-                                            <FileSpreadsheet className="mr-2 h-4 w-4" /> Excel
-                                        </Button>
-                                    </div>
-                                </TableCell>
-                              </TableRow>
-                              
-                              {expandedDocNumber === doc.document_number && (
-                                <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
-                                  <TableCell colSpan={6} className="p-4 border-b-2 border-slate-100">
-                                     <div className="rounded-lg border bg-white shadow-sm overflow-hidden">
-                                        <Table>
-                                           <TableHeader className="bg-slate-100/80">
-                                              <TableRow>
-                                                 <TableHead>Item Name</TableHead>
-                                                 <TableHead>Brand</TableHead>
-                                                 <TableHead>Link</TableHead>
-                                                 <TableHead className="text-center">Qty (Est)</TableHead>
-                                                 <TableHead className="text-right">Price (Est)</TableHead>
-                                                 <TableHead>Remarks</TableHead>
-                                                 <TableHead>Status</TableHead>
-                                                 <TableHead>Action</TableHead>
-                                              </TableRow>
-                                           </TableHeader>
-                                           <TableBody>
-                                              {items.filter(i => i.document_number === doc.document_number).map(item => (
-                                                <TableRow key={item.id}>
-                                                    <TableCell className="font-medium">{item.item_name}</TableCell>
-                                                    <TableCell>{item.brand_type || "-"}</TableCell>
-                                                    <TableCell>
-                                                        <CopyLinkButton url={item.purchase_link} />
-                                                    </TableCell>
-                                                    <TableCell className="text-center">{item.qty_estimated}</TableCell>
-                                                    <TableCell className="text-right">
-                                                        {new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(parseFloat(item.price_estimated))}
-                                                    </TableCell>
-                                                    <TableCell className="text-muted-foreground text-xs">{item.remarks || "-"}</TableCell>
-                                                    <TableCell>
-                                                        {item.status === "COMPLETED" ? (
-                                                            <Badge variant="outline" className="text-emerald-600 border-emerald-600 bg-emerald-50">Bought</Badge>
-                                                        ) : (
-                                                            <Badge variant="outline" className="text-amber-600 border-amber-600 bg-amber-50">Pending</Badge>
-                                                        )}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <div className="flex gap-2 items-center">
-                                                            {item.item_image && (
-                                                                <Button size="icon" variant="ghost" className="h-8 w-8" asChild>
-                                                                    <a href={item.item_image} target="_blank">
-                                                                        <ImageIcon className="h-4 w-4" />
-                                                                    </a>
-                                                                </Button>
-                                                            )}
-                                                            {item.status === "PENDING" && (
-                                                                <Button size="sm" onClick={() => handleSettle(item)} className="h-8">
-                                                                    Settle
-                                                                </Button>
-                                                            )}
-                                                        </div>
-                                                    </TableCell>
-                                                </TableRow>
-                                              ))}
-                                           </TableBody>
-                                        </Table>
-                                     </div>
-                                  </TableCell>
-                                </TableRow>
-                              )}
-                            </React.Fragment>
-                          );
-                        })
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
+        <TabsContent value="requests"><Card className="shadow-md border-none overflow-hidden"><CardContent className="p-0">
+                <div className="p-4 border-b bg-amber-50/50 flex items-center gap-2 text-amber-700"><Clock className="h-4 w-4" /><span className="text-sm font-medium">Request Documents Overview</span>
+                     <div className="ml-auto flex items-center gap-2"><div className="relative max-w-xs w-full"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" /><Input placeholder="Search documents..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-9 bg-white" /></div>
+                        <Button variant="outline" onClick={() => { setImportMode('import'); setImportExportOpen(true); }}><Upload className="mr-2 h-4 w-4" /> Import</Button>
+                        <Button onClick={() => setRequestOpen(true)}><PlusCircle className="mr-2 h-4 w-4" /> New Request</Button>
+                    </div></div>
+                <DataTable columns={reqCols} data={pDocs} loading={loading} expandedRowRender={(row) => <ExpandedRow doc={row} items={items} onSettle={(item) => { setSelectedRequest(item); setSettleOpen(true); }} onDelete={(id, name) => setDeleteAlert({ open: true, data: { type: 'item', id, name } })} onViewImage={(src, alt) => { setSelectedImage({ src, alt }); setImageViewOpen(true); }} />} onRowClick={(row) => setExpandedDocNumber(expandedDocNumber === row.document_number ? null : row.document_number)} pagination={{ pageIndex: reqPag.pageIndex, pageSize: reqPag.pageSize, rowCount: filteredDocs.length, onPageChange: (i) => setReqPag(p => ({ ...p, pageIndex: i })), onPageSizeChange: (s) => setReqPag({ pageIndex: 0, pageSize: s }), }} />
+        </CardContent></Card></TabsContent>
 
-                </CardContent>
-            </Card>
-        </TabsContent>
-
-        <TabsContent value="inventory">
-            <Card className="shadow-md border-none overflow-hidden">
-                <CardContent className="p-0">
-                <div className="p-4 border-b bg-slate-50/50 flex items-center gap-2 text-slate-700">
-                     <CheckCircle className="h-4 w-4" />
-                     <span className="text-sm font-medium">Realized Inventory - Completed Transactions</span>
-
-                     <div className="relative max-w-xs w-full ml-auto">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Search inventory..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-9 bg-white"
-                        />
-                    </div>
-                </div>
-                <DataTable
-                    columns={inventoryColumns}
-                    data={completedData}
-                    loading={loading}
-                />
-                </CardContent>
-            </Card>
-        </TabsContent>
+        <TabsContent value="inventory"><Card className="shadow-md border-none overflow-hidden"><CardContent className="p-0">
+                <div className="p-4 border-b bg-slate-50/50 flex items-center gap-2 text-slate-700"><Archive className="h-4 w-4" /><span className="text-sm font-medium">Realized Inventory - Completed Transactions</span>
+                     <div className="ml-auto flex items-center gap-2"><div className="relative max-w-xs w-full"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" /><Input placeholder="Search inventory..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-9 bg-white" /></div>
+                        <Button variant="outline" onClick={() => { setImportMode('export'); setImportExportOpen(true); }}><Download className="mr-2 h-4 w-4" /> Export Report</Button>
+                    </div></div>
+                <DataTable columns={invCols} data={pInv} loading={loading} pagination={{ pageIndex: invPag.pageIndex, pageSize: invPag.pageSize, rowCount: compData.length, onPageChange: (i) => setInvPag(p => ({ ...p, pageIndex: i })), onPageSizeChange: (s) => setInvPag({ pageIndex: 0, pageSize: s }), }} />
+        </CardContent></Card></TabsContent>
       </Tabs>
 
-      <RequestDialog 
-        open={requestOpen} 
-        onOpenChange={setRequestOpen} 
-        onSave={fetchData} 
-      />
-      
-      <SettlementDialog 
-        open={settleOpen} 
-        onOpenChange={setSettleOpen} 
-        request={selectedRequest}
-        onSave={fetchData} 
-      />
-
-      <ConsumableImportDialog
-        open={importOpen}
-        onOpenChange={setImportOpen}
-        onImportSuccess={fetchData}
-      />
+      <RequestDialog open={requestOpen} onOpenChange={setRequestOpen} onSave={fetchData} />
+      <SettlementDialog open={settleOpen} onOpenChange={setSettleOpen} request={selectedRequest} onSave={fetchData} />
+      <BulkSettlementDialog open={bulkSettleOpen} onOpenChange={setBulkSettleOpen} documentNumber={selectedDocForBulk?.document_number} items={items.filter(i => i.document_number === selectedDocForBulk?.document_number)} onSave={fetchData} />
+      <UsageDialog open={usageOpen} onOpenChange={setUsageOpen} item={selectedItemForUsage} onSave={fetchData} />
+      <UsageHistoryDialog open={usageHistoryOpen} onOpenChange={setUsageHistoryOpen} item={selectedItemForHistory} />
+      <ConsumableImportExportDialog isOpen={importExportOpen} onClose={() => setImportExportOpen(false)} onImport={handleImport} onDownloadTemplate={handleDownloadTemplate} loading={loading} initialMode={importMode} items={items} dateRange={dateRange} />
+      <ImageViewDialog open={imageViewOpen} onOpenChange={setImageViewOpen} src={selectedImage?.src || null} alt={selectedImage?.alt} />
+      <AlertModal isOpen={deleteAlert.open} onClose={() => setDeleteAlert({ ...deleteAlert, open: false })} onConfirm={onConfirmDelete} loading={loading} title="Are you sure?" description={deleteAlert.data?.type === 'document' ? `Permanently delete document "${deleteAlert.data.id}" and its items?` : `Permanently delete item "${deleteAlert.data?.name}"?`} />
+      <MessageDialog isOpen={msg.open} onClose={() => setMsg({ ...msg, open: false })} title={msg.title} description={msg.desc} />
     </div>
   );
 }

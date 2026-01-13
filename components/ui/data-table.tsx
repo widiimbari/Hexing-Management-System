@@ -37,6 +37,8 @@ interface DataTableProps<TData> {
   };
   loading?: boolean;
   footer?: React.ReactNode;
+  expandedRowRender?: (row: TData) => React.ReactNode;
+  onRowClick?: (row: TData) => void;
 }
 
 export function DataTable<TData>({
@@ -45,7 +47,17 @@ export function DataTable<TData>({
   pagination,
   loading = false,
   footer,
+  expandedRowRender,
+  onRowClick,
 }: DataTableProps<TData>) {
+  const [expandedRows, setExpandedRows] = React.useState<Record<string, boolean>>({});
+
+  const toggleRow = (rowId: string) => {
+    setExpandedRows(prev => ({
+      ...prev,
+      [rowId]: !prev[rowId]
+    }));
+  };
   
   // Calculate total pages if pagination is provided
   const totalPages = pagination ? Math.ceil(pagination.rowCount / pagination.pageSize) : 0;
@@ -83,28 +95,48 @@ export function DataTable<TData>({
                   </TableCell>
                 </TableRow>
               ) : data.length > 0 ? (
-                data.map((row, rowIndex) => (
-                  <TableRow 
-                    key={(row as any).id || rowIndex} 
-                    className="hover:bg-secondary/30 transition-colors odd:bg-white even:bg-secondary/5"
-                  >
-                    {columns.map((col, colIndex) => {
-                      // Resolve value
-                      const value = col.accessorKey ? (row as any)[col.accessorKey] : undefined;
-                      return (
-                        <TableCell 
-                            key={colIndex} 
-                            className={cn(
-                                "px-4 py-3 text-sm text-foreground text-left", 
-                                col.className
-                            )}
-                        >
-                          {col.cell ? col.cell({ row, value }) : value}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                ))
+                data.map((row, rowIndex) => {
+                  const rowId = (row as any).id || (row as any).document_number || String(rowIndex);
+                  const isExpanded = expandedRows[rowId];
+
+                  return (
+                    <React.Fragment key={rowId}>
+                      <TableRow 
+                        className={cn(
+                          "hover:bg-secondary/30 transition-colors odd:bg-white even:bg-secondary/5",
+                          onRowClick && "cursor-pointer"
+                        )}
+                        onClick={() => {
+                            if (onRowClick) onRowClick(row);
+                            if (expandedRowRender) toggleRow(rowId);
+                        }}
+                      >
+                        {columns.map((col, colIndex) => {
+                          // Resolve value
+                          const value = col.accessorKey ? (row as any)[col.accessorKey] : undefined;
+                          return (
+                            <TableCell 
+                                key={colIndex} 
+                                className={cn(
+                                    "px-4 py-3 text-sm text-foreground text-left", 
+                                    col.className
+                                )}
+                            >
+                              {col.cell ? col.cell({ row, value }) : value}
+                            </TableCell>
+                          );
+                        })}
+                      </TableRow>
+                      {isExpanded && expandedRowRender && (
+                        <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+                          <TableCell colSpan={columns.length} className="p-0 border-b-2 border-slate-100">
+                             {expandedRowRender(row)}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </React.Fragment>
+                  );
+                })
               ) : (
                 <TableRow>
                   <TableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
